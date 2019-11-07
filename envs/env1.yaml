@@ -5,7 +5,5 @@ channels:
 dependencies:
   - deepbinner =0.2.0
   - tensorflow =1.13.2
-  - tensorflow-mkl =2.0.0
-  - mkl-service =2.3.0
   - ont-tombo =1.5
   - meme = 5.0.5
