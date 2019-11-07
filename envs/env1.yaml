@@ -7,5 +7,6 @@ dependencies:
   - tensorflow
   - tensorflow-mkl
   - mkl-service
+  - keras
 #  - ont-tombo =1.5
 #  - meme = 5.0.5
