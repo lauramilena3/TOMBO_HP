@@ -26,11 +26,9 @@ SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{sample}_" +".fast5")
 # Rules
 #======================================================
 
-
 rule all:
 	input:
-		#THA RULES!
-        expand(dirs_dict["DEMULTIPLEXED"] + /{barcode}.fastq", barcode=BARCODES))
+		expand(dirs_dict["DEMULTIPLEXED"] + /{barcode}.fastq", barcode=BARCODES)
 
 rule multi_to_single_fast5:
     input:
