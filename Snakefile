@@ -78,7 +78,7 @@ rule basecalling:
 		"envs/env1.yaml"
 	message:
 		"Basecalling single fast5 files with guppy"
-	threads: 16
+	threads: 8
 	shell:
 		"""
 		guppy_basecaller -i {wildcards.barcode} -s {wildcards.barcode} --fast5_out -q 0 -r --trim_barcodes -x 'cuda:0' \
