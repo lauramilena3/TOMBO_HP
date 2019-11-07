@@ -1,0 +1,3 @@
+input_dir: "data/00_RAW_DATA"
+results_dir: "data"
+barcodes: "repBC04 repBC05 repBC06 repBC07"
