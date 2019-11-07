@@ -50,8 +50,8 @@ rule demultiplexing:
 	input:
 		directory(dirs_dict["SINGLE_DATA_DIR"]),
 	output:
-		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"]),
-		rapid_model= dirs_dict["TOOLS"]+ "/Deepbinner/models/SQK-RBK004_read_starts"
+		demultiplexed_dir=expand(directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES),
+		rapid_model=dirs_dict["TOOLS"]+ "/Deepbinner/models/SQK-RBK004_read_starts",
 	params:
 		tools_dir=dirs_dict["TOOLS"]
 	conda:
@@ -84,7 +84,6 @@ rule basecalling:
 		guppy_basecaller -i {wildcards.barcode} -s {wildcards.barcode} --fast5_out -q 0 -r --trim_barcodes -x 'cuda:0' \
 		--flowcell {params.flowcell} --kit {params.kit} –cpu_threads_per_caller {threads}
 		"""
-
 
 rule cosito:
 	input:
