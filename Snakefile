@@ -48,9 +48,9 @@ rule multi_to_single_fast5:
 
 rule demultiplexing:
     input:
-        directory(dirs_dict["SINGLE_DATA_DIR"]),
-    output:
-        demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"]),
+		directory(dirs_dict["SINGLE_DATA_DIR"]),
+	output:
+		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"]),
 		rapid_model=dirs_dict["DB"]+ "/Deepbinner/RBK004_read_starts",
     params:
         rapid_model= dirs_dict["DB"]+ "/Deepbinner"
