@@ -16,8 +16,8 @@ BARCODES = config["barcodes"].split()
 FLOWCELL=config['flowcell']
 KIT=config['kit']
 
-dir_list = ["RULES_DIR","ENVS_DIR","DB","SINGLE_DATA_DIR", "DEMULTIPLEXED", "BASECALLED"]
-dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/01_SINGLE_DATA_DIR", OUTPUT_DIR + "/02_DEMULTIPLEXED", OUTPUT_DIR + "/02_BASECALLED"]
+dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "SINGLE_DATA_DIR", "DEMULTIPLEXED", "BASECALLED"]
+dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/01_SINGLE_DATA_DIR", OUTPUT_DIR + "/02_DEMULTIPLEXED", OUTPUT_DIR + "/02_BASECALLED"]
 dirs_dict = dict(zip(dir_list, dir_names))
 
 SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{sample}_" +".fast5")
@@ -51,19 +51,18 @@ rule demultiplexing:
 		directory(dirs_dict["SINGLE_DATA_DIR"]),
 	output:
 		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"]),
-		rapid_model=dirs_dict["DB"]+ "/Deepbinner/RBK004_read_starts",
+		rapid_model= dirs_dict["TOOLS"]+ "/Deepbinner/models/SQK-RBK004_read_starts"
 	params:
-		rapid_model= dirs_dict["DB"]+ "/Deepbinner"
+		tools_dir=dirs_dict["TOOLS"]
 	conda:
 		"envs/env1.yaml"
 	message:
 		"Demultiplexing fast5 files with Deepbinner"
 	shell:
 		"""
-		git clone https://github.com/rrwick/Deepbinner/
-		cp Deepbinner/models/SQK-RBK004_read_starts {params.rapid_model}
-		rm -rf Deepbinner
-		deepbinner realtime --in_dir {input} --out_dir {output.demultiplexed_dir} -s {output.rapid_model}
+		git clone https://github.com/rrwick/Deepbinner.git
+		mv Deepbinner {params.tools_dir}
+		./tools/Deepbinner/deepbinner-runner.py realtime --in_dir {input} --out_dir {output.demultiplexed_dir} -s {output.rapid_model} --stop
 		"""
 
 rule basecalling:
@@ -72,7 +71,7 @@ rule basecalling:
 	output:
 		basecalled_barcode=directory(dirs_dict["BASECALLED"] + "/{barcode}"),
 	params:
-		rapid_model=dirs_dict["DB"]+ "/Deepbinner",
+		rapid_model=dirs_dict["TOOLS"]+ "/Deepbinner",
 		flowcell=FLOWCELL,
 		kit=KIT,
 	conda:
