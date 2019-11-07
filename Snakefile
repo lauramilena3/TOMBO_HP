@@ -28,13 +28,13 @@ SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{sample}_" +".fast5")
 
 rule all:
 	input:
-		expand(dirs_dict["DEMULTIPLEXED"] + "/{barcode}.fastq", barcode=BARCODES)
+		expand(dirs_dict["DEMULTIPLEXED"] + "/{barcode}.fastq", barcode=BARCODES),
 
 rule multi_to_single_fast5:
     input:
-        RAW_DATA_DIR
+        RAW_DATA_DIR,
     output:
-        directory(dirs_dict["SINGLE_DATA_DIR"])
+        directory(dirs_dict["SINGLE_DATA_DIR"]),
     conda:
         "envs/env1.yaml"
     message:
@@ -48,10 +48,10 @@ rule multi_to_single_fast5:
 
 rule demultiplexing:
     input:
-        directory(dirs_dict["SINGLE_DATA_DIR"])
+        directory(dirs_dict["SINGLE_DATA_DIR"]),
     output:
-        demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"])
-		rapid_model=dirs_dict["DB"]+ "/Deepbinner/RBK004_read_starts"
+        demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"]),
+		rapid_model=dirs_dict["DB"]+ "/Deepbinner/RBK004_read_starts",
     params:
         rapid_model= dirs_dict["DB"]+ "/Deepbinner"
     conda:
@@ -68,9 +68,9 @@ rule demultiplexing:
 
 rule basecalling:
     input:
-        demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"]/{barcode})
+        demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"]/{barcode}),
     output:
-		basecalled_barcode=directory(dirs_dict["BASECALLED"] + /{barcode}))
+		basecalled_barcode=directory(dirs_dict["BASECALLED"] + /{barcode})),
     params:
         rapid_model= dirs_dict["DB"]+ "/Deepbinner"
 		flowcell=FLOWCELL
