@@ -10,8 +10,8 @@ configfile: "config.yaml"
 # Global variables
 #======================================================
 
-RAW_DATA_DIR =config['input_dir'].rstrip("/")
-OUTPUT_DIR=config['results_dir'].rstrip("/")
+OUTPUT_DIR=config['work_dir'].rstrip("/")
+RAW_DATA_DIR =OUTPUT_DIR + config['input_dir']
 BARCODES = config["barcodes"].split()
 FLOWCELL=config['flowcell']
 KIT=config['kit']
