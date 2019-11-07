@@ -28,7 +28,7 @@ SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{sample}_" +".fast5")
 
 rule all:
 	input:
-		expand(dirs_dict["BASECALLED"] + "/{barcode}", barcode=BARCODES),
+		expand(directory(dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES),
 
 rule multi_to_single_fast5:
 	input:
