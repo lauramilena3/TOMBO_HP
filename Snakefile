@@ -72,7 +72,7 @@ rule basecalling:
     output:
 		basecalled_barcode=directory(dirs_dict["BASECALLED"] + /{barcode})),
     params:
-        rapid_model= dirs_dict["DB"]+ "/Deepbinner"
+        rapid_model=dirs_dict["DB"]+ "/Deepbinner"
 		flowcell=FLOWCELL
 		kit=KIT
     conda:
