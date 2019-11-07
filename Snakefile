@@ -68,9 +68,9 @@ rule demultiplexing:
 
 rule basecalling:
 	input:
-		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"]/{barcode}),
+		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"]+ "/{barcode}"),
 	output:
-		basecalled_barcode=directory(dirs_dict["BASECALLED"] + /{barcode})),
+		basecalled_barcode=directory(dirs_dict["BASECALLED"] + "/{barcode}"),
 	params:
 		rapid_model=dirs_dict["DB"]+ "/Deepbinner"
 		flowcell=FLOWCELL
