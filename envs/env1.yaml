@@ -4,6 +4,6 @@ channels:
   - biobuilds
 dependencies:
   - deepbinner =0.2.0
-  - tensorflow =1.13.2
-  - ont-tombo =1.5
-  - meme = 5.0.5
+  - tensorflow
+#  - ont-tombo =1.5
+#  - meme = 5.0.5
