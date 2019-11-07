@@ -11,7 +11,7 @@ configfile: "config.yaml"
 #======================================================
 
 OUTPUT_DIR=config['work_dir'].rstrip("/")
-RAW_DATA_DIR =OUTPUT_DIR + config['input_dir']
+RAW_DATA_DIR =OUTPUT_DIR + "/" + config['input_dir']
 BARCODES = config["barcodes"].split()
 FLOWCELL=config['flowcell']
 KIT=config['kit']
