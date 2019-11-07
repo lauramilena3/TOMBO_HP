@@ -10,89 +10,120 @@ configfile: "config.yaml"
 # Global variables
 #======================================================
 
-RAW_DATA_DIR =config['input_dir'].rstrip("/") 
-RESULTS_DIR=config['results_dir'].rstrip("/")
-dir_list = ["RULES_DIR","ENVS_DIR", "ADAPTERS_DIR", "CONTAMINANTS_DIR","RAW_DATA_DIR", "QC_DIR", "CLEAN_DATA_DIR", "ASSEMBLY_DIR", "vOUT_DIR", "VIRAL_DIR", "MAPPING_DIR", "PROFILE_DIR", "MERGE_DIR"]
-dir_names = ["rules", "../envs", "db/adapters",  RESULTS_DIR + "/db/contaminants" ,RAW_DATA_DIR, RESULTS_DIR + "/01_QC", RESULTS_DIR + "/02_CLEAN_DATA",RESULTS_DIR + "/03_CONTIGS", RESULTS_DIR + "/04_vOTUs", RESULTS_DIR + "/05_VIRAL_ID",RESULTS_DIR + "/06_MAPPING", "05_ANVIO_PROFILE", "06_MERGED"]
+RAW_DATA_DIR =config['input_dir'].rstrip("/")
+OUTPUT_DIR=config['results_dir'].rstrip("/")
+BARCODES = config["barcodes"].split()
+FLOWCELL=config['flowcell']
+KIT=config['kit']
+
+dir_list = ["RULES_DIR","ENVS_DIR","DB","SINGLE_DATA_DIR", "DEMULTIPLEXED", "BASECALLED"]
+dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/01_SINGLE_DATA_DIR", OUTPUT_DIR + "/02_DEMULTIPLEXED", OUTPUT_DIR + "/02_BASECALLED"]
 dirs_dict = dict(zip(dir_list, dir_names))
-RULES_DIR = 'rules'
-CONFIDENCE_TYPES=["high", "low"]
-SAMPLING_TYPE=["sub", "tot"]
-SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{sample}_" + config['forward_tag'] + ".fastq")
 
-NANOPORE_SAMPLES=SAMPLES
-CONTAMINANTS=config['contaminants_list'].split()
-NANOPORE=False
-PAIRED=False
-POOLED=config['nanopore_pooled']
-
-
-
-READ_TYPES=[config['forward_tag']]
-for fname in os.listdir(RAW_DATA_DIR):
-	if fname.endswith(config['reverse_tag'] + '.fastq'):
-		PAIRED=True
-	elif fname.endswith(config['nanopore_tag'] + '.fastq'):
-		NANOPORE=True
-if PAIRED:
-	READ_TYPES.append(config['reverse_tag'])
-if POOLED == "True":
-	NANOPORE_SAMPLES=config['nanopore_pooled_name']
-if len(SAMPLES)==1:
-	SAMPLING_TYPE=["tot"]
-
-print(READ_TYPES)
-print(SAMPLES)
-print(CONTAMINANTS)
+SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{sample}_" +".fast5")
 
 #======================================================
 # Rules
 #======================================================
- 
-def inputAll(wildcards):
-	inputs=[]
-	inputs.append(dirs_dict["QC_DIR"]+ "/preQC_multiqc_report.html")
-	#inputs.append(dirs_dict["QC_DIR"]+ "/postQC_multiqc_report.html")
-	inputs.extend(expand(dirs_dict["ASSEMBLY_DIR"] + "/{sample}_quast_report.{sampling}.txt", sample=SAMPLES, sampling=SAMPLING_TYPE))
-	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/vOTU_abundance_table_json.{sampling}.biom", sampling=SAMPLING_TYPE, confidence=CONFIDENCE_TYPES))
-	inputs.extend(expand(dirs_dict["MAPPING_DIR"]+ "/vOTU_summary.{sampling}.txt",sampling=SAMPLING_TYPE))
-	if NANOPORE=="True":
-		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_preQC.html",sample_nanopore=NANOPORE_SAMPLES))
-		inputs.extend(expand(dirs_dict["QC_DIR"] + "/{sample_nanopore}_nanopore_report_postQC.html", sample_nanopore=NANOPORE_SAMPLES))
-	return inputs
+
 
 rule all:
 	input:
 		#THA RULES!
-		inputAll,
-		#TESTING:
+        expand(dirs_dict["DEMULTIPLEXED"] + /{barcode}.fastq", barcode=BARCODES))
+
+rule multi_to_single_fast5:
+    input:
+        RAW_DATA_DIR
+    output:
+        directory(dirs_dict["SINGLE_DATA_DIR"])
+    conda:
+        "envs/env1.yaml"
+    message:
+        "Converting multi fast5 to single fast5"
+    threads: 16
+    shell:
+        """
+		multi_to_single_fast5 --input_path {input} --save_path {output} -t {threads}
+		"""
 
 
-# rule qc:ç
-# 	input:
-# 		dirs_dict["QC_DIR"]+ "/pre_processing_multiqc_report.html"
-# 		expand(dirs_dict["QC_DIR"] + "/{sample}_nanopore_report.html",sample=NANOPORE_SAMPLES)
-# 		expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_unpaired_norm.{sampling}.fastq", sample=SAMPLES, sampling=SAMPLING_TYPE)
-# 		expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample}_nanopore_clean.{sampling}.fastq", sample=SAMPLES, sampling=SAMPLING_TYPE)
-# 		expand(dirs_dict["CLEAN_DATA_DIR"] + "/{sample_nanopore}_nanopore_clean.sub.fastq",sample=NANOPORE_SAMPLES)
+rule demultiplexing:
+    input:
+        directory(dirs_dict["SINGLE_DATA_DIR"])
+    output:
+        demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"])
+		rapid_model=dirs_dict["DB"]+ "/Deepbinner/RBK004_read_starts"
+    params:
+        rapid_model= dirs_dict["DB"]+ "/Deepbinner"
+    conda:
+        "envs/env1.yaml"
+    message:
+        "Demultiplexing fast5 files with Deepbinner"
+    shell:
+        """
+		git clone https://github.com/rrwick/Deepbinner/
+		cp Deepbinner/models/SQK-RBK004_read_starts {params.rapid_model}
+		rm -rf Deepbinner
+		deepbinner realtime --in_dir {input} --out_dir {output.demultiplexed_dir} -s {output.rapid_model}
+		"""
 
-# rule assembly:
-# 	input:
+rule basecalling:
+    input:
+        demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"]/{barcode})
+    output:
+		basecalled_barcode=directory(dirs_dict["BASECALLED"] + /{barcode}))
+    params:
+        rapid_model= dirs_dict["DB"]+ "/Deepbinner"
+		flowcell=FLOWCELL
+		kit=KIT
+    conda:
+        "envs/env1.yaml"
+    message:
+        "Basecalling single fast5 files with guppy"
+    threads: 16
+    shell:
+        """
+		guppy_basecaller -i {wildcards.barcode} -s {wildcards.barcode} --fast5_out -q 0 -r --trim_barcodes -x 'cuda:0' \
+		--flowcell {params.flowcell} --kit {params.kit} –cpu_threads_per_caller {threads}
+		"""
 
 
+rule cosito:
+    input:
+        RAW_DATA_DIR
+    output:
+        temp(expand(OUTPUT_DIR + "/01_porechopped_data/{barcode}.fastq", barcode=BARCODES))
+    params:
+        output_dir=OUTPUT_DIR + "/01_porechopped_data"
+    conda:
+        "envs/On-rep-seq.yaml"
+    message:
+        "Demultiplexing step 1"
+    threads: 16
+    shell:
+        """
+        head -n 25 scripts/logo.txt
+        counter=1
+        n=$(ls -l {input}/*fastq | wc -l )
+        rm -f {params.output_dir}/*fastq
+        for filename in {input}/*fastq
+        do
+            echo "Processing sample $counter/$n"
+            porechop -i $filename -b dir_$filename -t {threads} --discard_unassigned --verbosity 0 > /dev/null 2>&1
+            for bar in dir_$filename/*.fastq
+            do
+                f=$(basename -- $bar)
+                cat $bar >> {params.output_dir}/$f
+            done
+            rm -rf dir_$filename
+            counter=$((counter+1))
+        done
+        line=$(echo {BARCODES})
+        for barcode in $line
+        do
+            touch {params.output_dir}/$barcode.fastq
+        done
+        """
 
-
-
-
-include: os.path.join(RULES_DIR, 'qualityControl.smk')	
-include: os.path.join(RULES_DIR, 'assembly.smk')
-include: os.path.join(RULES_DIR, 'vOTUclustering.smk')
-include: os.path.join(RULES_DIR, 'viralFiltering.smk')
-include: os.path.join(RULES_DIR, 'abundance.smk')
-include: os.path.join(RULES_DIR, 'taxonomyAssignment.smk')
-include: os.path.join(RULES_DIR, 'resultsParsing.smk')
-
-
-
-
-
+#include: os.path.join(RULES_DIR, 'resultsParsing.smk')

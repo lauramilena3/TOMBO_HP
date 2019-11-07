@@ -9,6 +9,6 @@ dependencies:
   - mkl-service
   - keras =2.2.4
   - pip:
-    - ont-fast5-api 
+    - ont-fast5-api
 #  - ont-tombo =1.5
 #  - meme = 5.0.5
