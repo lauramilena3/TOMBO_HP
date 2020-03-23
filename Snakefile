@@ -92,8 +92,8 @@ rule tombo:
 	threads: 16
 	shell:
 		"""
-		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.sample} --fastq-filenames {wildcards.sample}.fastq --overwrite || true
-		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.control} --fastq-filenames {wildcards.control}.fastq --overwrite || true
+		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.sample} --fastq-filenames {wildcards.sample}.fastq --overwrite
+		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.control} --fastq-filenames {wildcards.control}.fastq --overwrite
 		tombo resquiggle --processes 40 --overwrite {input.control} {input.genome}
 		tombo resquiggle --processes 40 --overwrite {input.sample} {input.genome}
 		tombo detect_modifications model_sample_compare --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-file-basename {params.name}
