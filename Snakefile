@@ -77,14 +77,14 @@ rule tombo:
 		genome=dirs_dict["GENOMES"] + "{genome}.fasta",
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}.tombo.stats" ,
-		significant=dirs_dict["TOMBO"] + "/{genome}/tombo_results.significant_regions.fasta",
 		significant_filtered=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}.sig_filtered.fasta",
 		minus=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_minusmod.wig",
 		plus=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_plusmod.wig",
 		minus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_minusmod_corrected.wig",
 		plus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_plusmod_corrected.wig",
-	params:
-		name="{genome}_{sample}_{control}"
+	params
+		significant=dirs_dict["TOMBO"] + "/{genome}/tombo_results.significant_regions.fasta",
+		name="{genome}_{sample}_{control}",
 	conda:
 		"envs/On-rep-seq.yaml"
 	message:
@@ -99,7 +99,7 @@ rule tombo:
 		tombo detect_modifications model_sample_compare --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-file-basename {params.name}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types fraction
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 10000 --num-bases 10
-		fasta_formatter -i tombo_results.significant_regions.fasta -t | awk '{if ($5 > 0.7) print ">"$1,$2,$3,$4,$5"\n"$6}' > {output.significant_filtered}
+		fasta_formatter -i {params.significant} -t | awk '{if ($5 > 0.7) print ">"$1,$2,$3,$4,$5"\n"$6}' > {output.significant_filtered}
 		./scripts/format_tombo.py ${name}_plusmod.wig
 		./scripts/format_tombo.py ${name}_minusmod.wig
 		grep -v ">" {input.genome} | sed 's/./\0\n/g' | sed '/^$/d' > {output.genome_oneline}
