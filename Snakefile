@@ -57,9 +57,9 @@ rule guppy_demultiplexing basecalling:
 
 rule multi_to_single_fast5:
 	input:
-		basecalled_dir=expand(directory(dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES),
+		basecalled_dir=directory(expand((dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES)),
 	output:
-		single_data=expand(directory(dirs_dict["BASECALLED"] + "/{barcode}_single"), barcode=BARCODES),
+		single_data=directory(expand((dirs_dict["BASECALLED"] + "/{barcode}_single"), barcode=BARCODES)),
 	conda:
 		"envs/env1.yaml"
 	message:
