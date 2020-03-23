@@ -100,8 +100,8 @@ rule tombo:
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types fraction
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 10000 --num-bases 10
 		fasta_formatter -i {params.significant} -t | awk '{{if ($5 > 0.7) print ">"$1,$2,$3,$4,$5"\\n"$6}}' > {output.significant_filtered}
-		./scripts/format_tombo.py {output.plus}
-		./scripts/format_tombo.py {output.minus}
+		./scripts/format_tombo.py {output.plus} {output.plus_corr}
+		./scripts/format_tombo.py {output.minus} {output.minus_corr}
 		"""
 rule reformat_genome:
 	input:
