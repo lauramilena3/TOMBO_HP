@@ -86,7 +86,7 @@ rule tombo:
 		significant=dirs_dict["TOMBO"] + "/{genome}/tombo_results.significant_regions.fasta",
 		name="{genome}_{sample}_{control}",
 	conda:
-		"envs/On-rep-seq.yaml"
+		"envs/env1.yaml"
 	message:
 		"Demultiplexing step 1"
 	threads: 16
@@ -122,7 +122,7 @@ rule cosito:
 	params:
 		output_dir=OUTPUT_DIR + "/01_porechopped_data"
 	conda:
-		"envs/On-rep-seq.yaml"
+		"envs/env1.yaml"
 	message:
 		"Demultiplexing"
 	threads: 16
