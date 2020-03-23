@@ -32,8 +32,8 @@ print(OUTPUT_DIR)
 
 rule all:
 	input:
-		plus_corr=dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_plusmod_corrected.wig",
-		genome_oneline=dirs_dict["GENOMES"] + GENOME + "_one.fasta",
+		plus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_plusmod_corrected.wig",
+		genome_oneline=dirs_dict["GENOMES"] + "/{genome}_one.fasta",
 		stats=dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_" + SAMPLE + "_" + CONTROL + ".tombo.stats" ,
 
 rule guppy_demultiplexing basecalling:
