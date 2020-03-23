@@ -105,6 +105,7 @@ rule tombo:
 		grep -v ">" {input.genome} | sed 's/./\0\n/g' | sed '/^$/d' > {output.genome_oneline}
 		"""
 rule reformat_genome:
+	input:
 		genome=dirs_dict["GENOMES"] + "{genome}.fasta",
 	output:
 		genome_oneline=dirs_dict["GENOMES"] + "{genome}_one.fasta",
