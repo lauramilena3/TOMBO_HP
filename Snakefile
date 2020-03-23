@@ -154,7 +154,7 @@ rule cosito:
 
 rule demultiplexing_Deepbinner:
 	input:
-		(dirs_dict["SINGLE_DATA_DIR"]),
+		(dirs_dict["SINGLE"]),
 	output:
 		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
 		rapid_model=dirs_dict["TOOLS"]+ "/Deepbinner/models/SQK-RBK004_read_starts",
