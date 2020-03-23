@@ -35,6 +35,7 @@ rule all:
 		plus_corr=dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_plusmod_corrected.wig",
 		genome_oneline=dirs_dict["GENOMES"] + GENOME + "_one.fasta",
 		stats=dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_" + SAMPLE + "_" + CONTROL + ".tombo.stats" ,
+
 rule guppy_demultiplexing basecalling:
 	input:
 		RAW_DATA_DIR,
@@ -57,9 +58,9 @@ rule guppy_demultiplexing basecalling:
 
 rule multi_to_single_fast5:
 	input:
-		basecalled_dir=directory(expand((dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES)),
+		basecalled_dir=(expand((dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES)),
 	output:
-		single_data=directory(expand((dirs_dict["BASECALLED"] + "/{barcode}_single"), barcode=BARCODES)),
+		single_data=(expand((dirs_dict["BASECALLED"] + "/{barcode}_single"), barcode=BARCODES)),
 	conda:
 		"envs/env1.yaml"
 	message:
@@ -77,12 +78,11 @@ rule tombo:
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}.tombo.stats" ,
 		significant=dirs_dict["TOMBO"] + "/{genome}/tombo_results.significant_regions.fasta",
-		significant_filtered=dirs_dict["TOMBO"] + "/{genome}/{genome}.sig_filtered.fasta",
-		minus=dirs_dict["TOMBO"] + "/{genome}/{genome}_minusmod.wig",
-		plus=dirs_dict["TOMBO"] + "/{genome}/{genome}_plusmod.wig",
-		minus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_minusmod_corrected.wig",
-		plus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_plusmod_corrected.wig",
-		genome_oneline=dirs_dict["GENOMES"] + "{genome}_one.fasta",
+		significant_filtered=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}.sig_filtered.fasta",
+		minus=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_minusmod.wig",
+		plus=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_plusmod.wig",
+		minus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_minusmod_corrected.wig",
+		plus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_plusmod_corrected.wig",
 	params:
 		name="{genome}_{sample}_{control}"
 	conda:
@@ -102,6 +102,14 @@ rule tombo:
 		fasta_formatter -i tombo_results.significant_regions.fasta -t | awk '{if ($5 > 0.7) print ">"$1,$2,$3,$4,$5"\n"$6}' > {output.significant_filtered}
 		./scripts/format_tombo.py ${name}_plusmod.wig
 		./scripts/format_tombo.py ${name}_minusmod.wig
+		grep -v ">" {input.genome} | sed 's/./\0\n/g' | sed '/^$/d' > {output.genome_oneline}
+		"""
+rule reformat_genome:
+		genome=dirs_dict["GENOMES"] + "{genome}.fasta",
+	output:
+		genome_oneline=dirs_dict["GENOMES"] + "{genome}_one.fasta",
+	shell:
+		"""
 		grep -v ">" {input.genome} | sed 's/./\0\n/g' | sed '/^$/d' > {output.genome_oneline}
 		"""
 
