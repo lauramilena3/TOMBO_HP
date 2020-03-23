@@ -16,8 +16,8 @@ BARCODES = config["barcodes"].split()
 FLOWCELL=config['flowcell']
 KIT=config['kit']
 
-dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "SINGLE_DATA_DIR", "DEMULTIPLEXED", "BASECALLED"]
-dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/01_SINGLE_DATA_DIR", OUTPUT_DIR + "/02_DEMULTIPLEXED", OUTPUT_DIR + "/02_BASECALLED"]
+dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "SINGLE_DATA_DIR", "GUPPY", "DEMULTIPLEXED", "BASECALLED"]
+dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/SINGLE_DATA_DIR", OUTPUT_DIR + "/01_GUPPY", OUTPUT_DIR + "/01_GUPPY/02_DEMULTIPLEXED", OUTPUT_DIR + "/01_GUPPY/02_BASECALLED"]
 dirs_dict = dict(zip(dir_list, dir_names))
 
 SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{sample}_" +".fast5")
@@ -46,7 +46,7 @@ rule multi_to_single_fast5:
 		"""
 
 
-rule demultiplexing:
+rule demultiplexing_Deepbinner:
 	input:
 		directory(dirs_dict["SINGLE_DATA_DIR"]),
 	output:
@@ -65,13 +65,14 @@ rule demultiplexing:
 		./tools/Deepbinner/deepbinner-runner.py realtime --in_dir {input} --out_dir {output.demultiplexed_dir} -s {output.rapid_model} --stop
 		"""
 
-rule basecalling:
+rule Guppy_demultiplexing basecalling:
 	input:
-		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"]+ "/{barcode}"),
+		RAW_DATA_DIR,
 	output:
-		basecalled_barcode=directory(dirs_dict["BASECALLED"] + "/{barcode}"),
+		demultiplexed_dir=expand(directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES),
+		basecalled_dir=expand(directory(dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES),
 	params:
-		rapid_model=dirs_dict["TOOLS"]+ "/Deepbinner",
+		guppy_dir=dirs_dict["GUPPY"]
 		flowcell=FLOWCELL,
 		kit=KIT,
 	conda:
@@ -81,8 +82,7 @@ rule basecalling:
 	threads: 8
 	shell:
 		"""
-		guppy_basecaller -i {wildcards.barcode} -s {wildcards.barcode} --fast5_out -q 0 -r --trim_barcodes -x 'cuda:0' \
-		--flowcell {params.flowcell} --kit {params.kit} –cpu_threads_per_caller {threads}
+		guppy_basecaller -i {input} -s {output.basecalled_dir} --fast5_out -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell FLO-MIN106 --kit SQK-RBK004
 		"""
 
 rule cosito:
