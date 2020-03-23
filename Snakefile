@@ -42,7 +42,7 @@ rule guppy_demultiplexing basecalling:
 		demultiplexed_dir=expand(directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES),
 		basecalled_dir=expand(directory(dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES),
 	params:
-		guppy_dir=dirs_dict["GUPPY"]
+		guppy_dir=dirs_dict["GUPPY"],
 		flowcell=FLOWCELL,
 		kit=KIT,
 	conda:
