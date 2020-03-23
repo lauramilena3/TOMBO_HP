@@ -32,7 +32,8 @@ print(OUTPUT_DIR)
 
 rule all:
 	input:
-		plus_corr=dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_" + SAMPLE + "_" + CONTROL + "_plusmod_corrected.wig",
+	plus_corr=dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_" + SAMPLE + "_" + CONTROL + "_plusmod_corrected.wig",
+		plus_corr=dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_""_plusmod_corrected.wig",
 		genome_oneline=dirs_dict["GENOMES"] + "/" + GENOME + "_one.fasta",
 		stats=dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_" + SAMPLE + "_" + CONTROL + ".tombo.stats" ,
 
@@ -86,7 +87,7 @@ rule tombo:
 		significant=dirs_dict["TOMBO"] + "/{genome}/tombo_results.significant_regions.fasta",
 		name="{genome}_{sample}_{control}",
 	conda:
-		"envs/env1.yaml"
+		"envs/On-rep-seq.yaml"
 	message:
 		"Demultiplexing step 1"
 	threads: 16
@@ -99,10 +100,9 @@ rule tombo:
 		tombo detect_modifications model_sample_compare --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-file-basename {params.name}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types fraction
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 10000 --num-bases 10
-		fasta_formatter -i {params.significant} -t | awk '{if ($5 > 0.7) print ">"$1,$2,$3,$4,$5"\n"$6}' > {output.significant_filtered}
+		fasta_formatter -i {params.significant} -t | awk '{{if ($5 > 0.7) print ">"$1,$2,$3,$4,$5"\n"$6}}' > {output.significant_filtered}
 		./scripts/format_tombo.py ${name}_plusmod.wig
 		./scripts/format_tombo.py ${name}_minusmod.wig
-		grep -v ">" {input.genome} | sed 's/./\0\n/g' | sed '/^$/d' > {output.genome_oneline}
 		"""
 rule reformat_genome:
 	input:
@@ -122,7 +122,7 @@ rule cosito:
 	params:
 		output_dir=OUTPUT_DIR + "/01_porechopped_data"
 	conda:
-		"envs/env1.yaml"
+		"envs/On-rep-seq.yaml"
 	message:
 		"Demultiplexing"
 	threads: 16
