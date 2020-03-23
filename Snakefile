@@ -20,8 +20,8 @@ GENOME=config['genome']
 SAMPLE=config['sample']
 CONTROL=config['control']
 
-dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "SINGLE_DATA_DIR", "GUPPY", "DEMULTIPLEXED", "BASECALLED", "GENOMES"]
-dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/01_GUPPY", OUTPUT_DIR + "/01_GUPPY/02_DEMULTIPLEXED", OUTPUT_DIR + "/01_GUPPY/02_BASECALLED", OUTPUT_DIR + "/01_GUPPY/02_FAST5_SINGLE", OUTPUT_DIR + "/GENOMES"]
+dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "SINGLE_DATA_DIR", "GUPPY", "DEMULTIPLEXED", "BASECALLED", "GENOMES", "TOMBO"]
+dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/01_GUPPY", OUTPUT_DIR + "/01_GUPPY/02_DEMULTIPLEXED", OUTPUT_DIR + "/01_GUPPY/02_BASECALLED", OUTPUT_DIR + "/01_GUPPY/02_FAST5_SINGLE", OUTPUT_DIR + "/GENOMES", OUTPUT_DIR + "/02_TOMBO"]
 dirs_dict = dict(zip(dir_list, dir_names))
 
 #SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{{input.sample}}_" +".fast5")
