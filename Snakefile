@@ -25,7 +25,7 @@ dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTP
 dirs_dict = dict(zip(dir_list, dir_names))
 
 #SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{{input.sample}}_" +".fast5")
-
+print(OUTPUT_DIR)
 #======================================================
 # Rules
 #======================================================
