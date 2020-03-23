@@ -155,7 +155,7 @@ rule demultiplexing_Deepbinner:
 	input:
 		directory(dirs_dict["SINGLE_DATA_DIR"]),
 	output:
-		demultiplexed_dir=expand(directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES),
+		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
 		rapid_model=dirs_dict["TOOLS"]+ "/Deepbinner/models/SQK-RBK004_read_starts",
 	params:
 		tools_dir=dirs_dict["TOOLS"]
