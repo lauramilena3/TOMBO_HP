@@ -82,7 +82,7 @@ rule tombo:
 		plus=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_plusmod.wig",
 		minus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_minusmod_corrected.wig",
 		plus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_plusmod_corrected.wig",
-	params
+	params:
 		significant=dirs_dict["TOMBO"] + "/{genome}/tombo_results.significant_regions.fasta",
 		name="{genome}_{sample}_{control}",
 	conda:
