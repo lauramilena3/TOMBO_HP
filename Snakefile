@@ -74,7 +74,7 @@ rule tombo:
 	input:
 		sample=((dirs_dict["BASECALLED"] + "/{sample}_single")),
 		control=((dirs_dict["BASECALLED"] + "/{control}_single")),
-		genome=dirs_dict["GENOMES"] + "{genome}.fasta",
+		genome=dirs_dict["GENOMES"] + "/{genome}.fasta",
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}.tombo.stats" ,
 		significant_filtered=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}.sig_filtered.fasta",
@@ -106,9 +106,9 @@ rule tombo:
 		"""
 rule reformat_genome:
 	input:
-		genome=dirs_dict["GENOMES"] + "{genome}.fasta",
+		genome=dirs_dict["GENOMES"] + "/{genome}.fasta",
 	output:
-		genome_oneline=dirs_dict["GENOMES"] + "{genome}_one.fasta",
+		genome_oneline=dirs_dict["GENOMES"] + "/{genome}_one.fasta",
 	shell:
 		"""
 		grep -v ">" {input.genome} | sed 's/./\0\n/g' | sed '/^$/d' > {output.genome_oneline}
@@ -153,7 +153,7 @@ rule cosito:
 
 rule demultiplexing_Deepbinner:
 	input:
-		directory(dirs_dict["SINGLE_DATA_DIR"]),
+		(dirs_dict["SINGLE_DATA_DIR"]),
 	output:
 		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
 		rapid_model=dirs_dict["TOOLS"]+ "/Deepbinner/models/SQK-RBK004_read_starts",
