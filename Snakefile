@@ -75,13 +75,13 @@ rule tombo:
 		control=((dirs_dict["BASECALLED"] + "/{control}_single")),
 		genome=dirs_dict["GENOMES"] + "{genome}.fasta",
 	output:
-		stats=(dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}.tombo.stats" ,
-		significant=(dirs_dict["TOMBO"] + "/{genome}/tombo_results.significant_regions.fasta",
-		significant_filtered=(dirs_dict["TOMBO"] + "/{genome}/{genome}.sig_filtered.fasta",
-		minus=(dirs_dict["TOMBO"] + "/{genome}/{genome}_minusmod.wig",
-		plus=(dirs_dict["TOMBO"] + "/{genome}/{genome}_plusmod.wig",
-		minus_corr=(dirs_dict["TOMBO"] + "/{genome}/{genome}_minusmod_corrected.wig",
-		plus_corr=(dirs_dict["TOMBO"] + "/{genome}/{genome}_plusmod_corrected.wig",
+		stats=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}.tombo.stats" ,
+		significant=dirs_dict["TOMBO"] + "/{genome}/tombo_results.significant_regions.fasta",
+		significant_filtered=dirs_dict["TOMBO"] + "/{genome}/{genome}.sig_filtered.fasta",
+		minus=dirs_dict["TOMBO"] + "/{genome}/{genome}_minusmod.wig",
+		plus=dirs_dict["TOMBO"] + "/{genome}/{genome}_plusmod.wig",
+		minus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_minusmod_corrected.wig",
+		plus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_plusmod_corrected.wig",
 		genome_oneline=dirs_dict["GENOMES"] + "{genome}_one.fasta",
 	params:
 		name="{genome}_{sample}_{control}"
