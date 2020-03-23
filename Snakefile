@@ -32,9 +32,9 @@ dirs_dict = dict(zip(dir_list, dir_names))
 
 rule all:
 	input:
-		plus_corr=(dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_plusmod_corrected.wig",
+		plus_corr=dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_plusmod_corrected.wig",
 		genome_oneline=dirs_dict["GENOMES"] + GENOME + "_one.fasta",
-		stats=(dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_" + SAMPLE + "_" + CONTROL + ".tombo.stats" ,
+		stats=dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_" + SAMPLE + "_" + CONTROL + ".tombo.stats" ,
 rule guppy_demultiplexing basecalling:
 	input:
 		RAW_DATA_DIR,
