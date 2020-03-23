@@ -74,6 +74,8 @@ rule tombo:
 	input:
 		sample=((dirs_dict["BASECALLED"] + "/{sample}_single")),
 		control=((dirs_dict["BASECALLED"] + "/{control}_single")),
+		basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}.fastq",
+		basecalled_control=dirs_dict["BASECALLED"] + "/{control}.fastq",
 		genome=dirs_dict["GENOMES"] + "/{genome}.fasta",
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}.tombo.stats" ,
@@ -92,8 +94,8 @@ rule tombo:
 	threads: 16
 	shell:
 		"""
-		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.sample} --fastq-filenames {wildcards.sample}.fastq --overwrite
-		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.control} --fastq-filenames {wildcards.control}.fastq --overwrite
+		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.sample} --fastq-filenames {input.basecalled_sample} --overwrite
+		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.control} --fastq-filenames {input.basecalled_control} --overwrite
 		tombo resquiggle --processes 40 --overwrite {input.control} {input.genome}
 		tombo resquiggle --processes 40 --overwrite {input.sample} {input.genome}
 		tombo detect_modifications model_sample_compare --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-file-basename {params.name}
