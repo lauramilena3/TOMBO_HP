@@ -84,8 +84,8 @@ rule tombo:
 		plus=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_plusmod.wig",
 		minus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_minusmod_corrected.wig",
 		plus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_plusmod_corrected.wig",
+		significant=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_tombo_results.significant_regions.fasta",
 	params:
-		significant=dirs_dict["TOMBO"] + "/{genome}/tombo_results.significant_regions.fasta",
 		name="{genome}_{sample}_{control}",
 	conda:
 		"envs/env1.yaml"
@@ -102,7 +102,8 @@ rule tombo:
 		mv {params.name}.tombo.stats {output.stats}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types fraction
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 10000 --num-bases 10
-		fasta_formatter -i {params.significant} -t | awk '{{if ($5 > 0.7) print ">"$1,$2,$3,$4,$5"\\n"$6}}' > {output.significant_filtered}
+		mv tombo_results.significant_regions.fasta {output.significant}
+		fasta_formatter -i {output.significant} -t | awk '{{if ($5 > 0.7) print ">"$1,$2,$3,$4,$5"\\n"$6}}' > {output.significant_filtered}
 		./scripts/format_tombo.py {output.plus} {output.plus_corr}
 		./scripts/format_tombo.py {output.minus} {output.minus_corr}
 		"""
