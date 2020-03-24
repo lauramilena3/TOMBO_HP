@@ -116,7 +116,7 @@ rule reformat_genome:
 		genome_oneline=dirs_dict["GENOMES"] + "/{genome}_one.fasta",
 	shell:
 		"""
-		grep -v ">" {input.genome} | sed 's/./\0\\n/g' | sed '/^$/d' > {output.genome_oneline}
+		grep -v ">" {input.genome} | sed 's/./\\0\\n/g' | sed '/^$/d' > {output.genome_oneline}
 		"""
 
 rule cosito:
