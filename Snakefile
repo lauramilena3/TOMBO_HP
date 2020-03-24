@@ -101,11 +101,13 @@ rule tombo:
 		tombo detect_modifications model_sample_compare --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-file-basename {params.name}
 		mv {params.name}.tombo.stats {output.stats}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types fraction
+		mv {params.name}.fraction_modified_reads.plus.wig {output.plus}
+		mv {params.name}.fraction_modified_reads.minus.wig {output.minus}
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 10000 --num-bases 10
 		mv tombo_results.significant_regions.fasta {output.significant}
 		fasta_formatter -i {output.significant} -t | awk '{{if ($5 > 0.7) print ">"$1,$2,$3,$4,$5"\\n"$6}}' > {output.significant_filtered}
-		./scripts/format_tombo.py {output.plus} {output.plus_corr}
-		./scripts/format_tombo.py {output.minus} {output.minus_corr}
+		python ./scripts/format_tombo.py {output.plus} {output.plus_corr}
+		python ./scripts/format_tombo.py {output.minus} {output.minus_corr}
 		"""
 rule reformat_genome:
 	input:
