@@ -72,8 +72,8 @@ rule multi_to_single_fast5:
 		"""
 rule tombo:
 	input:
-		sample=((dirs_dict["SINGLE"] + "/{sample}_single")),
-		control=((dirs_dict["SINGLE"] + "/{control}_single")),
+		sample=((dirs_dict["SINGLE"] + "/{sample}_single/workspace")),
+		control=((dirs_dict["SINGLE"] + "/{control}_single/workspace")),
 		basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}.fastq",
 		basecalled_control=dirs_dict["BASECALLED"] + "/{control}.fastq",
 		genome=dirs_dict["GENOMES"] + "/{genome}.fasta",
