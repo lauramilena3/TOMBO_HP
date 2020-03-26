@@ -94,10 +94,12 @@ rule tombo:
 	threads: 16
 	shell:
 		"""
-		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.sample} --fastq-filenames {input.basecalled_sample} --overwrite
-		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.control} --fastq-filenames {input.basecalled_control} --overwrite
-		tombo resquiggle --overwrite {input.control} {input.genome} --processes {threads} --ignore-read-locks
-		tombo resquiggle --overwrite {input.sample} {input.genome} --processes {threads} --ignore-read-locks
+		#tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.sample} --fastq-filenames {input.basecalled_sample} --overwrite
+		#tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.control} --fastq-filenames {input.basecalled_control} --overwrite
+		#tombo resquiggle --overwrite {input.control} {input.genome} --processes {threads} --ignore-read-locks
+		#tombo resquiggle --overwrite {input.sample} {input.genome} --processes {threads} --ignore-read-locks
+		tombo resquiggle --corrected-group {wildcards.sample} --overwrite {input.sample} {input.genome} --processes {threads} --ignore-read-locks
+		tombo resquiggle --corrected-group {wildcards.control} --overwrite {input.control} {input.genome} --processes {threads} --ignore-read-locks
 		tombo detect_modifications model_sample_compare --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-file-basename {params.name}
 		mv {params.name}.tombo.stats {output.stats}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types fraction
