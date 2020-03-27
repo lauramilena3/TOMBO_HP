@@ -3,6 +3,7 @@ import numpy as np
 import csv  
 import sys
 inFile = sys.argv[1]
+outFile = sys.argv[2]
 name=inFile.split(".")[0]
 with open(inFile, 'r') as read_obj:
     csv_reader = csv.reader(read_obj,delimiter =" ")
@@ -25,4 +26,4 @@ file_object.write(" ".join(list_of_rows[0]))
 file_object.write(" ".join(list_of_rows[1]))
 file_object.write("\n")
 file_object.close()
-df3.to_csv(name+"_corrected.wig",sep=' ', index=False, header=False, mode='a')
+df3.to_csv(outFile,sep=' ', index=False, header=False, mode='a')
