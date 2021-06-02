@@ -2,7 +2,7 @@ input_dir: "00_RAW_DATA"
 work_dir: "data"
 #guppy
 flowcell: "FLO-MIN106"
-kit: "SQK-RBK00"
+kit: "SQK-RBK004"
 #tombo
 samples: ""
 control: ""
