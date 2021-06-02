@@ -17,8 +17,8 @@ KIT=config['kit']
 
 GENOME=config['genome']
 SAMPLES=config['samples'].split()
-CONTROL=[config['control']]
-BARCODES=SAMPLES.extend(CONTROL)
+CONTROL=config['control']
+BARCODES=SAMPLES+[CONTROL]
 dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "GUPPY", "DEMULTIPLEXED", "BASECALLED", "SINGLE", "GENOMES", "TOMBO"]
 dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/01_GUPPY", OUTPUT_DIR + "/01_GUPPY/02_DEMULTIPLEXED", OUTPUT_DIR + "/01_GUPPY/02_BASECALLED", OUTPUT_DIR + "/01_GUPPY/03_FAST5_SINGLE", OUTPUT_DIR + "/GENOMES", OUTPUT_DIR + "/02_TOMBO"]
 dirs_dict = dict(zip(dir_list, dir_names))
