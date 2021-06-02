@@ -16,7 +16,7 @@ FLOWCELL=config['flowcell']
 KIT=config['kit']
 
 GENOME=config['genome']
-SAMPLES=config['samples']
+SAMPLES=config['samples'].split()
 CONTROL=config['control']
 BARCODES=SAMPLES+CONTROL
 dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "GUPPY", "DEMULTIPLEXED", "BASECALLED", "SINGLE", "GENOMES", "TOMBO"]
