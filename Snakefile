@@ -34,9 +34,10 @@ print("barcodes", BARCODES)
 
 rule all:
 	input:
-		plus_corr=expand(dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_{sample}_" + CONTROL + "_plusmod_corrected.wig", sample=SAMPLES),
-		genome_oneline=dirs_dict["GENOMES"] + "/" + GENOME + "_one.fasta",
-		stats=expand(dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_{sample}_" + CONTROL + ".tombo.stats", sample=SAMPLES) ,
+		#plus_corr=expand(dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_{sample}_" + CONTROL + "_plusmod_corrected.wig", sample=SAMPLES),
+		#genome_oneline=dirs_dict["GENOMES"] + "/" + GENOME + "_one.fasta",
+		#stats=expand(dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_{sample}_" + CONTROL + ".tombo.stats", sample=SAMPLES) ,
+		directory((dirs_dict["BASECALLED"])),
 
 rule guppy_demultiplexing basecalling:
 	input:
