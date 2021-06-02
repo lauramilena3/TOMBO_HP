@@ -50,7 +50,7 @@ rule guppy_demultiplexing basecalling:
 		"envs/env1.yaml"
 	message:
 		"Basecalling single fast5 files with guppy"
-	threads: 8
+	threads: 16
 	shell:
 		"""
 		guppy_basecaller -i {input} -s {output.basecalled_dir} --fast5_out -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit}

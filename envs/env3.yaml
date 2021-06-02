@@ -2,9 +2,12 @@ channels:
   - conda-forge
   - bioconda
   - biobuilds
-dependencies: 
-  - porechop =0.2.3
+dependencies:
+  - porechop =0.2.4
+  - nanoQC =0.9.4
+  - nanofilt =2.8.0
+  - pip =19.3.1
   - pip:
-    - nanoQC==0.9.0 
+    - nanoQC==0.9.4
     - nanofilt==2.3.0
     - quast==5.0.2
