@@ -11,7 +11,7 @@ configfile: "config.yaml"
 #======================================================
 
 OUTPUT_DIR=config['work_dir'].rstrip("/")
-RAW_DATA_DIR =OUTPUT_DIR + "/" + config['input_dir']
+RAW_DATA_DIR =config['input_dir']
 BARCODES = config["barcodes"].split()
 FLOWCELL=config['flowcell']
 KIT=config['kit']
@@ -53,7 +53,7 @@ rule guppy_demultiplexing basecalling:
 	threads: 8
 	shell:
 		"""
-		guppy_basecaller -i {input} -s {output.basecalled_dir} --fast5_out -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell FLO-MIN106 --kit SQK-RBK004
+		guppy_basecaller -i {input} -s {output.basecalled_dir} --fast5_out -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit}
 		"""
 
 rule multi_to_single_fast5:
