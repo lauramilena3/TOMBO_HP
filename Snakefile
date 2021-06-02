@@ -12,14 +12,13 @@ configfile: "config.yaml"
 
 OUTPUT_DIR=config['work_dir'].rstrip("/")
 RAW_DATA_DIR =config['input_dir']
-BARCODES = config["barcodes"].split()
 FLOWCELL=config['flowcell']
 KIT=config['kit']
 
 GENOME=config['genome']
-SAMPLE=config['sample']
+SAMPLE=config['samples']
 CONTROL=config['control']
-
+BARCODES=SAMPLES+CONTROL
 dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "GUPPY", "DEMULTIPLEXED", "BASECALLED", "SINGLE", "GENOMES", "TOMBO"]
 dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/01_GUPPY", OUTPUT_DIR + "/01_GUPPY/02_DEMULTIPLEXED", OUTPUT_DIR + "/01_GUPPY/02_BASECALLED", OUTPUT_DIR + "/01_GUPPY/03_FAST5_SINGLE", OUTPUT_DIR + "/GENOMES", OUTPUT_DIR + "/02_TOMBO"]
 dirs_dict = dict(zip(dir_list, dir_names))

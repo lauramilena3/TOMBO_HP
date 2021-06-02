@@ -4,3 +4,25 @@
 4: MG1655 at time 8 hours after drugs were removed
 5: MG1655 at time 10 hours after drugs were removed
 6: WGA sample; phi29 and S1 nuclease treated, non-modified control
+
+Split fats5> deepbinner to split by barcodes > resquigle
+
+MG1655_correct.fasta -> Assembly of barcode1 with flye
+ask LEISE barkit #
+
+
+guppy_basecaller -q 0 -x 'cuda:0 cuda:1' -i fast5/ -s basecalled --flowcell FLO-MIN106 --kit SQK-RBK004
+guppy_basecaller -q 0 -x 'cuda:0 cuda:1' -i barcode06/ -s basecalled06 --fast5_out --flowcell FLO-MIN106 --kit SQK-RBK004
+multi_to_single_fast5 -i fasta5_sub/ -s fast5_sub_split
+deepbinner realtime --in_dir fast5_sub_split/ —out_dir demul_deep_spli
+tombo resquiggle basecalled04/workspace/ MG1655_correct.fasta --processes 4 --num-most-common-errors 5
+
+
+tombo detect_modifications model_sample_compare --fast5-basedirs basecalled01/workspace/ --control-fast5-basedirs basecalled06/workspace/ --statistics-file-basename sample.model_compare_sample_01vs06  --per-read-statistics-basename sample_per_read_01vs06
+
+
+# per reads statistics
+# co ocurrence of modifications
+In the run I only included three samples - from the beginning of the experiment (A1; barcode 6), before third exposure to Amp (A3; barcode 7) and before sixth exposure to Amp (A6; barcode 8). Also, a non-modified (WGA) sample was included as control (barcode 9).
+
+snakemake --use-conda --config work_dir=/home/demeter/lmf/PERSISTENCE/ input_dir=/home/demeter/lmf/PERSISTENCE/00_RAW_DATA/fast5 samples="barcode06 barcode07 barcode08" control=barcode09 genome=/home/demeter/lmf/PERSISTENCE/E_coli.fasta
