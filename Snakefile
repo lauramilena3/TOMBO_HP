@@ -32,33 +32,81 @@ print("barcodes", BARCODES)
 # Rules
 #======================================================
 
+
+
 rule all:
 	input:
 		#plus_corr=expand(dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_{sample}_" + CONTROL + "_plusmod_corrected.wig", sample=SAMPLES),
 		#genome_oneline=dirs_dict["GENOMES"] + "/" + GENOME + "_one.fasta",
 		#stats=expand(dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_{sample}_" + CONTROL + ".tombo.stats", sample=SAMPLES) ,
-		directory((dirs_dict["BASECALLED"])),
+		#directory((dirs_dict["BASECALLED"])),
+		expand(dirs_dict["GUPPY"] + "/{barcode}/fastq/{barcode}.fastq",barcode=BARCODES),	
+#		cp fastq_runid_*{params.barcode_number}_0.fastq {output.basecalled}
 
-rule guppy_demultiplexing basecalling:
+rule move_fast5_files:
 	input:
-		RAW_DATA_DIR,
+		raw_data=RAW_DATA_DIR,
 	output:
 #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
 #		basecalled_dir=directory(expand((dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES)),
-		basecalled_dir=directory((dirs_dict["BASECALLED"])),
+		#fastq=dirs_dict["BASECALLED"] + "/{barcode}/fastq/{barcode}.fastq",
+		fast5=dirs_dict["GUPPY"] + "/{barcode}/fast5/{barcode}.fast5",
+		barcode_number=int({wildcards.barcode}.split("_")[1]),
 	params:
-		guppy_dir=dirs_dict["GUPPY"],
+		dir_fastq=dirs_dict["BASECALLED"]+"/pass/",
+	message:
+		"Creating folders for fast5 files"
+	threads: 1
+	shell:
+		"""
+		echo {params.barcode_number}
+		cp {input.raw_data}/*_*_{params.barcode_number}.fast5 {output.fast5}
+		"""
+
+rule guppy_demultiplexing_basecalling:
+	input:
+		fast5=dirs_dict["GUPPY"] + "/{barcode}/fast5/{barcode}.fast5",
+	output:
+#		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
+#		basecalled_dir=directory(expand((dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES)),
+		fastq=dirs_dict["GUPPY"] + "/{barcode}/fastq/{barcode}.fastq",
+		basecalled_dir=dirs_dict["GUPPY"] + "/{barcode}/guppy/",
 		flowcell=FLOWCELL,
 		kit=KIT,
 	conda:
 		"envs/env1.yaml"
+	params:
+		fastq_dir=dirs_dict["GUPPY"] + "/{barcode}/guppy/pass",
+		barcode_number=int({wildcards.barcode}.split("_")[1]),
 	message:
 		"Basecalling single fast5 files with guppy"
 	threads: 16
 	shell:
 		"""
-		guppy_basecaller -i {input} -s {output.basecalled_dir} --fast5_out -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit}
+		guppy_basecaller -i {params.fast5_dir} -s {output.basecalled_dir} --fast5_out -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit}
+		cp {params.fastq_dir}/fastq_runid_*{params.barcode_number}_0.fastq {output.basecalled}
 		"""
+
+# rule guppy_demultiplexing_basecalling:
+# 	input:
+# 		raw_data=RAW_DATA_DIR,
+# 	output:
+# #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
+# #		basecalled_dir=directory(expand((dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES)),
+# 		directory((dirs_dict["BASECALLED"])),
+# 	params:
+# 		guppy_dir=dirs_dict["GUPPY"],
+# 		flowcell=FLOWCELL,
+# 		kit=KIT,
+# 	conda:
+# 		"envs/env1.yaml"
+# 	message:
+# 		"Basecalling single fast5 files with guppy"
+# 	threads: 16
+# 	shell:
+# 		"""
+# 		guppy_basecaller -i {input.raw_data} -s {output.basecalled_dir} --fast5_out -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit}
+# 		"""
 
 rule multi_to_single_fast5:
 	input:
