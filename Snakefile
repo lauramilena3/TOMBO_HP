@@ -84,7 +84,7 @@ rule guppy_demultiplexing_basecalling:
 	threads: 16
 	shell:
 		"""
-		guppy_basecaller -i {input.fast5_dir} -s {output.basecalled_dir} --fast5_out -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit}
+		guppy_basecaller -i {params.fast5_dir} -s {output.basecalled_dir} --fast5_out -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit}
 		cp {params.fastq_dir}/fastq_runid_*{params.barcode_number}_0.fastq {output.basecalled}
 		"""
 
