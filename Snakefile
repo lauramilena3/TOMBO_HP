@@ -78,7 +78,6 @@ rule guppy_demultiplexing_basecalling:
 	params:
 		fastq_dir=dirs_dict["GUPPY"] + "/{barcode}/guppy/pass",
 		fast5_dir=dirs_dict["GUPPY"] + "/{barcode}/fast5",
-		barcode_number=,
 		flowcell=FLOWCELL,
 		kit=KIT,
 	message:
