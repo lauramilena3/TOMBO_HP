@@ -71,6 +71,7 @@ rule guppy_demultiplexing_basecalling:
 #		basecalled_dir=directory(expand((dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES)),
 		fastq=dirs_dict["GUPPY"] + "/{barcode}/fastq/{barcode}.fastq",
 		basecalled_dir=dirs_dict["GUPPY"] + "/{barcode}/guppy/",
+		basecalled=dirs_dict["GUPPY"] + "/{barcode}/fastq/{barcode}.fastq",
 	conda:
 		"envs/env1.yaml"
 	params:
