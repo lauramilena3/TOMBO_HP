@@ -53,7 +53,7 @@ rule move_fast5_files:
 		fast5=dirs_dict["GUPPY"] + "/{barcode}/fast5/{barcode}.fast5",
 	params:
 		dir_fastq=dirs_dict["BASECALLED"]+"/pass/",
-		barcode_number=int("{barcode}".split("_")[1]),
+		barcode_number=int("{barcode}".split("barcode")[0]),
 	message:
 		"Creating folders for fast5 files"
 	threads: 1
@@ -77,7 +77,7 @@ rule guppy_demultiplexing_basecalling:
 		"envs/env1.yaml"
 	params:
 		fastq_dir=dirs_dict["GUPPY"] + "/{barcode}/guppy/pass",
-		barcode_number=int("{barcode}".split("_")[1]),
+		barcode_number=int("{barcode}".split("barcode")[0]),
 	message:
 		"Basecalling single fast5 files with guppy"
 	threads: 16
