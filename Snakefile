@@ -59,9 +59,10 @@ rule move_fast5_files:
 	threads: 1
 	shell:
 		"""
-		arrIN=(${{{wildcards.barcode}//barcode/ }})
+		nbarcode={wildcards.barcode}
+		arrIN=(${{nbarcode//barcode/ }})
 		number=$(${{arrIN[0]}})
-		echo ${{number}}
+		echo "barcode" $number
 		cp {input.raw_data}/*_*_${{number}}.fast5 {output.fast5}
 		"""
 
@@ -85,7 +86,8 @@ rule guppy_demultiplexing_basecalling:
 	threads: 16
 	shell:
 		"""
-		arrIN=(${{{wildcards.barcode}//barcode/ }})
+		nbarcode={wildcards.barcode}
+		arrIN=(${{nbarcode//barcode/ }})
 		number=$(${{arrIN[0]}})
 		echo "barcode" $number
 		guppy_basecaller -i {params.fast5_dir} -s {output.basecalled_dir} --fast5_out -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit}
