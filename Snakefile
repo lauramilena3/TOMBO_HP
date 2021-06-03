@@ -71,13 +71,14 @@ rule guppy_demultiplexing_basecalling:
 #		basecalled_dir=directory(expand((dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES)),
 		fastq=dirs_dict["GUPPY"] + "/{barcode}/fastq/{barcode}.fastq",
 		basecalled_dir=dirs_dict["GUPPY"] + "/{barcode}/guppy/",
-		flowcell=FLOWCELL,
-		kit=KIT,
+
 	conda:
 		"envs/env1.yaml"
 	params:
 		fastq_dir=dirs_dict["GUPPY"] + "/{barcode}/guppy/pass",
 		barcode_number="{barcode}".split("barcode")[0],
+		flowcell=FLOWCELL,
+		kit=KIT,
 	message:
 		"Basecalling single fast5 files with guppy"
 	threads: 16
