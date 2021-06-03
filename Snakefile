@@ -54,7 +54,7 @@ rule multi_to_single_fast5:
 		"envs/env1.yaml"
 	message:
 		"Converting multi fast5 to single fast5"
-	threads: 32
+	threads: 1
 	shell:
 		"""
 		multi_to_single_fast5 --input_path {input} --save_path {output} -t {threads}
