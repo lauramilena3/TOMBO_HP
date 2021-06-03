@@ -51,9 +51,9 @@ rule move_fast5_files:
 #		basecalled_dir=directory(expand((dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES)),
 		#fastq=dirs_dict["BASECALLED"] + "/{barcode}/fastq/{barcode}.fastq",
 		fast5=dirs_dict["GUPPY"] + "/{barcode}/fast5/{barcode}.fast5",
-		barcode_number=int({barcode}.split("_")[1]),
 	params:
 		dir_fastq=dirs_dict["BASECALLED"]+"/pass/",
+		barcode_number=int({barcode}.split("_")[1]),
 	message:
 		"Creating folders for fast5 files"
 	threads: 1
