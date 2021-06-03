@@ -98,7 +98,7 @@ rule guppy_demultiplexing:
 	threads: 32
 	shell:
 		"""
-		guppy_barcoder -i {input.basecalled_dir} -s {input.demultiplexed_dir}  -t {threads}
+		guppy_barcoder -i {input.basecalled_dir} -s {output.demultiplexed_dir}  -t {threads}
 		"""
 
 rule move_fast5_files:
