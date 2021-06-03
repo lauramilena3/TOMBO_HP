@@ -53,14 +53,16 @@ rule move_fast5_files:
 		fast5=dirs_dict["GUPPY"] + "/{barcode}/fast5/{barcode}.fast5",
 	params:
 		dir_fastq=dirs_dict["BASECALLED"]+"/pass/",
-		barcode_number="{barcode}".split("barcode")[0],
+		#barcode_number="{barcode}".split("barcode")[0],
 	message:
 		"Creating folders for fast5 files"
 	threads: 1
 	shell:
 		"""
-		echo {params.barcode_number}
-		cp {input.raw_data}/*_*_{params.barcode_number}.fast5 {output.fast5}
+		arrIN=(${{wildcards.barcode}//barcode/ })
+		number=$(${arrIN[0]})
+		echo ${{number}}
+		cp {input.raw_data}/*_*_${{number}}.fast5 {output.fast5}
 		"""
 
 rule guppy_demultiplexing_basecalling:
@@ -76,7 +78,7 @@ rule guppy_demultiplexing_basecalling:
 	params:
 		fastq_dir=dirs_dict["GUPPY"] + "/{barcode}/guppy/pass",
 		fast5_dir=dirs_dict["GUPPY"] + "/{barcode}/fast5",
-		barcode_number="{barcode}".split("barcode")[0],
+		barcode_number=,
 		flowcell=FLOWCELL,
 		kit=KIT,
 	message:
@@ -84,8 +86,11 @@ rule guppy_demultiplexing_basecalling:
 	threads: 16
 	shell:
 		"""
+		arrIN=(${{wildcards.barcode}//barcode/ })
+		number=$(${arrIN[0]})
+		echo "barcode" $number
 		guppy_basecaller -i {params.fast5_dir} -s {output.basecalled_dir} --fast5_out -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit}
-		cp {params.fastq_dir}/fastq_runid_*{params.barcode_number}_0.fastq {output.fastq}
+		cp {params.fastq_dir}/fastq_runid_*${{number}}_0.fastq {output.fastq}
 		"""
 
 # rule guppy_demultiplexing_basecalling:
