@@ -20,7 +20,7 @@ SAMPLES=config['samples'].split()
 CONTROL=config['control']
 BARCODES=SAMPLES+[CONTROL]
 dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "GUPPY", "DEMULTIPLEXED", "BASECALLED", "SINGLE", "GENOMES", "TOMBO"]
-dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/01_GUPPY", OUTPUT_DIR + "/01_GUPPY/02_DEMULTIPLEXED", OUTPUT_DIR + "/01_GUPPY/02_BASECALLED", OUTPUT_DIR + "/01_GUPPY/03_FAST5_SINGLE", OUTPUT_DIR + "/GENOMES", OUTPUT_DIR + "/02_TOMBO"]
+dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/01_GUPPY", OUTPUT_DIR + "/01_GUPPY/02_DEMULTIPLEXED", OUTPUT_DIR + "/01_GUPPY/01_BASECALLED", OUTPUT_DIR + "/01_GUPPY/00_FAST5_SINGLE", OUTPUT_DIR + "/GENOMES", OUTPUT_DIR + "/02_TOMBO"]
 dirs_dict = dict(zip(dir_list, dir_names))
 
 #SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{{input.sample}}_" +".fast5")
@@ -40,8 +40,66 @@ rule all:
 		#genome_oneline=dirs_dict["GENOMES"] + "/" + GENOME + "_one.fasta",
 		#stats=expand(dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_{sample}_" + CONTROL + ".tombo.stats", sample=SAMPLES) ,
 		#directory((dirs_dict["BASECALLED"])),
-		expand(dirs_dict["GUPPY"] + "/{barcode}/fastq/{barcode}.fastq",barcode=BARCODES),
+		#expand(dirs_dict["GUPPY"] + "/{barcode}/fastq/{barcode}.fastq",barcode=BARCODES),
 #		cp fastq_runid_*{params.barcode_number}_0.fastq {output.basecalled}
+		directory((dirs_dict["DEMULTIPLEXED"])),
+
+
+rule multi_to_single_fast5:
+	input:
+		raw_data=RAW_DATA_DIR,
+	output:
+		single_data=dirs_dict["SINGLE"]
+	conda:
+		"envs/env1.yaml"
+	message:
+		"Converting multi fast5 to single fast5"
+	threads: 16
+	shell:
+		"""
+		multi_to_single_fast5 --input_path {input} --save_path {output} -t {threads}
+		"""
+
+rule guppy_basecalling:
+	input:
+		single_data=dirs_dict["SINGLE"]
+	output:
+#		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
+#		basecalled_dir=directory(expand((dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES)),
+		directory((dirs_dict["BASECALLED"])),
+	params:
+		guppy_dir=dirs_dict["GUPPY"],
+		flowcell=FLOWCELL,
+		kit=KIT,
+	conda:
+		"envs/env1.yaml"
+	message:
+		"Basecalling single fast5 files with guppy"
+	threads: 32
+	shell:
+		"""
+		guppy_basecaller -i {input.raw_data} -s {output.basecalled_dir} --fast5_out -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit} -t {threads}
+		"""
+rule guppy_demultiplexing:
+	input:
+		basecalled_dir=directory((dirs_dict["BASECALLED"])),
+	output:
+#		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
+#		basecalled_dir=directory(expand((dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES)),
+		demultiplexed_dir=directory((dirs_dict["DEMULTIPLEXED"])),
+	params:
+		guppy_dir=dirs_dict["GUPPY"],
+		flowcell=FLOWCELL,
+		kit=KIT,
+	conda:
+		"envs/env1.yaml"
+	message:
+		"Demultiplexing single fast5 files with guppy"
+	threads: 32
+	shell:
+		"""
+		guppy_barcoder -i {input.basecalled_dir} -s {input.demultiplexed_dir}  -t {threads}
+		"""
 
 rule move_fast5_files:
 	input:
@@ -82,7 +140,7 @@ rule guppy_demultiplexing_basecalling:
 		kit=KIT,
 	message:
 		"Basecalling single fast5 files with guppy"
-	threads: 16
+	threads: 8
 	shell:
 		"""
 		nbarcode={wildcards.barcode}
@@ -92,41 +150,9 @@ rule guppy_demultiplexing_basecalling:
 		cp {params.fastq_dir}/fastq_runid_*${{number}}_0.fastq {output.fastq}
 		"""
 
-# rule guppy_demultiplexing_basecalling:
-# 	input:
-# 		raw_data=RAW_DATA_DIR,
-# 	output:
-# #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
-# #		basecalled_dir=directory(expand((dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES)),
-# 		directory((dirs_dict["BASECALLED"])),
-# 	params:
-# 		guppy_dir=dirs_dict["GUPPY"],
-# 		flowcell=FLOWCELL,
-# 		kit=KIT,
-# 	conda:
-# 		"envs/env1.yaml"
-# 	message:
-# 		"Basecalling single fast5 files with guppy"
-# 	threads: 16
-# 	shell:
-# 		"""
-# 		guppy_basecaller -i {input.raw_data} -s {output.basecalled_dir} --fast5_out -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit}
-# 		"""
 
-rule multi_to_single_fast5:
-	input:
-		basecalled_dir=(expand((dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES)),
-	output:
-		single_data=(expand((dirs_dict["BASECALLED"] + "/{barcode}_single"), barcode=BARCODES)),
-	conda:
-		"envs/env1.yaml"
-	message:
-		"Converting multi fast5 to single fast5"
-	threads: 16
-	shell:
-		"""
-		multi_to_single_fast5 --input_path {input} --save_path {output} -t {threads}
-		"""
+
+
 rule tombo:
 	input:
 		sample=((dirs_dict["SINGLE"] + "/{sample}_single/workspace")),
