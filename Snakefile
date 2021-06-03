@@ -49,7 +49,7 @@ rule multi_to_single_fast5:
 	input:
 		raw_data=RAW_DATA_DIR,
 	output:
-		single_data=dirs_dict["SINGLE"]
+		single_data=directory(dirs_dict["SINGLE"])
 	conda:
 		"envs/env1.yaml"
 	message:
