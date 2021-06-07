@@ -79,8 +79,7 @@ rule demultiplexing_Deepbinner:
 		"Demultiplexing fast5 files with Deepbinner"
 	shell:
 		"""
-		git clone https://github.com/rrwick/Deepbinner.git
-		mv Deepbinner {params.tools_dir}
+		git clone https://github.com/rrwick/Deepbinner.git {params.tools_dir}
 		./tools/Deepbinner/deepbinner-runner.py realtime --in_dir {input.single_data} --out_dir {params.demultiplexed_dir} -s {output.rapid_model} --stop
 		"""
 
