@@ -88,6 +88,7 @@ rule guppy_demultiplexing:
 #		basecalled_dir=directory(expand((dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES)),
 		demultiplexed_dir=directory((dirs_dict["DEMULTIPLEXED"])),
 	params:
+		dir_fastq=dirs_dict["BASECALLED"]+"/pass/",
 		guppy_dir=dirs_dict["GUPPY"],
 		flowcell=FLOWCELL,
 		kit=KIT,
@@ -98,7 +99,7 @@ rule guppy_demultiplexing:
 	threads: 32
 	shell:
 		"""
-		guppy_barcoder -i {input.basecalled_dir} -s {output.demultiplexed_dir}  -t {threads}
+		guppy_barcoder -i {params.dir_fastq} -s {output.demultiplexed_dir}  -t {threads}
 		"""
 
 rule move_fast5_files:
