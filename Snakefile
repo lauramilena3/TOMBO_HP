@@ -65,7 +65,7 @@ rule get_Deepbinner:
 	output:
 #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
 		#demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
-		deepbinner_dir=dirs_dict["TOOLS"]+ "/Deepbinner",
+		deepbinner_dir=directory(dirs_dict["TOOLS"]+ "/Deepbinner"),
 	params:
 		tools_dir=dirs_dict["TOOLS"],
 	conda:
