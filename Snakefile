@@ -96,7 +96,7 @@ rule demultiplexing_Deepbinner:
 		"Demultiplexing fast5 files with Deepbinner"
 	shell:
 		"""
-		./tools/Deepbinner/deepbinner-runner.py realtime --in_dir {input.single_data} --out_dir {params.demultiplexed_dir} -s {params.rapid_model} --stop
+		{input.deepbinner_dir}/deepbinner-runner.py realtime --in_dir {input.single_data} --out_dir {params.demultiplexed_dir} -s {params.rapid_model} --stop
 		"""
 
 rule guppy_basecalling:
