@@ -266,23 +266,23 @@ rule cosito:
 		done
 		"""
 
-rule demultiplexing_Deepbinner:
-	input:
-		(dirs_dict["SINGLE"]),
-	output:
-		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
-		rapid_model=dirs_dict["TOOLS"]+ "/Deepbinner/models/SQK-RBK004_read_starts",
-	params:
-		tools_dir=dirs_dict["TOOLS"]
-	conda:
-		"envs/env1.yaml"
-	message:
-		"Demultiplexing fast5 files with Deepbinner"
-	shell:
-		"""
-		git clone https://github.com/rrwick/Deepbinner.git
-		mv Deepbinner {params.tools_dir}
-		./tools/Deepbinner/deepbinner-runner.py realtime --in_dir {input} --out_dir {output.demultiplexed_dir} -s {output.rapid_model} --stop
-		"""
+# rule demultiplexing_Deepbinner:
+# 	input:
+# 		(dirs_dict["SINGLE"]),
+# 	output:
+# 		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
+# 		rapid_model=dirs_dict["TOOLS"]+ "/Deepbinner/models/SQK-RBK004_read_starts",
+# 	params:
+# 		tools_dir=dirs_dict["TOOLS"]
+# 	conda:
+# 		"envs/env1.yaml"
+# 	message:
+# 		"Demultiplexing fast5 files with Deepbinner"
+# 	shell:
+# 		"""
+# 		git clone https://github.com/rrwick/Deepbinner.git
+# 		mv Deepbinner {params.tools_dir}
+# 		./tools/Deepbinner/deepbinner-runner.py realtime --in_dir {input} --out_dir {output.demultiplexed_dir} -s {output.rapid_model} --stop
+# 		"""
 
 #include: os.path.join(RULES_DIR, 'resultsParsing.smk')
