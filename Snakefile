@@ -43,6 +43,7 @@ rule all:
 		#expand(dirs_dict["GUPPY"] + "/{barcode}/fastq/{barcode}.fastq",barcode=BARCODES),
 #		cp fastq_runid_*{params.barcode_number}_0.fastq {output.basecalled}
 		directory((dirs_dict["DEMULTIPLEXED"])),
+		#directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
 
 
 rule multi_to_single_fast5:
@@ -58,6 +59,29 @@ rule multi_to_single_fast5:
 	shell:
 		"""
 		multi_to_single_fast5 --input_path {input} --save_path {output} -t {threads}
+		"""
+
+rule demultiplexing_Deepbinner:
+	input:
+		single_data=directory(dirs_dict["SINGLE"])
+	output:
+#		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
+ 		demultiplexed_dir=directory((dirs_dict["DEMULTIPLEXED"])),
+
+		#demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
+		rapid_model=dirs_dict["TOOLS"]+ "/Deepbinner/models/SQK-RBK004_read_starts",
+	params:
+		tools_dir=dirs_dict["TOOLS"],
+		demultiplexed_dir=directory((dirs_dict["DEMULTIPLEXED"])),
+	conda:
+		"envs/env1.yaml"
+	message:
+		"Demultiplexing fast5 files with Deepbinner"
+	shell:
+		"""
+		git clone https://github.com/rrwick/Deepbinner.git
+		mv Deepbinner {params.tools_dir}
+		./tools/Deepbinner/deepbinner-runner.py realtime --in_dir {input.single_data} --out_dir {params.demultiplexed_dir} -s {output.rapid_model} --stop
 		"""
 
 rule guppy_basecalling:
@@ -80,27 +104,27 @@ rule guppy_basecalling:
 		"""
 		guppy_basecaller -i {input.single_data} -s {output.basecalled_dir} --fast5_out -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit} --cpu_threads_per_caller {threads} --num_callers 1
 		"""
-rule guppy_demultiplexing:
-	input:
-		basecalled_dir=directory((dirs_dict["BASECALLED"])),
-	output:
-#		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
-#		basecalled_dir=directory(expand((dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES)),
-		demultiplexed_dir=directory((dirs_dict["DEMULTIPLEXED"])),
-	params:
-		dir_fastq=dirs_dict["BASECALLED"]+"/pass/",
-		guppy_dir=dirs_dict["GUPPY"],
-		flowcell=FLOWCELL,
-		kit=KIT,
-	conda:
-		"envs/env1.yaml"
-	message:
-		"Demultiplexing single fast5 files with guppy"
-	threads: 32
-	shell:
-		"""
-		guppy_barcoder -i {params.dir_fastq} -s {output.demultiplexed_dir}  -t {threads}
-		"""
+# rule guppy_demultiplexing:
+# 	input:
+# 		basecalled_dir=directory((dirs_dict["BASECALLED"])),
+# 	output:
+# #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
+# #		basecalled_dir=directory(expand((dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES)),
+# 		demultiplexed_dir=directory((dirs_dict["DEMULTIPLEXED"])),
+# 	params:
+# 		dir_fastq=dirs_dict["BASECALLED"]+"/pass/",
+# 		guppy_dir=dirs_dict["GUPPY"],
+# 		flowcell=FLOWCELL,
+# 		kit=KIT,
+# 	conda:
+# 		"envs/env1.yaml"
+# 	message:
+# 		"Demultiplexing single fast5 files with guppy"
+# 	threads: 32
+# 	shell:
+# 		"""
+# 		guppy_barcoder -i {params.dir_fastq} -s {output.demultiplexed_dir}  -t {threads}
+# 		"""
 
 rule move_fast5_files:
 	input:
