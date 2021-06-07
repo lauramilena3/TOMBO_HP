@@ -74,7 +74,8 @@ rule get_Deepbinner:
 		"Get Deepbinner"
 	shell:
 		"""
-		git clone https://github.com/rrwick/Deepbinner.git {params.tools_dir}/Deepbinner
+		git clone https://github.com/rrwick/Deepbinner.git
+		mv Deepbinner {params.tools_dir}
 		"""
 
 rule demultiplexing_Deepbinner:
