@@ -103,7 +103,7 @@ rule guppy_basecalling:
  		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
 	output:
 #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
-		basecalled_dir=dirs_dict["BASECALLED"] + "/{barcode}",
+		basecalled_dir=directory(dirs_dict["BASECALLED"] + "/{barcode}"),
 	params:
 		flowcell=FLOWCELL,
 		kit=KIT,
