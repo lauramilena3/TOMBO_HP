@@ -114,7 +114,7 @@ rule guppy_basecalling:
 	threads: 32
 	shell:
 		"""
-		guppy_basecaller -i {input.single_data} -s {output.basecalled_dir} -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit} --cpu_threads_per_caller {threads} --num_callers 1
+		guppy_basecaller -i {input.demultiplexed_dir} -s {output.basecalled_dir} -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit} --cpu_threads_per_caller {threads} --num_callers 1
 		"""
 # rule guppy_demultiplexing:
 # 	input:
