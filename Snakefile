@@ -19,8 +19,8 @@ GENOME=config['genome']
 SAMPLES=config['samples'].split()
 CONTROL=config['control']
 BARCODES=SAMPLES+[CONTROL]
-dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "GUPPY", "DEMULTIPLEXED", "BASECALLED", "SINGLE", "GENOMES", "TOMBO"]
-dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/01_GUPPY", OUTPUT_DIR + "/01_GUPPY/02_DEMULTIPLEXED", OUTPUT_DIR + "/01_GUPPY/01_BASECALLED", OUTPUT_DIR + "/01_GUPPY/00_FAST5_SINGLE", OUTPUT_DIR + "/GENOMES", OUTPUT_DIR + "/02_TOMBO"]
+dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "SINGLE", "DEMULTIPLEXED", "BASECALLED", "GENOMES", "TOMBO"]
+dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/00_FAST5_SINGLE", OUTPUT_DIR + "/01_DEMULTIPLEXED", OUTPUT_DIR + "/02_BASECALLED", OUTPUT_DIR + "/GENOMES", OUTPUT_DIR + "/02_TOMBO"]
 dirs_dict = dict(zip(dir_list, dir_names))
 
 #SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{{input.sample}}_" +".fast5")
@@ -42,8 +42,7 @@ rule all:
 		#directory((dirs_dict["BASECALLED"])),
 		#expand(dirs_dict["GUPPY"] + "/{barcode}/fastq/{barcode}.fastq",barcode=BARCODES),
 #		cp fastq_runid_*{params.barcode_number}_0.fastq {output.basecalled}
-		directory((dirs_dict["DEMULTIPLEXED"])),
-		#directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
+		directory(expand((dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES)),
 
 
 rule multi_to_single_fast5:
@@ -83,7 +82,7 @@ rule demultiplexing_Deepbinner:
 		deepbinner_dir=dirs_dict["TOOLS"]+ "/Deepbinner",
 	output:
 #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
- 		demultiplexed_dir=directory((dirs_dict["DEMULTIPLEXED"])),
+ 		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
 		#demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
 	params:
 		tools_dir=dirs_dict["TOOLS"],
@@ -101,11 +100,10 @@ rule demultiplexing_Deepbinner:
 
 rule guppy_basecalling:
 	input:
-		single_data=dirs_dict["SINGLE"]
+ 		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
 	output:
 #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
-#		basecalled_dir=directory(expand((dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES)),
-		basecalled_dir=directory((dirs_dict["BASECALLED"])),
+		basecalled_dir=dirs_dict["BASECALLED"] + "/{barcode}",
 	params:
 		guppy_dir=dirs_dict["GUPPY"],
 		flowcell=FLOWCELL,
@@ -117,7 +115,7 @@ rule guppy_basecalling:
 	threads: 32
 	shell:
 		"""
-		guppy_basecaller -i {input.single_data} -s {output.basecalled_dir} --fast5_out -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit} --cpu_threads_per_caller {threads} --num_callers 1
+		guppy_basecaller -i {input.single_data} -s {output.basecalled_dir} -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit} --cpu_threads_per_caller {threads} --num_callers 1
 		"""
 # rule guppy_demultiplexing:
 # 	input:
