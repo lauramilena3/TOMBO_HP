@@ -132,10 +132,10 @@ rule annotate_tombo:
 		"envs/env2.yaml"
 	message:
 		"Annotating fast5 files with fastq basecalls"
-	threads: 32
+	threads: 1
 	shell:
 		"""
-		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.demultiplexed_dir} --fastq-filenames {input.basecalled_dir}/pass/*fastq
+		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.demultiplexed_dir} --fastq-filenames {input.basecalled_dir}/pass/*fastq --overwrite
 		touch {output.annotated}
 		"""
 # rule guppy_demultiplexing:
