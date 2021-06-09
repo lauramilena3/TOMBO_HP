@@ -42,7 +42,8 @@ rule all:
 		#directory((dirs_dict["BASECALLED"])),
 		#expand(dirs_dict["GUPPY"] + "/{barcode}/fastq/{barcode}.fastq",barcode=BARCODES),
 #		cp fastq_runid_*{params.barcode_number}_0.fastq {output.basecalled}
-		directory(expand((dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES)),
+#		directory(expand(dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES),
+		directory(expand(dirs_dict["BASECALLED"] + "/{barcode}/annotated_checkpoint_{barcode}.txt"), barcode=BARCODES),
 
 
 rule multi_to_single_fast5:
@@ -115,6 +116,28 @@ rule guppy_basecalling:
 	shell:
 		"""
 		guppy_basecaller -i {input.demultiplexed_dir} -s {output.basecalled_dir} -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit} --cpu_threads_per_caller {threads} --num_callers 1
+		"""
+
+
+rule guppy_basecalling:
+	input:
+ 		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
+		basecalled_dir=directory(dirs_dict["BASECALLED"] + "/{barcode}"),
+	output:
+#		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
+		annotated=directory(dirs_dict["BASECALLED"] + "/{barcode}/annotated_checkpoint_{barcode}.txt"),
+	params:
+		flowcell=FLOWCELL,
+		kit=KIT,
+	conda:
+		"envs/env1.yaml"
+	message:
+		"Basecalling single fast5 files with guppy"
+	threads: 32
+	shell:
+		"""
+		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.demultiplexed_dir} --fastq-filenames {input.basecalled_dir}/pass/*fastq
+		touch {output.annotated}
 		"""
 # rule guppy_demultiplexing:
 # 	input:
