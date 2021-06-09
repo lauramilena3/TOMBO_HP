@@ -1,6 +1,6 @@
-# channels:
-#   - bioconda
-# #  - g2554711/label/bioconda
-# dependencies:
-#   - bamm =1.7.3
-#
+channels:
+  - conda-forge
+  - bioconda
+  - biobuilds
+dependencies:
+  - ont-tombo =1.5.1

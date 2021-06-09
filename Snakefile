@@ -118,7 +118,6 @@ rule guppy_basecalling:
 		guppy_basecaller -i {input.demultiplexed_dir} -s {output.basecalled_dir} -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit} --cpu_threads_per_caller {threads} --num_callers 1
 		"""
 
-
 rule annotate_tombo:
 	input:
  		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
@@ -130,9 +129,9 @@ rule annotate_tombo:
 		flowcell=FLOWCELL,
 		kit=KIT,
 	conda:
-		"envs/env1.yaml"
+		"envs/env2.yaml"
 	message:
-		"Basecalling single fast5 files with guppy"
+		"Annotating fast5 files with fastq basecalls"
 	threads: 32
 	shell:
 		"""
