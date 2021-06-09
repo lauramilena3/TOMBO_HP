@@ -124,7 +124,7 @@ rule annotate_tombo:
 		basecalled_dir=directory(dirs_dict["BASECALLED"] + "/{barcode}"),
 	output:
 #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
-		annotated=directory(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt"),
+		annotated=(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt"),
 	params:
 		flowcell=FLOWCELL,
 		kit=KIT,
