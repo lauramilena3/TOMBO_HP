@@ -119,7 +119,7 @@ rule guppy_basecalling:
 		"""
 
 
-rule guppy_basecalling:
+rule annotate_tombo:
 	input:
  		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
 		basecalled_dir=directory(dirs_dict["BASECALLED"] + "/{barcode}"),
