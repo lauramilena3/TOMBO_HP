@@ -43,8 +43,8 @@ rule all:
 		#expand(dirs_dict["GUPPY"] + "/{barcode}/fastq/{barcode}.fastq",barcode=BARCODES),
 #		cp fastq_runid_*{params.barcode_number}_0.fastq {output.basecalled}
 #		directory(expand(dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES),
-		directory(expand(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt", barcode=BARCODES)),
-		directory(expand(dirs_dict["MEGALODON"] + "/{barcode}_mods", barcode=BARCODES)),
+		expand(directory(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt", barcode=BARCODES)),
+		expand(directory(dirs_dict["MEGALODON"] + "/{barcode}_mods", barcode=BARCODES)),
 		expand(dirs_dict["DEEPSIGNAL"] + "/{barcode}_deepsignal-prob.tsv", barcode=BARCODES),
 
 rule multi_to_single_fast5:
