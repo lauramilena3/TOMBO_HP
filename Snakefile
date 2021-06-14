@@ -185,7 +185,7 @@ rule call_modification:
 	input:
 		extract=dirs_dict["BASECALLED"] + "/{barcode}_deepsignal-feature.tsv"
 	output:
-		dirs_dict["BASECALLED"] + "{barcode}_deepsignal-prob.tsv"
+		dirs_dict["DEEPSIGNAL"] + "{barcode}_deepsignal-prob.tsv"
 	shell:
 		"""
 		deepsignal call_mods --input_path {input.extract} --is_gpu no --nproc {threads} --model_path {params.model} --result_file {output}
