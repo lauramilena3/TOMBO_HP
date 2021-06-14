@@ -4,3 +4,4 @@ channels:
   - biobuilds
 dependencies:
   - ont-tombo =1.5.1
+  - megalodon =2.3.3
