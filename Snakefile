@@ -158,7 +158,7 @@ rule annotate_tombo:
 rule resquiggle:
 	input:
 		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
-		genome=dirs_dict["GENOMES"] + "/{genome}.fasta",
+		genome=GENOME,
 	output:
 		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{barcode}.txt"),
 	threads: 8
@@ -171,7 +171,7 @@ rule resquiggle:
 rule deepsignal:
 	input:
  		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
-		genome=dirs_dict["GENOMES"] + "/{genome}.fasta",
+		genome=GENOME,
 		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{barcode}.txt"),
 	output:
 		extract=dirs_dict["BASECALLED"] + "/{barcode}_deepsignal-feature.tsv"
@@ -195,7 +195,7 @@ rule megalodon:
 	input:
 		rerio_dir=directory(dirs_dict["TOOLS"]+ "/rerio"),
 		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
-		genome=dirs_dict["GENOMES"] + "/{genome}.fasta",
+		genome=GENOME,
 	output:
 		basecalls=dirs_dict["MEGALODON"] + "/{barcode}_basecalls",
 		mappings=dirs_dict["MEGALODON"] + "/{barcode}_mappings",
