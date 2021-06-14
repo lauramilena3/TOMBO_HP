@@ -99,7 +99,7 @@ rule demultiplexing_Deepbinner:
 		deepbinner_dir=dirs_dict["TOOLS"]+ "/Deepbinner",
 	output:
 #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
- 		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
+		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
 		#demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
 	params:
 		tools_dir=dirs_dict["TOOLS"],
@@ -136,7 +136,7 @@ rule guppy_basecalling:
 
 rule annotate_tombo:
 	input:
- 		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
+		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
 		basecalled_dir=dirs_dict["BASECALLED"] + "/{barcode}",
 	output:
 #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
@@ -156,48 +156,48 @@ rule annotate_tombo:
 		"""
 
 rule resquiggle:
-    input:
- 		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
+	input:
+		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
 		genome=dirs_dict["GENOMES"] + "/{genome}.fasta",
-    output:
+	output:
 		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{barcode}.txt"),
 	threads: 8
-    shell:
-        """
+	shell:
+		"""
 		tombo resquiggle --dna {input.demultiplexed_dir} {input.genome} --processes {threads} --overwrite --ignore-read-locks
 		touch {output.resquiggled}
 		"""
 
 rule deepsignal:
-    input:
+	input:
  		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
 		genome=dirs_dict["GENOMES"] + "/{genome}.fasta",
 		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{barcode}.txt"),
-    output:
-        extract=dirs_dict["BASECALLED"] + "/{barcode}_deepsignal-feature.tsv"
+	output:
+		extract=dirs_dict["BASECALLED"] + "/{barcode}_deepsignal-feature.tsv"
 	threads: 8
-    shell:
-        """
+	shell:
+		"""
 		deepsignal extract --fast5_dir {input.demultiplexed_dir} --reference_path {input.genome} --is_dna true --write_path {output.extract} --nproc {theads}
 		"""
 
 rule call_modification:
-    input:
-        extract=dirs_dict["BASECALLED"] + "/{barcode}_deepsignal-feature.tsv"
-    output:
-        dirs_dict["BASECALLED"] + "{barcode}_deepsignal-prob.tsv"
-    shell:
-        """
+	input:
+		extract=dirs_dict["BASECALLED"] + "/{barcode}_deepsignal-feature.tsv"
+	output:
+		dirs_dict["BASECALLED"] + "{barcode}_deepsignal-prob.tsv"
+	shell:
+		"""
 		deepsignal call_mods --input_path {input.extract} --is_gpu no --nproc {threads} --model_path {params.model} --result_file {output}
 		"""
 
 rule megalodon:
-    input:
+	input:
 		rerio_dir=directory(dirs_dict["TOOLS"]+ "/rerio"),
 		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
 		genome=dirs_dict["GENOMES"] + "/{genome}.fasta",
-    output:
-        "deepsignal_results/{barcode}_deepsignal-prob.tsv"
+	output:
+		"deepsignal_results/{barcode}_deepsignal-prob.tsv"
 		basecalls=dirs_dict["MEGALODON"] + "/{barcode}_basecalls",
 		mappings=dirs_dict["MEGALODON"] + "/{barcode}_mappings",
 		mod_mappings=dirs_dict["MEGALODON"] + "/{barcode}_mod_mappings",
@@ -206,11 +206,11 @@ rule megalodon:
 		model_dir=dirs_dict["TOOLS"]+ "/rerio/basecall_models/",
 		model_name="res_dna_r941_min_modbases_5mC_CpG_v001.cfg",
 	threads: 16
-    shell:
-        """
+	shell:
+		"""
 		megalodon {input.demultiplexed_dir} --guppy-params "-d {params.model_dir}" --guppy-config {params.model_name} \
-		    --outputs {output.basecalls} {output.mappings} {output.mod_mappings} {output.mods} \
-		    --reference {input.genome}--mod-motif m CG 0 --processes {threads}
+			--outputs {output.basecalls} {output.mappings} {output.mod_mappings} {output.mods} \
+			--reference {input.genome}--mod-motif m CG 0 --processes {threads}
 		"""
 
 # rule guppy_demultiplexing:
