@@ -197,7 +197,6 @@ rule megalodon:
 		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
 		genome=dirs_dict["GENOMES"] + "/{genome}.fasta",
 	output:
-		"deepsignal_results/{barcode}_deepsignal-prob.tsv"
 		basecalls=dirs_dict["MEGALODON"] + "/{barcode}_basecalls",
 		mappings=dirs_dict["MEGALODON"] + "/{barcode}_mappings",
 		mod_mappings=dirs_dict["MEGALODON"] + "/{barcode}_mod_mappings",
