@@ -187,8 +187,8 @@ rule deepsignal:
 
 rule call_modification:
 	input:
-		extract=dirs_dict["BASECALLED"] + "/{barcode}_deepsignal-feature.tsv"
-		model=directory(dirs_dict["TOOLS"]+ "/deepsignal/model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+/")
+		extract=dirs_dict["BASECALLED"] + "/{barcode}_deepsignal-feature.tsv",
+		model=directory(dirs_dict["TOOLS"]+ "/deepsignal/model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+/"),
 	output:
 		dirs_dict["DEEPSIGNAL"] + "{barcode}_deepsignal-prob.tsv"
 	conda:
