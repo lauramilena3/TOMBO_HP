@@ -162,6 +162,8 @@ rule resquiggle:
 	output:
 		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{barcode}.txt"),
 	threads: 8
+	conda:
+		"envs/env2.yaml"
 	shell:
 		"""
 		tombo resquiggle --dna {input.demultiplexed_dir} {input.genome} --processes {threads} --overwrite --ignore-read-locks
@@ -175,6 +177,8 @@ rule deepsignal:
 		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{barcode}.txt"),
 	output:
 		extract=dirs_dict["BASECALLED"] + "/{barcode}_deepsignal-feature.tsv"
+	conda:
+		"envs/env1.yaml"
 	threads: 8
 	shell:
 		"""
@@ -184,8 +188,11 @@ rule deepsignal:
 rule call_modification:
 	input:
 		extract=dirs_dict["BASECALLED"] + "/{barcode}_deepsignal-feature.tsv"
+		model=directory(dirs_dict["TOOLS"]+ "/deepsignal/model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+/")
 	output:
 		dirs_dict["DEEPSIGNAL"] + "{barcode}_deepsignal-prob.tsv"
+	conda:
+		"envs/env1.yaml"
 	shell:
 		"""
 		deepsignal call_mods --input_path {input.extract} --is_gpu no --nproc {threads} --model_path {params.model} --result_file {output}
@@ -205,6 +212,8 @@ rule megalodon:
 		model_dir=dirs_dict["TOOLS"]+ "/rerio/basecall_models/",
 		model_name="res_dna_r941_min_modbases_5mC_CpG_v001.cfg",
 	threads: 16
+	conda:
+		"envs/env2.yaml"
 	shell:
 		"""
 		megalodon {input.demultiplexed_dir} --guppy-params "-d {params.model_dir}" --guppy-config {params.model_name} \
