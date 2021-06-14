@@ -43,8 +43,8 @@ rule all:
 		#expand(dirs_dict["GUPPY"] + "/{barcode}/fastq/{barcode}.fastq",barcode=BARCODES),
 #		cp fastq_runid_*{params.barcode_number}_0.fastq {output.basecalled}
 #		directory(expand(dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES),
-		expand(directory(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt", barcode=BARCODES)),
-		expand(directory(dirs_dict["MEGALODON"] + "/{barcode}_mods", barcode=BARCODES)),
+		expand(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt", barcode=BARCODES),
+		expand(dirs_dict["MEGALODON"] + "/{barcode}_mods", barcode=BARCODES),
 		expand(dirs_dict["DEEPSIGNAL"] + "/{barcode}_deepsignal-prob.tsv", barcode=BARCODES),
 
 rule multi_to_single_fast5:
@@ -61,8 +61,6 @@ rule multi_to_single_fast5:
 		"""
 		multi_to_single_fast5 --input_path {input} --save_path {output} -t {threads}
 		"""
-git clone https://github.com/nanoporetech/rerio
-rerio/download_model.py rerio/basecall_models/res_dna_r941_min_modbases_5mC_CpG_v001
 rule get_rerio_model:
 	output:
 		rerio_dir=directory(dirs_dict["TOOLS"]+ "/rerio"),
@@ -139,7 +137,7 @@ rule guppy_basecalling:
 rule annotate_tombo:
 	input:
  		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
-		basecalled_dir=directory(dirs_dict["BASECALLED"] + "/{barcode}"),
+		basecalled_dir=dirs_dict["BASECALLED"] + "/{barcode}",
 	output:
 #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
 		annotated=(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt"),
@@ -192,7 +190,6 @@ rule call_modification:
         """
 		deepsignal call_mods --input_path {input.extract} --is_gpu no --nproc {threads} --model_path {params.model} --result_file {output}
 		"""
-
 
 rule megalodon:
     input:
