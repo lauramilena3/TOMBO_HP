@@ -195,7 +195,7 @@ rule call_modification:
 		"envs/env1.yaml"
 	shell:
 		"""
-		deepsignal call_mods --input_path {input.extract} --is_gpu no --nproc {threads} --model_path {params.model} --result_file {output}
+		deepsignal call_mods --input_path {input.extract} --is_gpu no --nproc {threads} --model_path {input.model} --result_file {output}
 		"""
 
 rule megalodon:
