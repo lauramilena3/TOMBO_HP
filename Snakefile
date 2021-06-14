@@ -178,7 +178,7 @@ rule deepsignal:
 	threads: 8
 	shell:
 		"""
-		deepsignal extract --fast5_dir {input.demultiplexed_dir} --reference_path {input.genome} --is_dna true --write_path {output.extract} --nproc {theads}
+		deepsignal extract --fast5_dir {input.demultiplexed_dir} --reference_path {input.genome} --is_dna true --write_path {output.extract} --nproc {threads}
 		"""
 
 rule call_modification:
