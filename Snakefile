@@ -178,7 +178,7 @@ rule deepsignal:
 	output:
 		extract=dirs_dict["BASECALLED"] + "/{barcode}_deepsignal-feature.tsv"
 	conda:
-		"envs/env1.yaml"
+		"envs/env2.yaml"
 	threads: 8
 	shell:
 		"""
@@ -192,7 +192,7 @@ rule call_modification:
 	output:
 		dirs_dict["DEEPSIGNAL"] + "{barcode}_deepsignal-prob.tsv"
 	conda:
-		"envs/env1.yaml"
+		"envs/env2.yaml"
 	shell:
 		"""
 		deepsignal call_mods --input_path {input.extract} --is_gpu no --nproc {threads} --model_path {input.model} --result_file {output}
