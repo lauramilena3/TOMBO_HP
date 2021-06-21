@@ -33,6 +33,10 @@ print("barcodes", BARCODES)
 #======================================================
 
 
+rule megalodon_run:
+	input:
+		expand(dirs_dict["MEGALODON"] + "/{barcode}", barcode=BARCODES),
+
 
 rule all:
 	input:
