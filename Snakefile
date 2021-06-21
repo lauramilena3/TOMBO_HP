@@ -264,7 +264,7 @@ rule megalodon:
 		"""
 		megalodon {input.demultiplexed_dir} --guppy-params "-d {params.model_dir}" --guppy-config {params.model_name} \
 			--outputs basecalls mappings mod_mappings mods per_read_mods  --output-directory {output.megalodon_dir}\
-			--reference {input.genome}--mod-motif m CG 0 --processes {threads}
+			--reference {input.genome} --mod-motif m CG 0 --processes {threads}
 		"""
 
 # rule guppy_demultiplexing:
