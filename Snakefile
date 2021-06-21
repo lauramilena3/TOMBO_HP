@@ -44,7 +44,7 @@ rule all:
 #		cp fastq_runid_*{params.barcode_number}_0.fastq {output.basecalled}
 #		directory(expand(dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES),
 		expand(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt", barcode=BARCODES),
-		expand(dirs_dict["MEGALODON"] + "/{barcode}_mods", barcode=BARCODES),
+		expand(dirs_dict["MEGALODON"] + "/{barcode}", barcode=BARCODES),
 		expand(dirs_dict["DEEPSIGNAL"] + "/{barcode}_deepsignal-prob.tsv", barcode=BARCODES),
 
 rule multi_to_single_fast5:
@@ -248,7 +248,7 @@ rule megalodon:
 		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
 		genome=GENOME,
 	output:
-		megalodon_dir=dirs_dict["MEGALODON"],
+		megalodon_dir=dirs_dict["MEGALODON"] + "/{barcode}",
 
 		#basecalls=dirs_dict["MEGALODON"] + "/{barcode}_basecalls",
 		#mappings=dirs_dict["MEGALODON"] + "/{barcode}_mappings",
