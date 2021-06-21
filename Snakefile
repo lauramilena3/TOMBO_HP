@@ -271,7 +271,7 @@ rule megalodon:
 	shell:
 		"""
 		megalodon {input.demultiplexed_dir} --guppy-params "-d {params.model_dir}" --guppy-config {params.model_name} \
-			--outputs basecalls mappings mod_mappings mods per_read_mods  --output-directory {output.megalodon_dir}\
+			--outputs  mappings mod_mappings mods per_read_mods  --output-directory {output.megalodon_dir}\ --devices 'cuda:0 cuda:1'
 			--reference {input.genome} --mod-motif m CG 0 --processes {threads} --guppy-server-path {params.server}
 		"""
 
