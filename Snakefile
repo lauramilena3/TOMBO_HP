@@ -37,6 +37,9 @@ rule megalodon_run:
 	input:
 		expand(dirs_dict["MEGALODON"] + "/{barcode}", barcode=BARCODES),
 
+rule deepsignal_run:
+	input:
+		expand(dirs_dict["DEEPSIGNAL"] + "/{barcode}_deepsignal-prob.tsv", barcode=BARCODES),
 
 rule all:
 	input:
