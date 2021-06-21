@@ -248,10 +248,12 @@ rule megalodon:
 		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
 		genome=GENOME,
 	output:
-		basecalls=dirs_dict["MEGALODON"] + "/{barcode}_basecalls",
-		mappings=dirs_dict["MEGALODON"] + "/{barcode}_mappings",
-		mod_mappings=dirs_dict["MEGALODON"] + "/{barcode}_mod_mappings",
-		mods=dirs_dict["MEGALODON"] + "/{barcode}_mods",
+		megalodon_dir=dirs_dict["MEGALODON"],
+
+		#basecalls=dirs_dict["MEGALODON"] + "/{barcode}_basecalls",
+		#mappings=dirs_dict["MEGALODON"] + "/{barcode}_mappings",
+		#mod_mappings=dirs_dict["MEGALODON"] + "/{barcode}_mod_mappings",
+		#mods=dirs_dict["MEGALODON"] + "/{barcode}_mods",
 	params:
 		model_dir=dirs_dict["TOOLS"]+ "/rerio/basecall_models/",
 		model_name="res_dna_r941_min_modbases_5mC_CpG_v001.cfg",
@@ -261,7 +263,7 @@ rule megalodon:
 	shell:
 		"""
 		megalodon {input.demultiplexed_dir} --guppy-params "-d {params.model_dir}" --guppy-config {params.model_name} \
-			--outputs {output.basecalls} {output.mappings} {output.mod_mappings} {output.mods} \
+			--outputs basecalls mappings mod_mappings mods per_read_mods  --output-directory {output.megalodon_dir}\
 			--reference {input.genome}--mod-motif m CG 0 --processes {threads}
 		"""
 
