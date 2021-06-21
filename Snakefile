@@ -265,7 +265,7 @@ rule megalodon:
 		model_dir=dirs_dict["TOOLS"]+ "/rerio/basecall_models/",
 		model_name="res_dna_r941_min_modbases_5mC_CpG_v001.cfg",
 		server=config['guppy_server']
-	threads: 16
+	threads: 32
 	conda:
 		"envs/env2.yaml"
 	shell:
