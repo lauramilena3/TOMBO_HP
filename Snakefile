@@ -72,7 +72,7 @@ rule get_rerio_model:
 		"Get Deepbinner"
 	shell:
 		"""
-		git clone https://github.com/nanoporetech/rerio {params.tools_dir}
+		git clone https://github.com/nanoporetech/rerio {params.tools_dir}/rerio
 		cd {params.tools_dir}/rerio
 		./download_model.py basecall_models/res_dna_r941_min_modbases_5mC_CpG_v001
 		"""
