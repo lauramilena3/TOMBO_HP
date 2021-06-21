@@ -1,5 +1,6 @@
 input_dir: "00_RAW_DATA"
 work_dir: "data"
+tools_dir: "tools"
 #guppy
 flowcell: "FLO-MIN106"
 kit: "SQK-RBK004"
@@ -8,3 +9,4 @@ samples: ""
 control: ""
 genome: ""
 megalodon_model: "/home/lmf/LEISE/PERSISTENCE/model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+"
+guppy_server: "/opt/ont/guppy/bin/guppy_basecall_server"
