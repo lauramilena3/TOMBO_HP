@@ -251,11 +251,11 @@ rule call_modification_deepsignal:
 
 rule megalodon:
 	input:
-		rerio_dir=directory(dirs_dict["TOOLS"]+ "/rerio"),
+		rerio_dir=(dirs_dict["TOOLS"]+ "/rerio"),
 		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
 		genome=GENOME,
 	output:
-		megalodon_dir=dirs_dict["MEGALODON"] + "/{barcode}",
+		megalodon_dir=directory(dirs_dict["MEGALODON"] + "/{barcode}"),
 
 		#basecalls=dirs_dict["MEGALODON"] + "/{barcode}_basecalls",
 		#mappings=dirs_dict["MEGALODON"] + "/{barcode}_mappings",
