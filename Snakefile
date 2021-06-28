@@ -16,6 +16,10 @@ FLOWCELL=config['flowcell']
 KIT=config['kit']
 
 GENOME=config['genome']
+GENOME_dir=os.path.dirname(os.path.realpath(GENOME)
+GENOME_name=os.path.splitext(os.path.basename(GENOME))[0]
+
+
 SAMPLES=config['samples'].split()
 CONTROL=config['control']
 BARCODES=SAMPLES+[CONTROL]
@@ -40,6 +44,11 @@ rule megalodon_run:
 rule deepsignal_run:
 	input:
 		expand(dirs_dict["DEEPSIGNAL"] + "/{barcode}_deepsignal-prob.tsv", barcode=BARCODES),
+
+rule tombo_run:
+	input:
+		expand(dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_de_novo.tombo.stats", genome=GENOME_name, sample=SAMPLES),
+		expand(dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}.tombo.stats", genome=GENOME_name, sample=SAMPLES, control=CONTROL),
 
 rule all:
 	input:
@@ -162,7 +171,7 @@ rule annotate_tombo:
 		touch {output.annotated}
 		"""
 
-rule resquiggle:
+rule resquiggle_tombo:
 	input:
 		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
 		genome=GENOME,
@@ -176,23 +185,24 @@ rule resquiggle:
 		tombo resquiggle --dna {input.demultiplexed_dir} {input.genome} --processes {threads} --overwrite --ignore-read-locks
 		touch {output.resquiggled}
 		"""
-rule tombo:
+
+
+rule tombo_sample_compare:
 	input:
  		sample_demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{sample}",
 		control_demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{control}",
-
 		# sample=((dirs_dict["SINGLE"] + "/{sample}_single/workspace")),
 		# control=((dirs_dict["SINGLE"] + "/{control}_single/workspace")),
 		basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}.fastq",
 		basecalled_control=dirs_dict["BASECALLED"] + "/{control}.fastq",
-		genome=dirs_dict["GENOMES"] + "/{genome}.fasta",
+		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}.tombo.stats" ,
-		significant_filtered=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}.sig_filtered.fasta",
+		#significant_filtered=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}.sig_filtered.fasta",
 		minus=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_minusmod.wig",
 		plus=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_plusmod.wig",
-		minus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_minusmod_corrected.wig",
-		plus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_plusmod_corrected.wig",
+		#minus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_minusmod_corrected.wig",
+		#plus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_plusmod_corrected.wig",
 		significant=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_tombo_results.significant_regions.fasta",
 	params:
 		name="{genome}_{sample}_{control}",
@@ -203,22 +213,47 @@ rule tombo:
 	threads: 16
 	shell:
 		"""
-		#tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.sample} --fastq-filenames {input.basecalled_sample} --overwrite
-		#tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.control} --fastq-filenames {input.basecalled_control} --overwrite
-		#tombo resquiggle --overwrite {input.control} {input.genome} --processes {threads} --ignore-read-locks
-		#tombo resquiggle --overwrite {input.sample} {input.genome} --processes {threads} --ignore-read-locks
-		#tombo resquiggle --corrected-group {wildcards.sample} --overwrite {input.sample} {input.genome} --processes {threads} --ignore-read-locks
-		#tombo resquiggle --corrected-group {wildcards.control} --overwrite {input.control} {input.genome} --processes {threads} --ignore-read-locks
 		tombo detect_modifications model_sample_compare --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-file-basename {params.name}
 		mv {params.name}.tombo.stats {output.stats}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types fraction
 		mv {params.name}.fraction_modified_reads.plus.wig {output.plus}
 		mv {params.name}.fraction_modified_reads.minus.wig {output.minus}
-		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 10000 --num-bases 10
-		mv tombo_results.significant_regions.fasta {output.significant}
-		fasta_formatter -i {output.significant} -t | awk '{{if ($5 > 0.7) print ">"$1,$2,$3,$4,$5"\\n"$6}}' > {output.significant_filtered}
-		python ./scripts/format_tombo.py {output.plus} {output.plus_corr}
-		python ./scripts/format_tombo.py {output.minus} {output.minus_corr}
+		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 10000 --num-bases 10 --sequences-filename {output.significant}
+		#mv tombo_results.significant_regions.fasta {output.significant}
+		"""
+
+rule tombo_denovo:
+	input:
+ 		sample_demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{sample}",
+
+		# sample=((dirs_dict["SINGLE"] + "/{sample}_single/workspace")),
+		# control=((dirs_dict["SINGLE"] + "/{control}_single/workspace")),
+		basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}.fastq",
+		genome=GENOME_dir + "/{genome}.fasta",
+	output:
+		stats=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_de_novo.tombo.stats" ,
+		#significant_filtered=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}.sig_filtered.fasta",
+		minus=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_de_novo_minusmod.wig",
+		plus=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_de_novo_plusmod.wig",
+		#minus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_minusmod_corrected.wig",
+		#plus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_plusmod_corrected.wig",
+		significant=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_de_novo_tombo_results.significant_regions.fasta",
+	params:
+		name="{genome}_{sample}_{control}",
+	conda:
+		"envs/env1.yaml"
+	message:
+		"Detecting modified bases with Tombo"
+	threads: 16
+	shell:
+		"""
+		tombo detect_modifications de_novo --fast5-basedirs {input.sample} --statistics-file-basename {params.name}
+		mv {params.name}.tombo.stats {output.stats}
+		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types fraction
+		mv {params.name}.fraction_modified_reads.plus.wig {output.plus}
+		mv {params.name}.fraction_modified_reads.minus.wig {output.minus}
+		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 10000 --num-bases 10 --sequences-filename {output.significant}
+		#mv tombo_results.significant_regions.fasta {output.significant}
 		"""
 
 rule deepsignal:
