@@ -193,7 +193,8 @@ rule tombo_sample_compare:
 		control_demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{control}",
 		sample=(dirs_dict["DEMULTIPLEXED"] + "/{sample}"),
 		control=(dirs_dict["DEMULTIPLEXED"] + "/{control}"),
-		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{barcode}.txt"),
+		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{sample}.txt"),
+		resquiggled2=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{control}.txt"),
 		#basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}",
 		#basecalled_control=dirs_dict["BASECALLED"] + "/{control}",
 		genome=GENOME_dir + "/{genome}.fasta",
@@ -228,7 +229,7 @@ rule tombo_denovo:
  		sample=dirs_dict["DEMULTIPLEXED"] + "/{sample}",
 		#basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}",
 		genome=GENOME_dir + "/{genome}.fasta",
-		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{barcode}.txt"),
+		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{sample}.txt"),
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_de_novo.tombo.stats" ,
 		#significant_filtered=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}.sig_filtered.fasta",
