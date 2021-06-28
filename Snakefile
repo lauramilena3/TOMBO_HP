@@ -191,10 +191,11 @@ rule tombo_sample_compare:
 	input:
  		sample_demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{sample}",
 		control_demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{control}",
-		# sample=((dirs_dict["SINGLE"] + "/{sample}_single/workspace")),
-		# control=((dirs_dict["SINGLE"] + "/{control}_single/workspace")),
-		basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}",
-		basecalled_control=dirs_dict["BASECALLED"] + "/{control}",
+		sample=(dirs_dict["DEMULTIPLEXED"] + "/{sample}"),
+		control=(dirs_dict["DEMULTIPLEXED"] + "/{control}"),
+		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{barcode}.txt"),
+		#basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}",
+		#basecalled_control=dirs_dict["BASECALLED"] + "/{control}",
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}.tombo.stats" ,
@@ -224,11 +225,10 @@ rule tombo_sample_compare:
 
 rule tombo_denovo:
 	input:
- 		sample_demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{sample}",
-		# sample=((dirs_dict["SINGLE"] + "/{sample}_single/workspace")),
-		# control=((dirs_dict["SINGLE"] + "/{control}_single/workspace")),
-		basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}",
+ 		sample=dirs_dict["DEMULTIPLEXED"] + "/{sample}",
+		#basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}",
 		genome=GENOME_dir + "/{genome}.fasta",
+		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{barcode}.txt"),
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_de_novo.tombo.stats" ,
 		#significant_filtered=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}.sig_filtered.fasta",
