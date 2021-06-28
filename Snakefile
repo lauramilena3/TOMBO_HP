@@ -16,7 +16,7 @@ FLOWCELL=config['flowcell']
 KIT=config['kit']
 
 GENOME=config['genome']
-GENOME_dir=os.path.dirname(os.path.realpath(GENOME)
+GENOME_dir=os.path.dirname(os.path.realpath(GENOME))
 GENOME_name=os.path.splitext(os.path.basename(GENOME))[0]
 
 
@@ -225,7 +225,6 @@ rule tombo_sample_compare:
 rule tombo_denovo:
 	input:
  		sample_demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{sample}",
-
 		# sample=((dirs_dict["SINGLE"] + "/{sample}_single/workspace")),
 		# control=((dirs_dict["SINGLE"] + "/{control}_single/workspace")),
 		basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}.fastq",
