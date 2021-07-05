@@ -174,6 +174,7 @@ rule annotate_tombo:
 rule resquiggle_tombo:
 	input:
 		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
+		annotated=(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt"),
 		genome=GENOME,
 	output:
 		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{barcode}.txt"),
@@ -211,13 +212,13 @@ rule tombo_sample_compare:
 	conda:
 		"envs/env1.yaml"
 	message:
-		"Detecting modified bases with Tombo"
+		"Detecting modified bases with Tombo sample compare"
 	threads: 16
 	shell:
 		"""
 		tombo detect_modifications model_sample_compare --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-file-basename {params.name}
 		mv {params.name}.tombo.stats {output.stats}
-		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types fraction
+		tombo text_output browser_files --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
 		mv {params.name}.fraction_modified_reads.plus.wig {output.plus}
 		mv {params.name}.fraction_modified_reads.minus.wig {output.minus}
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 10000 --num-bases 10 --sequences-filename {output.significant}
@@ -243,13 +244,13 @@ rule tombo_denovo:
 	conda:
 		"envs/env1.yaml"
 	message:
-		"Detecting modified bases with Tombo"
+		"Detecting modified bases with Tombo de novo"
 	threads: 16
 	shell:
 		"""
 		tombo detect_modifications de_novo --fast5-basedirs {input.sample} --statistics-file-basename {params.name}
 		mv {params.name}.tombo.stats {output.stats}
-		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types fraction
+		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
 		mv {params.name}.fraction_modified_reads.plus.wig {output.plus}
 		mv {params.name}.fraction_modified_reads.minus.wig {output.minus}
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 10000 --num-bases 10 --sequences-filename {output.significant}
