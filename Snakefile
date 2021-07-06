@@ -120,7 +120,7 @@ rule guppy_demultiplexing:
 		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
 		single_data=directory(dirs_dict["SINGLE"]),
 	output:
-		demultiplexed_dir=directory(dirs_dict["demultiplexed"] + "/{barcode})",
+		demultiplexed_dir=directory(dirs_dict["demultiplexed"] + "/{barcode}"),
 		demultiplexed_list=dirs_dict["demultiplexed"] + "/{barcode}_fast5_list.txt",
 		checkpoint=dirs_dict["demultiplexed"] + "/{barcode}_checkpoint.txt",
 	conda:
