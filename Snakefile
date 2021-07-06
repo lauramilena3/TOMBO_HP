@@ -23,8 +23,8 @@ GENOME_name=os.path.splitext(os.path.basename(GENOME))[0]
 SAMPLES=config['samples'].split()
 CONTROL=config['control']
 BARCODES=SAMPLES+[CONTROL]
-dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "SINGLE", "DEMULTIPLEXED", "BASECALLED", "GENOMES", "TOMBO", "MEGALODON", "DEEPSIGNAL"]
-dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/00_FAST5_SINGLE", OUTPUT_DIR + "/01_DEMULTIPLEXED", OUTPUT_DIR + "/02_BASECALLED", OUTPUT_DIR + "/GENOMES", OUTPUT_DIR + "/03_TOMBO", OUTPUT_DIR + "/04_MEGALODON", OUTPUT_DIR + "/05_DEEPSIGNAL"]
+dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "SINGLE", "BASECALLED", "DEMULTIPLEXED", "GENOMES", "TOMBO", "MEGALODON", "DEEPSIGNAL"]
+dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/01_FAST5_SINGLE", OUTPUT_DIR + "/02_BASECALLED", OUTPUT_DIR + "/03_DEMULTIPLEXED", OUTPUT_DIR + "/GENOMES", OUTPUT_DIR + "/03_TOMBO", OUTPUT_DIR + "/04_MEGALODON", OUTPUT_DIR + "/05_DEEPSIGNAL"]
 dirs_dict = dict(zip(dir_list, dir_names))
 MODEL_MEGALODON=config['megalodon_model']
 #SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{{input.sample}}_" +".fast5")
@@ -36,6 +36,18 @@ print("barcodes", BARCODES)
 # Rules
 #======================================================
 
+rule all:
+	input:
+		#plus_corr=expand(dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_{sample}_" + CONTROL + "_plusmod_corrected.wig", sample=SAMPLES),
+		#genome_oneline=dirs_dict["GENOMES"] + "/" + GENOME + "_one.fasta",
+		#stats=expand(dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_{sample}_" + CONTROL + ".tombo.stats", sample=SAMPLES) ,
+		#directory((dirs_dict["BASECALLED"])),
+		#expand(dirs_dict["GUPPY"] + "/{barcode}/fastq/{barcode}.fastq",barcode=BARCODES),
+#		cp fastq_runid_*{params.barcode_number}_0.fastq {output.basecalled}
+#		directory(expand(dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES),
+		expand(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt", barcode=BARCODES),
+#		expand(dirs_dict["MEGALODON"] + "/{barcode}", barcode=BARCODES),
+#		expand(dirs_dict["DEEPSIGNAL"] + "/{barcode}_deepsignal-prob.tsv", barcode=BARCODES),
 
 rule megalodon_run:
 	input:
@@ -50,33 +62,6 @@ rule tombo_run:
 		expand(dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_de_novo.tombo.stats", genome=GENOME_name, sample=SAMPLES),
 		expand(dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}.tombo.stats", genome=GENOME_name, sample=SAMPLES, control=CONTROL),
 
-rule all:
-	input:
-		#plus_corr=expand(dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_{sample}_" + CONTROL + "_plusmod_corrected.wig", sample=SAMPLES),
-		#genome_oneline=dirs_dict["GENOMES"] + "/" + GENOME + "_one.fasta",
-		#stats=expand(dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_{sample}_" + CONTROL + ".tombo.stats", sample=SAMPLES) ,
-		#directory((dirs_dict["BASECALLED"])),
-		#expand(dirs_dict["GUPPY"] + "/{barcode}/fastq/{barcode}.fastq",barcode=BARCODES),
-#		cp fastq_runid_*{params.barcode_number}_0.fastq {output.basecalled}
-#		directory(expand(dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES),
-		expand(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt", barcode=BARCODES),
-		expand(dirs_dict["MEGALODON"] + "/{barcode}", barcode=BARCODES),
-		expand(dirs_dict["DEEPSIGNAL"] + "/{barcode}_deepsignal-prob.tsv", barcode=BARCODES),
-
-rule multi_to_single_fast5:
-	input:
-		raw_data=RAW_DATA_DIR,
-	output:
-		single_data=directory(dirs_dict["SINGLE"])
-	conda:
-		"envs/env1.yaml"
-	message:
-		"Converting multi fast5 to single fast5"
-	threads: 32
-	shell:
-		"""
-		multi_to_single_fast5 --input_path {input} --save_path {output} -t {threads}
-		"""
 rule get_rerio_model:
 	output:
 		rerio_dir=directory(dirs_dict["TOOLS"]+ "/rerio"),
@@ -93,50 +78,30 @@ rule get_rerio_model:
 		./download_model.py basecall_models/res_dna_r941_min_modbases_5mC_CpG_v001
 		"""
 
-rule get_Deepbinner:
-	output:
-#		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
-		#demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
-		deepbinner_dir=directory(dirs_dict["TOOLS"]+ "/Deepbinner"),
-	params:
-		tools_dir=dirs_dict["TOOLS"],
-	conda:
-		"envs/env1.yaml"
-	message:
-		"Get Deepbinner"
-	shell:
-		"""
-		git clone https://github.com/rrwick/Deepbinner.git {output.deepbinner_dir}
-		"""
-
-rule demultiplexing_Deepbinner:
+rule multi_to_single_fast5:
 	input:
-		single_data=directory(dirs_dict["SINGLE"]),
-		deepbinner_dir=dirs_dict["TOOLS"]+ "/Deepbinner",
+		raw_data=RAW_DATA_DIR,
 	output:
-#		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
-		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
-		#demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
-	params:
-		tools_dir=dirs_dict["TOOLS"],
-		demultiplexed_dir=directory((dirs_dict["DEMULTIPLEXED"])),
-		rapid_model=dirs_dict["TOOLS"]+ "/Deepbinner/models/SQK-RBK004_read_starts",
-
+		single_data=directory(dirs_dict["SINGLE"])
 	conda:
 		"envs/env1.yaml"
 	message:
-		"Demultiplexing fast5 files with Deepbinner"
+		"Converting multi fast5 to single fast5"
+	threads: 32
 	shell:
 		"""
-		{input.deepbinner_dir}/deepbinner-runner.py realtime --in_dir {input.single_data} --out_dir {params.demultiplexed_dir} -s {params.rapid_model} --stop
+		multi_to_single_fast5 --input_path {input} --save_path {output} -t {threads}
 		"""
+
 
 rule guppy_basecalling:
 	input:
- 		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
+		single_data=directory(dirs_dict["SINGLE"]),
 	output:
 #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
-		basecalled_dir=directory(dirs_dict["BASECALLED"] + "/{barcode}"),
+		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
+		basecalled_dir=directory(dirs_dict["BASECALLED"] + "/pass/{barcode}"),
+
 	params:
 		flowcell=FLOWCELL,
 		kit=KIT,
@@ -147,13 +112,33 @@ rule guppy_basecalling:
 	threads: 32
 	shell:
 		"""
-		guppy_basecaller -i {input.demultiplexed_dir} -s {output.basecalled_dir} -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit} --cpu_threads_per_caller {threads} --num_callers 1
+		guppy_basecaller -i {input.single_data} -s {output.basecalled_dir} -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit} --barcode_kits {params.kit}
+		"""
+
+rule guppy_demultiplexing:
+	input:
+		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
+		single_data=directory(dirs_dict["SINGLE"]),
+	output:
+		demultiplexed_dir=directory(dirs_dict["demultiplexed"] + "/{barcode})",
+		demultiplexed_list=dirs_dict["demultiplexed"] + "/{barcode}_fast5_list.txt",
+		checkpoint=dirs_dict["demultiplexed"] + "/{barcode}_checkpoint.txt",
+	conda:
+		"envs/env1.yaml"
+	message:
+		"Demultiplexing single fast5 files"
+	threads: 32
+	shell:
+		"""
+		grep {wildcards.barcode} {input.basecalled_summary} | cut -f1 > {output.demultiplexed_list}
+		for file in $(cat {output.demultiplexed_list}); do mv "$file" {output.demultiplexed_dir}; done
+		touch {output.checkpoint}
 		"""
 
 rule annotate_tombo:
 	input:
-		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
-		basecalled_dir=dirs_dict["BASECALLED"] + "/{barcode}",
+		demultiplexed_dir=dirs_dict["demultiplexed"] + "/{barcode}",
+		basecalled_dir=directory(dirs_dict["BASECALLED"] + "/pass/{barcode}"),
 	output:
 #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
 		annotated=(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt"),
@@ -451,3 +436,42 @@ rule cosito:
 # 		"""
 
 #include: os.path.join(RULES_DIR, 'resultsParsing.smk')
+
+
+# rule get_Deepbinner:
+# 	output:
+# #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
+# 		#demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
+# 		deepbinner_dir=directory(dirs_dict["TOOLS"]+ "/Deepbinner"),
+# 	params:
+# 		tools_dir=dirs_dict["TOOLS"],
+# 	conda:
+# 		"envs/env1.yaml"
+# 	message:
+# 		"Get Deepbinner"
+# 	shell:
+# 		"""
+# 		git clone https://github.com/rrwick/Deepbinner.git {output.deepbinner_dir}
+# 		"""
+#
+# rule demultiplexing_Deepbinner:
+# 	input:
+# 		single_data=directory(dirs_dict["SINGLE"]),
+# 		deepbinner_dir=dirs_dict["TOOLS"]+ "/Deepbinner",
+# 	output:
+# #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
+# 		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
+# 		#demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
+# 	params:
+# 		tools_dir=dirs_dict["TOOLS"],
+# 		demultiplexed_dir=directory((dirs_dict["DEMULTIPLEXED"])),
+# 		rapid_model=dirs_dict["TOOLS"]+ "/Deepbinner/models/SQK-RBK004_read_starts",
+#
+# 	conda:
+# 		"envs/env1.yaml"
+# 	message:
+# 		"Demultiplexing fast5 files with Deepbinner"
+# 	shell:
+# 		"""
+# 		{input.deepbinner_dir}/deepbinner-runner.py realtime --in_dir {input.single_data} --out_dir {params.demultiplexed_dir} -s {params.rapid_model} --stop
+# 		"""
