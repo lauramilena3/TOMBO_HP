@@ -190,13 +190,13 @@ rule tombo_sample_compare:
 		#basecalled_control=dirs_dict["BASECALLED"] + "/{control}",
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
-		stats=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}.tombo.stats" ,
+		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo.stats" ,
 		#significant_filtered=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}.sig_filtered.fasta",
-		minus=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_minusmod.wig",
-		plus=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_plusmod.wig",
+		minus=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_minusmod.wig",
+		plus=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_plusmod.wig",
 		#minus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_minusmod_corrected.wig",
 		#plus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_plusmod_corrected.wig",
-		significant=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_tombo_results.significant_regions.fasta",
+		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_tombo_results.significant_regions.fasta",
 	params:
 		name="{genome}_{sample}_{control}",
 	wildcard_constraints:
