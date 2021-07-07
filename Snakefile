@@ -64,8 +64,8 @@ rule deepsignal_run:
 
 rule tombo_run:
 	input:
-		expand(dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}.tombo.stats", genome=GENOME_name, sample=SAMPLES),
-		expand(dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}.tombo.stats", genome=GENOME_name, sample=SAMPLES, control=CONTROL),
+		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo.stats", genome=GENOME_name, sample=SAMPLES),
+		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo.stats", genome=GENOME_name, sample=SAMPLES, control=CONTROL),
 
 rule get_rerio_model:
 	output:
@@ -97,8 +97,6 @@ rule multi_to_single_fast5:
 		"""
 		multi_to_single_fast5 --input_path {input} --save_path {output} -t {threads}
 		"""
-
-
 rule guppy_basecalling:
 	input:
 		single_data=directory(dirs_dict["SINGLE"]),
@@ -201,6 +199,8 @@ rule tombo_sample_compare:
 		significant=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_tombo_results.significant_regions.fasta",
 	params:
 		name="{genome}_{sample}_{control}",
+    wildcard_constraints:
+        control="barcode.."
 	conda:
 		"envs/env1.yaml"
 	message:
