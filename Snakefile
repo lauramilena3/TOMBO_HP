@@ -134,7 +134,7 @@ rule annotate_tombo:
 		"envs/env2.yaml"
 	message:
 		"Annotating fast5 files with fastq basecalls"
-	threads: 8
+	threads: 16
 	shell:
 		"""
 		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.single_data} --fastq-filenames {input.basecalled_dir}/{wildcards.barcode}/*fastq --sequencing-summary-filenames {input.basecalled_summary} --overwrite --processes {threads}
@@ -169,7 +169,7 @@ rule resquiggle_tombo:
 		genome=GENOME,
 	output:
 		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{barcode}.txt"),
-	threads: 8
+	threads: 16
 	conda:
 		"envs/env2.yaml"
 	shell:
