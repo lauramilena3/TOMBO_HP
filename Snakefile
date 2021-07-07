@@ -236,6 +236,8 @@ rule tombo_denovo:
 	params:
 		name="{genome}_{sample}_de_novo",
 	wildcard_constraints:
+		control="barcode..",
+		sample="barcode..",
 		genome=GENOME_name,
 	conda:
 		"envs/env1.yaml"
