@@ -100,7 +100,7 @@ rule guppy_basecalling:
 	output:
 #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
 		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
-		basecalled_dir=directory(dirs_dict["BASECALLED"] + "/pass/"),
+		basecalled_dir=directory(dirs_dict["BASECALLED"]),
 	params:
 		flowcell=FLOWCELL,
 		kit=KIT,
@@ -137,7 +137,7 @@ rule guppy_demultiplexing:
 rule annotate_tombo:
 	input:
 		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
-		basecalled_dir=directory(dirs_dict["BASECALLED"] + "/pass/"),
+		basecalled_dir=directory(dirs_dict["BASECALLED"] ),
 	output:
 #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
 		annotated=(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt"),
@@ -151,7 +151,7 @@ rule annotate_tombo:
 	threads: 8
 	shell:
 		"""
-		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.demultiplexed_dir} --fastq-filenames {input.basecalled_dir}/{wildcards.barcode}/*fastq --overwrite --processes {threads}
+		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.demultiplexed_dir} --fastq-filenames {input.basecalled_dir}/pass/{wildcards.barcode}/*fastq --overwrite --processes {threads}
 		touch {output.annotated}
 		"""
 
