@@ -128,6 +128,7 @@ rule guppy_demultiplexing:
 	threads: 1
 	shell:
 		"""
+		mkdir {output.demultiplexed_dir}
 		grep {wildcards.barcode} {input.basecalled_summary} | cut -f1 > {output.demultiplexed_list}
 		for file in $(cat {output.demultiplexed_list}); do mv {input.single_data}/*/"$file" {output.demultiplexed_dir}; done
 		touch {output.checkpoint}
