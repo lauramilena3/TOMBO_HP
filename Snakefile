@@ -46,8 +46,8 @@ rule all:
 		#expand(dirs_dict["GUPPY"] + "/{barcode}/fastq/{barcode}.fastq",barcode=BARCODES),
 #		cp fastq_runid_*{params.barcode_number}_0.fastq {output.basecalled}
 #		directory(expand(dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES),
-		# expand(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt", barcode=BARCODES),
-		expand(dirs_dict["SINGLE"] + "/{barcode}", barcode=BARCODES),
+		expand(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt", barcode=BARCODES),
+#		expand(dirs_dict["SINGLE"] + "/{barcode}", barcode=BARCODES),
 #		expand(dirs_dict["MEGALODON"] + "/{barcode}", barcode=BARCODES),
 #		expand(dirs_dict["DEEPSIGNAL"] + "/{barcode}_deepsignal-prob.tsv", barcode=BARCODES),
 
@@ -65,7 +65,7 @@ rule deepsignal_run:
 
 rule tombo_run:
 	input:
-		expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}.tombo.stats", sample=SAMPLES),
+#		expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}.tombo.stats", sample=SAMPLES),
 		expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL),
 
 rule get_rerio_model:
