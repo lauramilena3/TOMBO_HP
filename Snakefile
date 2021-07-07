@@ -24,7 +24,7 @@ SAMPLES=config['samples'].split()
 CONTROL=config['control']
 BARCODES=SAMPLES+[CONTROL]
 dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "SINGLE", "BASECALLED", "DEMULTIPLEXED", "GENOMES", "TOMBO", "MEGALODON", "DEEPSIGNAL"]
-dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/01_FAST5_SINGLE", OUTPUT_DIR + "/02_BASECALLED", OUTPUT_DIR + "/03_DEMULTIPLEXED", OUTPUT_DIR + "/GENOMES", OUTPUT_DIR + "/03_TOMBO", OUTPUT_DIR + "/04_MEGALODON", OUTPUT_DIR + "/05_DEEPSIGNAL"]
+dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/03_FAST5_SINGLE", OUTPUT_DIR + "/01_BASECALLED", OUTPUT_DIR + "/02_DEMULTIPLEXED", OUTPUT_DIR + "/GENOMES", OUTPUT_DIR + "/04_TOMBO", OUTPUT_DIR + "/05_MEGALODON", OUTPUT_DIR + "/06_DEEPSIGNAL"]
 dirs_dict = dict(zip(dir_list, dir_names))
 MODEL_MEGALODON=config['megalodon_model']
 #SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{{input.sample}}_" +".fast5")
@@ -47,7 +47,7 @@ rule all:
 #		cp fastq_runid_*{params.barcode_number}_0.fastq {output.basecalled}
 #		directory(expand(dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES),
 		# expand(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt", barcode=BARCODES),
-		expand(dirs_dict["DEMULTIPLEXED"] + "/{barcode}_checkpoint.txt", barcode=BARCODES),
+		expand(dirs_dict["SINGLE"] + "/{barcode}", barcode=BARCODES),
 #		expand(dirs_dict["MEGALODON"] + "/{barcode}", barcode=BARCODES),
 #		expand(dirs_dict["DEEPSIGNAL"] + "/{barcode}_deepsignal-prob.tsv", barcode=BARCODES),
 
@@ -84,23 +84,10 @@ rule get_rerio_model:
 		./download_model.py basecall_models/res_dna_r941_min_modbases_5mC_CpG_v001
 		"""
 
-rule multi_to_single_fast5:
-	input:
-		raw_data=RAW_DATA_DIR,
-	output:
-		single_data=directory(dirs_dict["SINGLE"])
-	conda:
-		"envs/env1.yaml"
-	message:
-		"Converting multi fast5 to single fast5"
-	threads: 32
-	shell:
-		"""
-		multi_to_single_fast5 --input_path {input} --save_path {output} -t {threads}
-		"""
+
 rule guppy_basecalling:
 	input:
-		single_data=directory(dirs_dict["SINGLE"]),
+		raw_data=RAW_DATA_DIR,
 	output:
 #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
 		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
@@ -116,7 +103,41 @@ rule guppy_basecalling:
 	threads: 32
 	shell:
 		"""
-		guppy_basecaller -i {input.single_data} -s {params.basecalled_dir} -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit} --barcode_kits {params.kit}
+		guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit} --barcode_kits {params.kit}
+		"""
+
+rule demultiplexing:
+	input:
+		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
+		raw_data=RAW_DATA_DIR,
+		# annotated=(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt"),
+	output:
+		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
+		demultiplexed_list=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_fast5_list.txt",
+#		checkpoint=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_checkpoint.txt",
+	message:
+		"Demultiplexing single fast5 files"
+	threads: 1
+	shell:
+		"""
+		#mkdir {output.demultiplexed_dir}
+		grep {wildcards.barcode} {input.basecalled_summary} | cut -f2 > {output.demultiplexed_list}
+		fast5_subset -i {input.raw_data} -s {output.demultiplexed_dir} -l output.demultiplexed_list}
+		"""
+		
+rule multi_to_single_fast5:
+	input:
+		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
+	output:
+		single_data=directory(dirs_dict["SINGLE"]+ "/{barcode}")
+	conda:
+		"envs/env1.yaml"
+	message:
+		"Converting multi fast5 to single fast5"
+	threads: 16
+	shell:
+		"""
+		multi_to_single_fast5 --input_path {input.demultiplexed_dir} --save_path {output.single_data} -t {threads}
 		"""
 
 rule annotate_tombo:
@@ -141,25 +162,6 @@ rule annotate_tombo:
 		touch {output.annotated}
 		"""
 
-rule demultiplexing:
-	input:
-		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
-		single_data=directory(dirs_dict["SINGLE"]),
-		annotated=(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt"),
-	output:
-		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
-		demultiplexed_list=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_fast5_list.txt",
-		checkpoint=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_checkpoint.txt",
-	message:
-		"Demultiplexing single fast5 files"
-	threads: 1
-	shell:
-		"""
-		mkdir {output.demultiplexed_dir}
-		grep {wildcards.barcode} {input.basecalled_summary} | cut -f1 > {output.demultiplexed_list}
-		for file in $(cat {output.demultiplexed_list}); do cp {input.single_data}/*/"$file" {output.demultiplexed_dir}; done
-		touch {output.checkpoint}
-		"""
 
 rule resquiggle_tombo:
 	input:
