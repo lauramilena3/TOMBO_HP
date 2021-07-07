@@ -121,7 +121,7 @@ rule demultiplexing:
 	shell:
 		"""
 		grep {wildcards.barcode} {input.basecalled_summary} | cut -f2 > {output.demultiplexed_list}
-		fast5_subset -i {input.raw_data} -s {output.demultiplexed_dir_temp} -l {output.demultiplexed_list} -n 1
+		fast5_subset -i {input.raw_data} -s {output.demultiplexed_dir} -l {output.demultiplexed_list} -n 1
 		"""
 
 
