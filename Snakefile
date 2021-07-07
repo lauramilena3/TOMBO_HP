@@ -119,29 +119,9 @@ rule guppy_basecalling:
 		guppy_basecaller -i {input.single_data} -s {params.basecalled_dir} -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit} --barcode_kits {params.kit}
 		"""
 
-rule guppy_demultiplexing:
-	input:
-		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
-		single_data=directory(dirs_dict["SINGLE"]),
-	output:
-		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
-		demultiplexed_list=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_fast5_list.txt",
-		checkpoint=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_checkpoint.txt",
-	message:
-		"Demultiplexing single fast5 files"
-	threads: 1
-	shell:
-		"""
-		mkdir {output.demultiplexed_dir}
-		grep {wildcards.barcode} {input.basecalled_summary} | cut -f1 > {output.demultiplexed_list}
-		for file in $(cat {output.demultiplexed_list}); do cp {input.single_data}/*/"$file" {output.demultiplexed_dir}; done
-		touch {output.checkpoint}
-		"""
-
 rule annotate_tombo:
 	input:
 		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
-		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
 		single_data=directory(dirs_dict["SINGLE"]),
 		basecalled_dir=directory(dirs_dict["BASECALLED"] + "/pass"),
 	output:
@@ -162,6 +142,26 @@ rule annotate_tombo:
 		touch {output.annotated}
 		"""
 
+rule demultiplexing:
+	input:
+		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
+		single_data=directory(dirs_dict["SINGLE"]),
+		annotated=(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt"),
+	output:
+		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
+		demultiplexed_list=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_fast5_list.txt",
+		checkpoint=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_checkpoint.txt",
+	message:
+		"Demultiplexing single fast5 files"
+	threads: 1
+	shell:
+		"""
+		mkdir {output.demultiplexed_dir}
+		grep {wildcards.barcode} {input.basecalled_summary} | cut -f1 > {output.demultiplexed_list}
+		for file in $(cat {output.demultiplexed_list}); do cp {input.single_data}/*/"$file" {output.demultiplexed_dir}; done
+		touch {output.checkpoint}
+		"""
+		
 rule resquiggle_tombo:
 	input:
 		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
