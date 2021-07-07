@@ -199,7 +199,7 @@ rule tombo_sample_compare:
 		significant=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_tombo_results.significant_regions.fasta",
 	params:
 		name="{genome}_{sample}_{control}",
-    wildcard_constraints:
+	wildcard_constraints:
         control="barcode.."
 	conda:
 		"envs/env1.yaml"
