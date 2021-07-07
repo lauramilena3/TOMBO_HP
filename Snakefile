@@ -140,7 +140,9 @@ rule guppy_demultiplexing:
 
 rule annotate_tombo:
 	input:
-		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
+		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
+		#demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
+		single_data=directory(dirs_dict["SINGLE"]),
 		basecalled_dir=directory(dirs_dict["BASECALLED"] + "/pass/"),
 	output:
 #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
@@ -155,7 +157,7 @@ rule annotate_tombo:
 	threads: 8
 	shell:
 		"""
-		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.demultiplexed_dir} --fastq-filenames {input.basecalled_dir}/{wildcards.barcode}/*fastq --overwrite --processes {threads}
+		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.single_data} --fastq-filenames {input.basecalled_dir}/{wildcards.barcode}/*fastq --overwrite --processes {threads} 
 		touch {output.annotated}
 		"""
 
