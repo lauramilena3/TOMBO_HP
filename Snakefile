@@ -200,7 +200,7 @@ rule tombo_sample_compare:
 	params:
 		name="{genome}_{sample}_{control}",
 	wildcard_constraints:
-        control="barcode.."
+		control="barcode.."
 	conda:
 		"envs/env1.yaml"
 	message:
