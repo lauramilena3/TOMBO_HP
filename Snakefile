@@ -112,7 +112,7 @@ rule demultiplexing:
 		raw_data=RAW_DATA_DIR,
 		# annotated=(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt"),
 	output:
-		demultiplexed_dir_temp=temp(directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}")),
+		demultiplexed_dir_temp=temp(directory(dirs_dict["DEMULTIPLEXED"] + "/temp_{barcode}")),
 		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
 		demultiplexed_list=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_fast5_list.txt",
 #		checkpoint=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_checkpoint.txt",
