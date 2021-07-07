@@ -142,7 +142,7 @@ rule multi_to_single_fast5:
 rule annotate_tombo:
 	input:
 		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
-		single_data=directory(dirs_dict["SINGLE"]),
+		single_data=directory(dirs_dict["SINGLE"] + "/{barcode}"),
 		basecalled_dir=directory(dirs_dict["BASECALLED"] + "/pass"),
 	output:
 #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
@@ -181,8 +181,6 @@ rule resquiggle_tombo:
 
 rule tombo_sample_compare:
 	input:
- 		sample_demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{sample}",
-		control_demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{control}",
 		sample=(dirs_dict["DEMULTIPLEXED"] + "/{sample}"),
 		control=(dirs_dict["DEMULTIPLEXED"] + "/{control}"),
 		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{sample}.txt"),
