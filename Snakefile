@@ -120,11 +120,10 @@ rule demultiplexing:
 	threads: 1
 	shell:
 		"""
-		#mkdir {output.demultiplexed_dir}
 		grep {wildcards.barcode} {input.basecalled_summary} | cut -f2 > {output.demultiplexed_list}
-		fast5_subset -i {input.raw_data} -s {output.demultiplexed_dir} -l output.demultiplexed_list}
+		fast5_subset -i {input.raw_data} -s {output.demultiplexed_dir} -l {output.demultiplexed_list}
 		"""
-		
+
 rule multi_to_single_fast5:
 	input:
 		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
