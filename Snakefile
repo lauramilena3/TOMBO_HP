@@ -64,7 +64,7 @@ rule deepsignal_run:
 
 rule tombo_run:
 	input:
-		expand(dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_de_novo.tombo.stats", genome=GENOME_name, sample=SAMPLES),
+		expand(dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}.de_novo.tombo.stats", genome=GENOME_name, sample=SAMPLES),
 		expand(dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}.tombo.stats", genome=GENOME_name, sample=SAMPLES, control=CONTROL),
 
 rule get_rerio_model:
@@ -224,7 +224,7 @@ rule tombo_denovo:
 		genome=GENOME_dir + "/{genome}.fasta",
 		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{sample}.txt"),
 	output:
-		stats=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_de_novo.tombo.stats" ,
+		stats=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}.de_novo.tombo.stats" ,
 		#significant_filtered=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}.sig_filtered.fasta",
 		minus=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_de_novo_minusmod.wig",
 		plus=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_de_novo_plusmod.wig",
