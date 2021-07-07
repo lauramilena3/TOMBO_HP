@@ -45,7 +45,8 @@ rule all:
 		#expand(dirs_dict["GUPPY"] + "/{barcode}/fastq/{barcode}.fastq",barcode=BARCODES),
 #		cp fastq_runid_*{params.barcode_number}_0.fastq {output.basecalled}
 #		directory(expand(dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES),
-		expand(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt", barcode=BARCODES),
+		# expand(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt", barcode=BARCODES),
+		expand(dirs_dict["DEMULTIPLEXED"] + "/{barcode}_checkpoint.txt", barcode=BARCODES),
 #		expand(dirs_dict["MEGALODON"] + "/{barcode}", barcode=BARCODES),
 #		expand(dirs_dict["DEEPSIGNAL"] + "/{barcode}_deepsignal-prob.tsv", barcode=BARCODES),
 
@@ -161,7 +162,7 @@ rule demultiplexing:
 		for file in $(cat {output.demultiplexed_list}); do cp {input.single_data}/*/"$file" {output.demultiplexed_dir}; done
 		touch {output.checkpoint}
 		"""
-		
+
 rule resquiggle_tombo:
 	input:
 		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
