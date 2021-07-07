@@ -112,7 +112,6 @@ rule demultiplexing:
 		raw_data=RAW_DATA_DIR,
 		# annotated=(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt"),
 	output:
-		demultiplexed_dir_temp=temp(directory(dirs_dict["DEMULTIPLEXED"] + "/temp_{barcode}")),
 		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
 		demultiplexed_list=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_fast5_list.txt",
 #		checkpoint=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_checkpoint.txt",
@@ -122,30 +121,29 @@ rule demultiplexing:
 	shell:
 		"""
 		grep {wildcards.barcode} {input.basecalled_summary} | cut -f2 > {output.demultiplexed_list}
-		fast5_subset -i {input.raw_data} -s {output.demultiplexed_dir_temp} -l {output.demultiplexed_list}
-		mv {output.demultiplexed_dir_temp}/*/*fast5 {output.demultiplexed_dir}
+		fast5_subset -i {input.raw_data} -s {output.demultiplexed_dir_temp} -l {output.demultiplexed_list} -n 1
 		"""
 
 
-rule multi_to_single_fast5:
-	input:
-		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
-	output:
-		single_data=directory(dirs_dict["SINGLE"]+ "/{barcode}")
-	conda:
-		"envs/env1.yaml"
-	message:
-		"Converting multi fast5 to single fast5"
-	threads: 16
-	shell:
-		"""
-		multi_to_single_fast5 --input_path {input.demultiplexed_dir} --save_path {output.single_data} -t {threads}
-		"""
+# rule multi_to_single_fast5:
+# 	input:
+# 		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
+# 	output:
+# 		single_data=directory(dirs_dict["SINGLE"]+ "/{barcode}")
+# 	conda:
+# 		"envs/env1.yaml"
+# 	message:
+# 		"Converting multi fast5 to single fast5"
+# 	threads: 16
+# 	shell:
+# 		"""
+# 		multi_to_single_fast5 --input_path {input.demultiplexed_dir} --save_path {output.single_data} -t {threads}
+# 		"""
 
 rule annotate_tombo:
 	input:
 		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
-		single_data=directory(dirs_dict["SINGLE"] + "/{barcode}"),
+		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
 		basecalled_dir=directory(dirs_dict["BASECALLED"] + "/pass"),
 	output:
 #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
@@ -160,10 +158,10 @@ rule annotate_tombo:
 	threads: 16
 	shell:
 		"""
-		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.single_data} --fastq-filenames {input.basecalled_dir}/{wildcards.barcode}/*fastq --sequencing-summary-filenames {input.basecalled_summary} --overwrite --processes {threads}
+		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.demultiplexed_dir} --fastq-filenames {input.basecalled_dir}/{wildcards.barcode}/*fastq --sequencing-summary-filenames {input.basecalled_summary} --overwrite --processes {threads}
 		touch {output.annotated}
 		"""
-		
+
 rule resquiggle_tombo:
 	input:
 		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
