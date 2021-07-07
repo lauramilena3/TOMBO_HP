@@ -141,7 +141,7 @@ rule guppy_demultiplexing:
 rule annotate_tombo:
 	input:
 		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
-		#demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
+		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
 		single_data=directory(dirs_dict["SINGLE"]),
 		basecalled_dir=directory(dirs_dict["BASECALLED"] + "/pass"),
 	output:
