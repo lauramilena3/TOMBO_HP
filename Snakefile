@@ -65,8 +65,8 @@ rule deepsignal_run:
 
 rule tombo_run:
 	input:
-		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo.stats", genome=GENOME_name, sample=SAMPLES),
-		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo.stats", genome=GENOME_name, sample=SAMPLES, control=CONTROL),
+		expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{genome}_{sample}.tombo.stats", sample=SAMPLES),
+		expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL),
 
 rule get_rerio_model:
 	output:
