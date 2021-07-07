@@ -123,11 +123,9 @@ rule guppy_demultiplexing:
 		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
 		demultiplexed_list=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_fast5_list.txt",
 		checkpoint=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_checkpoint.txt",
-	conda:
-		"envs/env1.yaml"
 	message:
 		"Demultiplexing single fast5 files"
-	threads: 32
+	threads: 1
 	shell:
 		"""
 		grep {wildcards.barcode} {input.basecalled_summary} | cut -f1 > {output.demultiplexed_list}
@@ -137,7 +135,7 @@ rule guppy_demultiplexing:
 
 rule annotate_tombo:
 	input:
-		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
+		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
 		basecalled_dir=directory(dirs_dict["BASECALLED"] + "/pass/"),
 	output:
 #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
