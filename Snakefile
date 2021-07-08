@@ -123,24 +123,23 @@ rule demultiplexing:
 	shell:
 		"""
 		grep {wildcards.barcode} {input.basecalled_summary}| cut -f2 > {output.demultiplexed_list}
-		fast5_subset -i {input.workspace_dir} -s {output.demultiplexed_dir} -l {output.demultiplexed_list} -n 1
+		fast5_subset -i {input.workspace_dir} -s {output.demultiplexed_dir} -l {output.demultiplexed_list} -n 1000000000
 		"""
 
-
-# rule multi_to_single_fast5:
-# 	input:
-# 		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
-# 	output:
-# 		single_data=directory(dirs_dict["SINGLE"]+ "/{barcode}")
-# 	conda:
-# 		"envs/env1.yaml"
-# 	message:
-# 		"Converting multi fast5 to single fast5"
-# 	threads: 16
-# 	shell:
-# 		"""
-# 		multi_to_single_fast5 --input_path {input.demultiplexed_dir} --save_path {output.single_data} -t {threads}
-# 		"""
+rule multi_to_single_fast5:
+	input:
+		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
+	output:
+		single_data=directory(dirs_dict["SINGLE"]+ "/{barcode}")
+	conda:
+		"envs/env1.yaml"
+	message:
+		"Converting multi fast5 to single fast5"
+	threads: 16
+	shell:
+		"""
+		multi_to_single_fast5 --input_path {input.demultiplexed_dir} --save_path {output.single_data} -t {threads}
+		"""
 
 # rule annotate_tombo:
 # 	input:
@@ -166,8 +165,8 @@ rule demultiplexing:
 
 rule resquiggle_tombo:
 	input:
-		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
-		#annotated=(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt"),
+		#demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
+		single_data=directory(dirs_dict["SINGLE"]+ "/{barcode}")
 		genome=GENOME,
 	output:
 		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{barcode}.txt"),
@@ -176,15 +175,15 @@ rule resquiggle_tombo:
 		"envs/env2.yaml"
 	shell:
 		"""
-		tombo resquiggle --dna {input.demultiplexed_dir} {input.genome} --processes {threads} --overwrite --ignore-read-locks
+		tombo resquiggle --dna {input.single_data} {input.genome} --processes {threads} --overwrite --ignore-read-locks
 		touch {output.resquiggled}
 		"""
 
 
 rule tombo_sample_compare:
 	input:
-		sample=(dirs_dict["DEMULTIPLEXED"] + "/{sample}"),
-		control=(dirs_dict["DEMULTIPLEXED"] + "/{control}"),
+		sample=(dirs_dict["SINGLE"] + "/{sample}"),
+		control=(dirs_dict["SINGLE"] + "/{control}"),
 		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{sample}.txt"),
 		resquiggled2=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{control}.txt"),
 		#basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}",
