@@ -123,7 +123,7 @@ rule demultiplexing:
 	shell:
 		"""
 		grep {wildcards.barcode} {input.basecalled_summary}| cut -f2 > {output.demultiplexed_list}
-		fast5_subset -i {input.workspace_dir} -s {output.demultiplexed_dir} -l {output.demultiplexed_list} -n 1000000000
+		fast5_subset -i {input.workspace_dir} -s {output.demultiplexed_dir} -l {output.demultiplexed_list} -n 1
 		"""
 
 
