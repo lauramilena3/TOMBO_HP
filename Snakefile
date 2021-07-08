@@ -144,7 +144,7 @@ rule annotate_tombo:
 	input:
 		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
 		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
-		basecalled_dir=directory(dirs_dict["BASECALLED"] + "/pass"),
+		basecalled_dir=directory(dirs_dict["BASECALLED"] + "/pass/{barcode}"),
 	output:
 #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
 		annotated=(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt"),
