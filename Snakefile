@@ -184,8 +184,8 @@ rule tombo_sample_compare:
 	input:
 		sample=(dirs_dict["SINGLE"] + "/{sample}"),
 		control=(dirs_dict["SINGLE"] + "/{control}"),
-		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{sample}.txt"),
-		resquiggled2=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{control}.txt"),
+		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{sample}.txt"),
+		resquiggled2=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{control}.txt"),
 		#basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}",
 		#basecalled_control=dirs_dict["BASECALLED"] + "/{control}",
 		genome=GENOME_dir + "/{genome}.fasta",
