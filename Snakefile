@@ -91,7 +91,7 @@ rule guppy_basecalling:
 	output:
 #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
 		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
-		basecalled_dir=directory(dirs_dict["BASECALLED"] + "/pass"),
+		basecalled_dir=extend(directory(dirs_dict["BASECALLED"] + "/pass/{barcode}"),barcode=BARCODES),
 	params:
 		flowcell=FLOWCELL,
 		kit=KIT,
@@ -103,13 +103,13 @@ rule guppy_basecalling:
 	threads: 32
 	shell:
 		"""
-		guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit} --barcode_kits {params.kit}
+		guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit} --barcode_kits {params.kit} --fast5_out
 		"""
 
 rule demultiplexing:
 	input:
 		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
-		raw_data=RAW_DATA_DIR,
+		basecalled_dir=dirs_dict["BASECALLED"] + "/{barcode}",
 		# annotated=(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt"),
 	output:
 		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
@@ -121,7 +121,7 @@ rule demultiplexing:
 	shell:
 		"""
 		grep {wildcards.barcode} {input.basecalled_summary} | cut -f2 > {output.demultiplexed_list}
-		fast5_subset -i {input.raw_data} -s {output.demultiplexed_dir} -l {output.demultiplexed_list} -n 1
+		fast5_subset -i {input.raw_data} -s {output.demultiplexed_dir} -l {output.demultiplexed_list} -n 1000000000
 		"""
 
 
