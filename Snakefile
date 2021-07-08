@@ -130,7 +130,7 @@ rule multi_to_single_fast5:
 	input:
 		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
 	output:
-		single_data=directory(dirs_dict["SINGLE"]+ "/{barcode}")
+		single_data=directory(dirs_dict["SINGLE"]+ "/{barcode}"),
 	conda:
 		"envs/env1.yaml"
 	message:
@@ -166,7 +166,7 @@ rule multi_to_single_fast5:
 rule resquiggle_tombo:
 	input:
 		#demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
-		single_data=directory(dirs_dict["SINGLE"]+ "/{barcode}")
+		single_data=directory(dirs_dict["SINGLE"]+ "/{barcode}"),
 		genome=GENOME,
 	output:
 		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{barcode}.txt"),
