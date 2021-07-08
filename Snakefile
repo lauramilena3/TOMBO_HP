@@ -160,7 +160,7 @@ rule annotate_tombo:
 	threads: 16
 	shell:
 		"""
-		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.demultiplexed_dir} --fastq-filenames {input.basecalled_dir}/{wildcards.barcode}/*fastq --sequencing-summary-filenames {input.basecalled_summary} --overwrite --processes {threads}
+		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.demultiplexed_dir} --fastq-filenames {input.basecalled_dir}/*fastq --sequencing-summary-filenames {input.basecalled_summary} --overwrite --processes {threads}
 		touch {output.annotated}
 		"""
 
