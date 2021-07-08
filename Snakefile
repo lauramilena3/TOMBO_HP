@@ -169,7 +169,7 @@ rule resquiggle_tombo:
 		single_data=directory(dirs_dict["SINGLE"]+ "/{barcode}"),
 		genome=GENOME,
 	output:
-		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{barcode}.txt"),
+		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{barcode}.txt"),
 	threads: 16
 	conda:
 		"envs/env2.yaml"
