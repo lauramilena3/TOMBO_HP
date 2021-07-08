@@ -109,7 +109,7 @@ rule guppy_basecalling:
 rule demultiplexing:
 	input:
 		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
-		basecalled_dir=dirs_dict["BASECALLED"] + "/{barcode}",
+		#basecalled_dir=dirs_dict["BASECALLED"] + "/{barcode}",
 		# annotated=(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt"),
 	output:
 		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
@@ -120,7 +120,7 @@ rule demultiplexing:
 	threads: 1
 	shell:
 		"""
-		grep {wildcards.barcode} {input.basecalled_summary} | cut -f2 > {output.demultiplexed_list}
+		grep {wildcards.barcode} | cut -f2 > {output.demultiplexed_list}
 		fast5_subset -i {input.raw_data} -s {output.demultiplexed_dir} -l {output.demultiplexed_list} -n 1000000000
 		"""
 
