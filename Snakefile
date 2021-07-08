@@ -142,32 +142,32 @@ rule demultiplexing:
 # 		multi_to_single_fast5 --input_path {input.demultiplexed_dir} --save_path {output.single_data} -t {threads}
 # 		"""
 
-rule annotate_tombo:
-	input:
-		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
-		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
-		basecalled_dir=directory(dirs_dict["BASECALLED"] + "/pass/{barcode}"),
-	output:
-#		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
-		annotated=(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt"),
-	params:
-		flowcell=FLOWCELL,
-		kit=KIT,
-	conda:
-		"envs/env2.yaml"
-	message:
-		"Annotating fast5 files with fastq basecalls"
-	threads: 16
-	shell:
-		"""
-		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.demultiplexed_dir} --fastq-filenames {input.basecalled_dir}/*fastq --sequencing-summary-filenames {input.basecalled_summary} --overwrite --processes {threads}
-		touch {output.annotated}
-		"""
+# rule annotate_tombo:
+# 	input:
+# 		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
+# 		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
+# 		basecalled_dir=directory(dirs_dict["BASECALLED"] + "/pass/{barcode}"),
+# 	output:
+# #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
+# 		annotated=(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt"),
+# 	params:
+# 		flowcell=FLOWCELL,
+# 		kit=KIT,
+# 	conda:
+# 		"envs/env2.yaml"
+# 	message:
+# 		"Annotating fast5 files with fastq basecalls"
+# 	threads: 16
+# 	shell:
+# 		"""
+# 		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.demultiplexed_dir} --fastq-filenames {input.basecalled_dir}/*fastq --sequencing-summary-filenames {input.basecalled_summary} --overwrite --processes {threads}
+# 		touch {output.annotated}
+# 		"""
 
 rule resquiggle_tombo:
 	input:
 		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
-		annotated=(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt"),
+		#annotated=(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt"),
 		genome=GENOME,
 	output:
 		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{barcode}.txt"),
