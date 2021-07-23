@@ -221,10 +221,10 @@ rule tombo_sample_compare:
 
 rule tombo_denovo:
 	input:
- 		sample=dirs_dict["DEMULTIPLEXED"] + "/{sample}",
+		sample=(dirs_dict["SINGLE"] + "/{sample}"),
 		#basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}",
 		genome=GENOME_dir + "/{genome}.fasta",
-		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{sample}.txt"),
+		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{sample}.txt"),
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo.stats" ,
 		#significant_filtered=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}.sig_filtered.fasta",
