@@ -66,8 +66,8 @@ rule deepsignal_run:
 
 rule tombo_run:
 	input:
-		expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}.tombo.stats", sample=SAMPLES),
-		expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL),
+		expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}.tombo_denovo.stats", sample=SAMPLES),
+		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL),
 
 rule get_rerio_model:
 	output:
@@ -382,52 +382,52 @@ rule megalodon:
 # 		"""
 #
 
+#
+# rule reformat_genome:
+# 	input:
+# 		genome=dirs_dict["GENOMES"] + "/{genome}.fasta",
+# 	output:
+# 		genome_oneline=dirs_dict["GENOMES"] + "/{genome}_one.fasta",
+# 	shell:
+# 		"""
+# 		grep -v ">" {input.genome} | sed 's/./\\0\\n/g' | sed '/^$/d' > {output.genome_oneline}
+# 		"""
 
-rule reformat_genome:
-	input:
-		genome=dirs_dict["GENOMES"] + "/{genome}.fasta",
-	output:
-		genome_oneline=dirs_dict["GENOMES"] + "/{genome}_one.fasta",
-	shell:
-		"""
-		grep -v ">" {input.genome} | sed 's/./\\0\\n/g' | sed '/^$/d' > {output.genome_oneline}
-		"""
-
-rule cosito:
-	input:
-		RAW_DATA_DIR
-	output:
-		temp(expand(OUTPUT_DIR + "/01_porechopped_data/{barcode}.fastq", barcode=BARCODES))
-	params:
-		output_dir=OUTPUT_DIR + "/01_porechopped_data"
-	conda:
-		"envs/env1.yaml"
-	message:
-		"Demultiplexing"
-	threads: 16
-	shell:
-		"""
-		head -n 25 scripts/logo.txt
-		counter=1
-		n=$(ls -l {input}/*fastq | wc -l )
-		rm -f {params.output_dir}/*fastq
-		for filename in {input}/*fastq
-		do
-			echo "Processing {input.sample} $counter/$n"
-			porechop -i $filename -b dir_$filename -t {threads} --discard_unassigned --verbosity 0 > /dev/null 2>&1
-			for bar in dir_$filename/*.fastq
-			do
-				f=$(basename -- $bar)
-				cat $bar >> {params.output_dir}/$f
-			done
-			rm -rf dir_$filename
-			counter=$((counter+1))
-		done
-		line=$(echo {BARCODES})
-		for barcode in $line
-		do
-			touch {params.output_dir}/$barcode.fastq
-		done
+# rule cosito:
+# 	input:
+# 		RAW_DATA_DIR
+# 	output:
+# 		temp(expand(OUTPUT_DIR + "/01_porechopped_data/{barcode}.fastq", barcode=BARCODES))
+# 	params:
+# 		output_dir=OUTPUT_DIR + "/01_porechopped_data"
+# 	conda:
+# 		"envs/env1.yaml"
+# 	message:
+# 		"Demultiplexing"
+# 	threads: 16
+# 	shell:
+# 		"""
+# 		head -n 25 scripts/logo.txt
+# 		counter=1
+# 		n=$(ls -l {input}/*fastq | wc -l )
+# 		rm -f {params.output_dir}/*fastq
+# 		for filename in {input}/*fastq
+# 		do
+# 			echo "Processing {input.sample} $counter/$n"
+# 			porechop -i $filename -b dir_$filename -t {threads} --discard_unassigned --verbosity 0 > /dev/null 2>&1
+# 			for bar in dir_$filename/*.fastq
+# 			do
+# 				f=$(basename -- $bar)
+# 				cat $bar >> {params.output_dir}/$f
+# 			done
+# 			rm -rf dir_$filename
+# 			counter=$((counter+1))
+# 		done
+# 		line=$(echo {BARCODES})
+# 		for barcode in $line
+# 		do
+# 			touch {params.output_dir}/$barcode.fastq
+# 		done
 		"""
 
 # rule demultiplexing_Deepbinner:
