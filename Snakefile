@@ -226,15 +226,16 @@ rule tombo_denovo:
 		genome=GENOME_dir + "/{genome}.fasta",
 		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{sample}.txt"),
 	output:
-		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo.stats" ,
+		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_denovo.stats" ,
+		readstats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_denovo.per_read_stats" ,
 		#significant_filtered=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}.sig_filtered.fasta",
 		minus=dirs_dict["TOMBO"] + "/{genome}_{sample}_minusmod.wig",
 		plus=dirs_dict["TOMBO"] + "/{genome}_{sample}_plusmod.wig",
 		#minus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_minusmod_corrected.wig",
 		#plus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_plusmod_corrected.wig",
-		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}_tombo_results.significant_regions.fasta",
+		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}_tombo_denovo_results.significant_regions.fasta",
 	params:
-		name="{genome}_{sample}_de_novo",
+		name="{genome}_{sample}_denovo",
 	wildcard_constraints:
 		control="barcode..",
 		sample="barcode..",
@@ -242,11 +243,11 @@ rule tombo_denovo:
 	conda:
 		"envs/env1.yaml"
 	message:
-		"Detecting modified bases with Tombo de novo"
+		"Detecting modified bases with Tombo de novo for sample {sample}"
 	threads: 16
 	shell:
 		"""
-		tombo detect_modifications de_novo --fast5-basedirs {input.sample} --statistics-file-basename {params.name}
+		tombo detect_modifications de_novo --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-filename {output.readstats}
 		mv {params.name}.tombo.stats {output.stats}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
 		mv {params.name}.fraction_modified_reads.plus.wig {output.plus}
