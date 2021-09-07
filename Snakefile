@@ -23,6 +23,8 @@ GENOME_name=os.path.splitext(os.path.basename(GENOME))[0]
 SAMPLES=config['samples'].split()
 CONTROL=config['control']
 BARCODES=SAMPLES+[CONTROL]
+BARCODES = list(filter(None, BARCODES))
+
 dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "SINGLE", "BASECALLED", "DEMULTIPLEXED", "GENOMES", "TOMBO", "MEGALODON", "DEEPSIGNAL"]
 dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/03_FAST5_SINGLE", OUTPUT_DIR + "/01_BASECALLED", OUTPUT_DIR + "/02_DEMULTIPLEXED", OUTPUT_DIR + "/GENOMES", OUTPUT_DIR + "/04_TOMBO", OUTPUT_DIR + "/05_MEGALODON", OUTPUT_DIR + "/06_DEEPSIGNAL"]
 dirs_dict = dict(zip(dir_list, dir_names))
