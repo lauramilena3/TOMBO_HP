@@ -133,7 +133,7 @@ rule qualityCheckNanopore:
 	input:
 		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
 	output:
-		nanoqc_dir=directory(dirs_dict["QC"] + "/{barcode}_nanoplot")),
+		nanoqc_dir=directory(dirs_dict["QC"] + "/{barcode}_nanoplot"),
 	params:
 		raw_fastq=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}/batch0.fastq"),
 	message:
