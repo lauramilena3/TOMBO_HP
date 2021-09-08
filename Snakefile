@@ -25,8 +25,8 @@ CONTROL=config['control']
 BARCODES=SAMPLES+[CONTROL]
 BARCODES = list(filter(None, BARCODES))
 
-dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "SINGLE", "BASECALLED", "DEMULTIPLEXED", "GENOMES", "TOMBO", "MEGALODON", "DEEPSIGNAL"]
-dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/03_FAST5_SINGLE", OUTPUT_DIR + "/01_BASECALLED", OUTPUT_DIR + "/02_DEMULTIPLEXED", OUTPUT_DIR + "/GENOMES", OUTPUT_DIR + "/04_TOMBO", OUTPUT_DIR + "/05_MEGALODON", OUTPUT_DIR + "/06_DEEPSIGNAL"]
+dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "SINGLE", "BASECALLED", "DEMULTIPLEXED", "GENOMES", "TOMBO", "MEGALODON", "DEEPSIGNAL", "QC"]
+dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/03_FAST5_SINGLE", OUTPUT_DIR + "/01_BASECALLED", OUTPUT_DIR + "/02_DEMULTIPLEXED", OUTPUT_DIR + "/GENOMES", OUTPUT_DIR + "/04_TOMBO", OUTPUT_DIR + "/05_MEGALODON", OUTPUT_DIR + "/06_DEEPSIGNAL", OUTPUT_DIR + "/STATS"]
 dirs_dict = dict(zip(dir_list, dir_names))
 MODEL_MEGALODON=config['megalodon_model']
 #SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{{input.sample}}_" +".fast5")
@@ -129,6 +129,22 @@ rule demultiplexing:
 		fast5_subset -i {input.workspace_dir} -s {output.demultiplexed_dir} -l {output.demultiplexed_list} -n 1000000000
 		"""
 
+rule qualityCheckNanopore:
+	input:
+		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
+	output:
+		nanoqc_dir=directory(dirs_dict["QC"] + "/{barcode}_nanoplot")),
+	params:
+		raw_fastq=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}/batch0.fastq"),
+	message:
+		"Performing nanoQC statistics"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env3.yaml"
+	shell:
+		"""
+		nanoQC -o {output.nanoqc_dir} {params.raw_fastq}
+		"""
+
 rule multi_to_single_fast5:
 	input:
 		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
@@ -229,7 +245,7 @@ rule tombo_denovo:
 		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{sample}.txt"),
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_denovo.stats" ,
-		readstats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_denovo.per_read_stats" ,
+		#readstats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_denovo.per_read_stats" ,
 		#significant_filtered=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}.sig_filtered.fasta",
 		minus=dirs_dict["TOMBO"] + "/{genome}_{sample}_minusmod.wig",
 		plus=dirs_dict["TOMBO"] + "/{genome}_{sample}_plusmod.wig",
@@ -238,6 +254,7 @@ rule tombo_denovo:
 		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}_tombo_denovo_results.significant_regions.fasta",
 	params:
 		name="{genome}_{sample}_denovo",
+		readstats="{genome}_{sample}.tombo_denovo_per_read" ,
 	wildcard_constraints:
 		control="barcode..",
 		sample="barcode..",
@@ -249,7 +266,7 @@ rule tombo_denovo:
 	threads: 16
 	shell:
 		"""
-		tombo detect_modifications de_novo --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-filename {output.readstats}
+		tombo detect_modifications de_novo --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.readstats}
 		mv {params.name}.tombo.stats {output.stats}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
 		mv {params.name}.fraction_modified_reads.plus.wig {output.plus}
