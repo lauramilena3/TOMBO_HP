@@ -128,7 +128,7 @@ rule demultiplexing:
 	threads: 1
 	shell:
 		"""
-		cat {input.workspace_dir}/*fastq | sed -n '1~4s/^@/>/p;2~4p' | sed 's/\s.*$//' |
+		cat {input.workspace_dir}/{wildcards.barcode}/*fastq | sed -n '1~4s/^@/>/p;2~4p' | sed 's/\s.*$//' |
 			awk '$0 ~ ">" {{print c; c=0;printf substr($0,2,100) "\t"; }} $0 !~ ">" {{c+=length($0);}} END {{ print c; }}' |
 			awk '$2>{params.min_read_length}' | cut -f1 > {output.demultiplexed_list}
 		#grep {wildcards.barcode} {input.basecalled_summary}| cut -f2 > {output.demultiplexed_list}
