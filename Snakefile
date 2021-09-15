@@ -110,6 +110,7 @@ rule guppy_basecalling:
 		guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit} --barcode_kits {params.kit} --fast5_out --disable_qscore_filtering
 		"""
 
+
 rule demultiplexing:
 	input:
 		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
@@ -122,10 +123,15 @@ rule demultiplexing:
 #		checkpoint=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_checkpoint.txt",
 	message:
 		"Demultiplexing single fast5 files"
+	params:
+		min_read_length=10000
 	threads: 1
 	shell:
 		"""
-		grep {wildcards.barcode} {input.basecalled_summary}| cut -f2 > {output.demultiplexed_list}
+		cat {input.workspace_dir}/*fastq | sed -n '1~4s/^@/>/p;2~4p' | sed 's/\s.*$//' |
+			awk '$0 ~ ">" {{print c; c=0;printf substr($0,2,100) "\t"; }} $0 !~ ">" {{c+=length($0);}} END {{ print c; }}' |
+			awk '$2>{params.min_read_length}' | cut -f1 > {output.demultiplexed_list}
+		#grep {wildcards.barcode} {input.basecalled_summary}| cut -f2 > {output.demultiplexed_list}
 		fast5_subset -i {input.workspace_dir} -s {output.demultiplexed_dir} -l {output.demultiplexed_list} -n 1000000000
 		"""
 
