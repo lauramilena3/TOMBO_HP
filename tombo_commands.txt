@@ -7,7 +7,8 @@ rsync -r  ad/03_DEMULTIPLEXED/ lmf@130.225.99.101:/home/lmf/AMARU/TOMBO_2/03_DEM
 snakemake -p tombo_run --use-conda --config work_dir=/home/lmf/AMARU/TOMBO_2/ samples="barcode08" control=barcode09 genome=/home/lmf/AMARU/TOMBO_2/GENOMES/Selected_phages_for_EpiSeq.fasta -j 32 -n
 
 
+
 #demeter
-snakemake -p all --use-conda --config input_dir=/home/demeter/lmf/TOMBO_HP/LEISE/00_RAW_DATA work_dir=/home/demeter/lmf/TOMBO_HP/LEISE/ samples="barcode06 barcode07 barcode08" control=barcode09 -j 32 -n
+snakemake  --use-conda --config input_dir=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/00_RAW_DATA work_dir=/home/demeter/lmf/TOMBO_HP/LEISE/ samples="barcode06 barcode07 barcode08" control=barcode09 genome=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/GENOMES/E_coli_MG1655.fasta -j 32 -n
 #thoth
 snakemake -p tombo_run --use-conda --config work_dir=/home/lmf/LEISE/PERSISTENCE/ samples="barcode06 barcode07 barcode08" control=barcode09 genome=/home/lmf/LEISE/PERSISTENCE/GENOMES/E_coli_MG1655.fasta -j 32 -n
