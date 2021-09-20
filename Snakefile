@@ -303,7 +303,7 @@ rule tombo_alternative:
 		#plus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_plusmod_corrected.wig",
 		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}_tombo__alternative_{model}_results.significant_regions.fasta",
 	params:
-		name="{genome}_{sample}__alternative_{model}",
+		name="{genome}_{sample}_alternative_{model}",
 		readstats="{genome}_{sample}.tombo__alternative_{model}_per_read" ,
 	wildcard_constraints:
 		control="barcode..",
