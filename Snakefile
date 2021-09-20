@@ -14,6 +14,7 @@ OUTPUT_DIR=config['work_dir'].rstrip("/")
 RAW_DATA_DIR =config['input_dir']
 FLOWCELL=config['flowcell']
 KIT=config['kit']
+ALTERNATIVE_MODELS =config['alternative_models']
 
 GENOME=config['genome']
 GENOME_dir=os.path.dirname(os.path.realpath(GENOME))
@@ -69,6 +70,11 @@ rule deepsignal_run:
 rule tombo_run:
 	input:
 		expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}.tombo_denovo.stats", sample=SAMPLES),
+		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL),
+
+rule tombo_run_alternative:
+	input:
+		expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}.tombo_alternative_{model}.stats", sample=SAMPLES, model=ALTERNATIVE_MODELS),
 		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL),
 
 rule get_rerio_model:
@@ -273,6 +279,44 @@ rule tombo_denovo:
 	shell:
 		"""
 		tombo detect_modifications de_novo --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.readstats}
+		mv {params.name}.tombo.stats {output.stats}
+		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
+		mv {params.name}.fraction_modified_reads.plus.wig {output.plus}
+		mv {params.name}.fraction_modified_reads.minus.wig {output.minus}
+		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 10000 --num-bases 10 --sequences-filename {output.significant}
+		#mv tombo_results.significant_regions.fasta {output.significant}
+		"""
+
+rule tombo_alternative:
+	input:
+		sample=(dirs_dict["SINGLE"] + "/{sample}"),
+		#basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}",
+		genome=GENOME_dir + "/{genome}.fasta",
+		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{sample}.txt"),
+	output:
+		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative_{model}.stats" ,
+		#readstats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_denovo.per_read_stats" ,
+		#significant_filtered=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}.sig_filtered.fasta",
+		minus=dirs_dict["TOMBO"] + "/{genome}_{sample}_alternative_{model}_minusmod.wig",
+		plus=dirs_dict["TOMBO"] + "/{genome}_{sample}_alternative_{model}_plusmod.wig",
+		#minus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_minusmod_corrected.wig",
+		#plus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_plusmod_corrected.wig",
+		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}_tombo__alternative_{model}_results.significant_regions.fasta",
+	params:
+		name="{genome}_{sample}__alternative_{model}",
+		readstats="{genome}_{sample}.tombo__alternative_{model}_per_read" ,
+	wildcard_constraints:
+		control="barcode..",
+		sample="barcode..",
+		genome=GENOME_name,
+	conda:
+		"envs/env1.yaml"
+	message:
+		"Detecting modified bases with Tombo de novo for sample {wildcards.sample}"
+	threads: 16
+	shell:
+		"""
+		tombo detect_modifications alternative_model --alternate-bases {wildcards.model} --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.readstats}
 		mv {params.name}.tombo.stats {output.stats}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
 		mv {params.name}.fraction_modified_reads.plus.wig {output.plus}
