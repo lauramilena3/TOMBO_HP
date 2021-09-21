@@ -317,14 +317,14 @@ rule tombo_alternative:
 	shell:
 		"""
 		tombo detect_modifications alternative_model --alternate-bases {wildcards.model} --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.readstats}
-		mv {params.name}.tombo.stats {output.stats}
+		#mv {params.name}.{wildcards.model}.tombo.stats {output.stats}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
-		mv {params.name}.fraction_modified_reads.plus.wig {output.plus}
-		mv {params.name}.fraction_modified_reads.minus.wig {output.minus}
+		#mv {params.name}.fraction_modified_reads.plus.wig {output.plus}
+		#mv {params.name}.fraction_modified_reads.mls inus.wig {output.minus}
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 10000 --num-bases 10 --sequences-filename {output.significant}
 		#mv tombo_results.significant_regions.fasta {output.significant}
 		"""
-
+E_coli_MG1655_barcode07_alternative_dam.dam.tombo.stats
 rule deepsignal:
 	input:
  		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
