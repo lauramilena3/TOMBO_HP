@@ -324,7 +324,6 @@ rule tombo_alternative:
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 10000 --num-bases 10 --sequences-filename {output.significant}
 		#mv tombo_results.significant_regions.fasta {output.significant}
 		"""
-E_coli_MG1655_barcode07_alternative_dam.dam.tombo.stats
 rule deepsignal:
 	input:
  		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
