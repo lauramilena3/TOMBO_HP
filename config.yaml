@@ -7,7 +7,7 @@ kit: "SQK-RBK004"
 #tombo
 samples: ""
 control: ""
-genome: ""
+genome_dir: "GENOMES"
 megalodon_model: "/home/lmf/LEISE/PERSISTENCE/model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+"
 guppy_server: "/usr/bin/guppy_basecall_server"
 alternative_models: ["dam", "dcm"]
