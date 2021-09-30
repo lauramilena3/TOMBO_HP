@@ -38,7 +38,8 @@ print("outdir", OUTPUT_DIR)
 print("samples", SAMPLES)
 print("control", CONTROL)
 print("barcodes", BARCODES)
-print("genome", GENOME_name)
+
+print("genome", GENOME_dir +  GENOME_name)
 #======================================================
 # Rules
 #======================================================
