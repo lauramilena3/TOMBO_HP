@@ -158,7 +158,6 @@ rule demultiplexing:
 		min_read_length=config['min_read_length']
 	wildcard_constraints:
 		barcode="barcode..",
-		genome="barcode..",
 	threads: 1
 	shell:
 		"""
