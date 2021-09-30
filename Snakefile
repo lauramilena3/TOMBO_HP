@@ -79,7 +79,7 @@ rule tombo_run_denovo:
 rule tombo_run_sampleCompare:
 	input:
 		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}.tombo_denovo.stats", sample=SAMPLES),
-		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
+		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
 
 rule tombo_run_alternative:
 	input:
@@ -286,26 +286,22 @@ rule tombo_sample_compare:
 
 rule tombo_denovo:
 	input:
-		sample=(dirs_dict["SINGLE"] + "/{sample}_{genome}"),
+		sample=(dirs_dict["SINGLE"] + "/{barcode}_{genome}"),
 		#basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}",
 		genome=GENOME_dir + "/{genome}.fasta",
-		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{sample}_{genome}.txt"),
+		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{barcode}_{genome}.txt"),
 	output:
-		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_denovo.stats" ,
+		stats=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_denovo.stats" ,
 		#readstats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_denovo.per_read_stats" ,
 		#significant_filtered=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}.sig_filtered.fasta",
-		minus=dirs_dict["TOMBO"] + "/{genome}_{sample}_minusmod.wig",
-		plus=dirs_dict["TOMBO"] + "/{genome}_{sample}_plusmod.wig",
+		minus=dirs_dict["TOMBO"] + "/{barcode}_{genome}_minusmod.wig",
+		plus=dirs_dict["TOMBO"] + "/{barcode}_{genome}_plusmod.wig",
 		#minus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_minusmod_corrected.wig",
 		#plus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_plusmod_corrected.wig",
-		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}_tombo_denovo_results.significant_regions.fasta",
+		significant=dirs_dict["TOMBO"] + "/{barcode}_{genome}_tombo_denovo_results.significant_regions.fasta",
 	params:
-		name="{genome}_{sample}_denovo",
-		readstats="{genome}_{sample}.tombo_denovo_per_read" ,
-	wildcard_constraints:
-		control="barcode..",
-		sample="barcode..",
-		#genome=GENOME_name,
+		name="{barcode}_{genome}_denovo",
+		readstats="{barcode}_{genome}.tombo_denovo_per_read" ,
 	conda:
 		"envs/env1.yaml"
 	message:
@@ -327,7 +323,7 @@ rule tombo_alternative:
 		sample=(dirs_dict["SINGLE"] + "/{sample}"),
 		#basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}",
 		genome=GENOME_dir + "/{genome}.fasta",
-		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{sample}.txt"),
+		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{barcode}_{genome}.txt"),
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative_{model}.stats" ,
 		#readstats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_denovo.per_read_stats" ,
@@ -363,7 +359,7 @@ rule deepsignal:
 	input:
  		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
 		genome="{genome}",
-		resquiggled=(dirs_dict["BASECALLED"] + "/resquiggled_checkpoint_{barcode}.txt"),
+		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{barcode}_{genome}.txt"),
 	output:
 		extract=dirs_dict["BASECALLED"] + "/{barcode}_deepsignal-feature.tsv"
 	conda:
