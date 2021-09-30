@@ -129,22 +129,24 @@ rule demultiplexing:
 		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
 		workspace_dir=directory(dirs_dict["BASECALLED"] + "/workspace"),
 		basecalled_dir=dirs_dict["BASECALLED"] + "/{barcode}",
+		mapped_list=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_{genome}_fast5_list_mapped.txt",
 		# annotated=(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt"),
 	output:
-		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
-		demultiplexed_list=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_fast5_list.txt",
+		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}_{genome}"),
+		length_list=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_{genome}_fast5_list_length.txt",
+		demultiplexed_list=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_{genome}_fast5_list_pass.txt",
 #		checkpoint=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_checkpoint.txt",
 	message:
 		"Demultiplexing single fast5 files"
 	params:
-		min_read_length=10000
+		min_read_length=config['min_read_length']
 	threads: 1
 	shell:
 		"""
 		cat {input.basecalled_dir}/*fastq | sed -n '1~4s/^@/>/p;2~4p' | sed 's/\s.*$//' |
 			awk '$0 ~ ">" {{print c; c=0;printf substr($0,2,100) "\t"; }} $0 !~ ">" {{c+=length($0);}} END {{ print c; }}' |
-			awk '$2>{params.min_read_length}' | cut -f1 > {output.demultiplexed_list}
-		#grep {wildcards.barcode} {input.basecalled_summary}| cut -f2 > {output.demultiplexed_list}
+			awk '$2>{params.min_read_length}' | cut -f1 > {output.length_list}
+		comm -12  <(sort {input.mapped_list}) <(sort {output.length_list}) > {output.demultiplexed_list}
 		fast5_subset -i {input.workspace_dir} -s {output.demultiplexed_dir} -l {output.demultiplexed_list} -n 1000000000
 		"""
 
