@@ -73,7 +73,7 @@ rule deepsignal_run:
 
 rule tombo_run_denovo:
 	input:
-		expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo.stats", barcode=SAMPLES, genome=GENOME_name),
+		expand(dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_denovo.stats", barcode=SAMPLES, genome=GENOME_name),
 		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL),
 
 rule tombo_run_sampleCompare:
