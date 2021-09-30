@@ -146,13 +146,12 @@ rule map_to_genomes:
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 #		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
-		mapped_paf=dirs_dict["BASECALLED"] + "/{barcode}_{genome}.paf",
-		mapped_list=dirs_dict["BASECALLED"] + "/{barcode}_{genome}_fast5_list_mapped.txt",
-		merged_fastq=temp(dirs_dict["BASECALLED"] + "/{barcode}_{genome}.fastq"),
+		mapped_paf=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}.paf",
+		mapped_list=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_fast5_list_mapped.txt",
+		merged_fastq=temp(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}.fastq"),
 	params:
 		flowcell=FLOWCELL,
 		kit=KIT,
-		basecalled_dir=directory(dirs_dict["BASECALLED"]),
 	conda:
 		"envs/env1.yaml"
 	message:
