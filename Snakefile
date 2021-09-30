@@ -239,7 +239,7 @@ rule tombo_sample_compare:
 		name="{genome}_{sample}_{control}",
 	wildcard_constraints:
 		control="barcode..",
-		genome=GENOME_name,
+		#genome=GENOME_name,
 	conda:
 		"envs/env1.yaml"
 	message:
@@ -277,7 +277,7 @@ rule tombo_denovo:
 	wildcard_constraints:
 		control="barcode..",
 		sample="barcode..",
-		genome=GENOME_name,
+		#genome=GENOME_name,
 	conda:
 		"envs/env1.yaml"
 	message:
