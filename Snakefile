@@ -140,6 +140,30 @@ rule guppy_basecalling:
 		guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' -c /opt/ont/guppy/data/dna_r9.4.1_450bps_sup.cfg --barcode_kits {params.kit} --fast5_out --disable_qscore_filtering --chunks_per_runner 128
 		"""
 
+rule map_to_genomes:
+	input:
+		basecalled_dir=dirs_dict["BASECALLED"] + "/{barcode}",
+		genome=GENOME_dir + "/{genome}.fasta",
+	output:
+#		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
+		mapped_paf=dirs_dict["BASECALLED"] + "/{barcode}_{genome}.paf",
+		mapped_list=dirs_dict["BASECALLED"] + "/{barcode}_{genome}_fast5_list_mapped.txt",
+		merged_fastq=temp(dirs_dict["BASECALLED"] + "/{barcode}_{genome}.fastq"),
+	params:
+		flowcell=FLOWCELL,
+		kit=KIT,
+		basecalled_dir=directory(dirs_dict["BASECALLED"]),
+	conda:
+		"envs/env1.yaml"
+	message:
+		"Mapping reads to genomes with minimap2"
+	threads: 32
+	shell:
+		"""
+		cat {input.basecalled_dir}/*fastq > {output.merged_fastq}
+		/home/demeter/Storage/lmf/apps/minimap2/minimap2 -ax map-ont {genome} {ouput.merged_fastq} > {ouput.mapped_paf}
+		"""
+
 rule demultiplexing:
 	input:
 		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
