@@ -78,11 +78,11 @@ rule tombo_run_denovo:
 rule tombo_run_sampleCompare:
 	input:
 		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}.tombo_denovo.stats", sample=SAMPLES),
-		expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL),
+		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
 
 rule tombo_run_alternative:
 	input:
-		expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}.tombo_alternative_{model}.stats", sample=SAMPLES, model=ALTERNATIVE_MODELS),
+		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative_{model}.stats", sample=SAMPLES, model=ALTERNATIVE_MODELS, genome=GENOME_name),
 		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL),
 
 rule get_rerio_model:
