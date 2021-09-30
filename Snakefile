@@ -143,9 +143,9 @@ rule guppy_basecalling:
 rule demultiplexing:
 	input:
 		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
-		workspace_dir=directory(dirs_dict["BASECALLED"] + "/workspace"),
+		workspace_dir=dirs_dict["BASECALLED"] + "/workspace"),
 		basecalled_dir=dirs_dict["BASECALLED"] + "/{barcode}",
-		mapped_list=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_{genome}_fast5_list_mapped.txt",
+		mapped_list=dirs_dict["BASECALLED"] + "/{barcode}_{genome}_fast5_list_mapped.txt",
 		# annotated=(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt"),
 	output:
 		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}_{genome}"),
@@ -158,6 +158,7 @@ rule demultiplexing:
 		min_read_length=config['min_read_length']
 	wildcard_constraints:
 		barcode="barcode..",
+		genome="barcode..",
 	threads: 1
 	shell:
 		"""
