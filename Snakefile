@@ -207,7 +207,7 @@ rule resquiggle_tombo:
 		single_data=directory(dirs_dict["SINGLE"]+ "/{barcode}"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
-		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{barcode}.txt"),
+		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{barcode}_{genome}.txt"),
 	threads: 16
 	conda:
 		"envs/env2.yaml"
@@ -222,8 +222,8 @@ rule tombo_sample_compare:
 	input:
 		sample=(dirs_dict["SINGLE"] + "/{sample}"),
 		control=(dirs_dict["SINGLE"] + "/{control}"),
-		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{sample}.txt"),
-		resquiggled2=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{control}.txt"),
+		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{sample}_{genome}.txt"),
+		resquiggled2=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{control}_{genome}.txt"),
 		#basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}",
 		#basecalled_control=dirs_dict["BASECALLED"] + "/{control}",
 		genome=GENOME_dir + "/{genome}.fasta",
