@@ -164,7 +164,7 @@ rule map_to_genomes:
 	shell:
 		"""
 		cat {input.basecalled_dir}/*fastq > {output.merged_fastq}
-		/home/demeter/Storage/lmf/apps/minimap2/minimap2 -ax map-ont {input.genome} {ouput.merged_fastq} > {ouput.mapped_paf}
+		/home/demeter/Storage/lmf/apps/minimap2/minimap2 -ax map-ont {input.genome} {output.merged_fastq} > {output.mapped_paf}
 		"""
 
 rule demultiplexing:
