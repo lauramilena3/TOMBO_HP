@@ -86,6 +86,11 @@ rule tombo_run_alternative:
 		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative_{model}.stats", sample=SAMPLES, model=ALTERNATIVE_MODELS, genome=GENOME_name),
 		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL),
 
+
+wildcard_constraints:
+	barcode="barcode..",
+
+
 rule get_rerio_model:
 	output:
 		rerio_dir=directory(dirs_dict["TOOLS"]+ "/rerio"),
@@ -179,8 +184,7 @@ rule demultiplexing:
 		"Demultiplexing single fast5 files"
 	params:
 		min_read_length=config['min_read_length']
-	wildcard_constraints:
-		barcode="barcode..",
+
 	threads: 1
 	shell:
 		"""
@@ -264,9 +268,6 @@ rule tombo_sample_compare:
 		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_tombo_results.significant_regions.fasta",
 	params:
 		name="{genome}_{sample}_{control}",
-	wildcard_constraints:
-		control="barcode..",
-		#genome=GENOME_name,
 	conda:
 		"envs/env1.yaml"
 	message:
