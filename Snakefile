@@ -102,6 +102,22 @@ rule get_rerio_model:
 		./download_model.py basecall_models/res_dna_r941_min_modbases_5mC_CpG_v001
 		"""
 
+rule qualityCheckNanopore:
+	input:
+		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
+	output:
+		nanoqc_dir=directory(dirs_dict["QC"] + "/{barcode}_nanoplot"),
+	params:
+		raw_fastq=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}/batch0.fastq"),
+	message:
+		"Performing nanoQC statistics"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env3.yaml"
+	shell:
+		"""
+		nanoQC -o {output.nanoqc_dir} {params.raw_fastq}
+		"""
+
 rule guppy_basecalling:
 	input:
 		raw_data=RAW_DATA_DIR,
@@ -152,27 +168,11 @@ rule demultiplexing:
 		fast5_subset -i {input.workspace_dir} -s {output.demultiplexed_dir} -l {output.demultiplexed_list} -n 1000000000
 		"""
 
-rule qualityCheckNanopore:
-	input:
-		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
-	output:
-		nanoqc_dir=directory(dirs_dict["QC"] + "/{barcode}_nanoplot"),
-	params:
-		raw_fastq=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}/batch0.fastq"),
-	message:
-		"Performing nanoQC statistics"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env3.yaml"
-	shell:
-		"""
-		nanoQC -o {output.nanoqc_dir} {params.raw_fastq}
-		"""
-
 rule multi_to_single_fast5:
 	input:
-		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
+		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}_{genome}"),
 	output:
-		single_data=directory(dirs_dict["SINGLE"]+ "/{barcode}"),
+		single_data=directory(dirs_dict["SINGLE"]+ "/{barcode}_{genome}"),
 	conda:
 		"envs/env1.yaml"
 	message:
@@ -208,7 +208,7 @@ rule multi_to_single_fast5:
 rule resquiggle_tombo:
 	input:
 		#demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
-		single_data=directory(dirs_dict["SINGLE"]+ "/{barcode}"),
+		single_data=directory(dirs_dict["SINGLE"]+ "/{barcode}_{genome}"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{barcode}_{genome}.txt"),
@@ -224,8 +224,8 @@ rule resquiggle_tombo:
 
 rule tombo_sample_compare:
 	input:
-		sample=(dirs_dict["SINGLE"] + "/{sample}"),
-		control=(dirs_dict["SINGLE"] + "/{control}"),
+		sample=(dirs_dict["SINGLE"] + "/{sample}_{genome}"),
+		control=(dirs_dict["SINGLE"] + "/{control}_{genome}"),
 		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{sample}_{genome}.txt"),
 		resquiggled2=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{control}_{genome}.txt"),
 		#basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}",
@@ -262,7 +262,7 @@ rule tombo_sample_compare:
 
 rule tombo_denovo:
 	input:
-		sample=(dirs_dict["SINGLE"] + "/{sample}"),
+		sample=(dirs_dict["SINGLE"] + "/{sample}_{genome}"),
 		#basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}",
 		genome=GENOME_dir + "/{genome}.fasta",
 		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{sample}_{genome}.txt"),
