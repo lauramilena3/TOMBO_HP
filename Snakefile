@@ -141,7 +141,7 @@ rule demultiplexing:
 	params:
 		min_read_length=config['min_read_length']
 	wildcard_constraints:
-		control="barcode..",
+		barcode="barcode..",
 	threads: 1
 	shell:
 		"""
