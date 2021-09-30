@@ -205,7 +205,7 @@ rule resquiggle_tombo:
 	input:
 		#demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
 		single_data=directory(dirs_dict["SINGLE"]+ "/{barcode}"),
-		genome="{genome}",
+		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{barcode}.txt"),
 	threads: 16
