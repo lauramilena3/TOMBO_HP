@@ -165,6 +165,7 @@ rule map_to_genomes:
 		"""
 		cat {input.basecalled_dir}/*fastq > {output.merged_fastq}
 		/home/demeter/Storage/lmf/apps/minimap2/minimap2 -ax map-ont {input.genome} {output.merged_fastq} > {output.mapped_paf}
+		cat {output.mapped_paf} | cut -f1 > {output.mapped_list}
 		"""
 
 rule demultiplexing:
