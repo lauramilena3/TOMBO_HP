@@ -362,7 +362,7 @@ rule megalodon:
 	input:
 		rerio_dir=(dirs_dict["TOOLS"]+ "/rerio"),
 		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
-		genome=GENOME,
+		genome="{genome}",
 	output:
 		megalodon_dir=directory(dirs_dict["MEGALODON"] + "/{barcode}"),
 
