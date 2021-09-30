@@ -16,9 +16,12 @@ FLOWCELL=config['flowcell']
 KIT=config['kit']
 ALTERNATIVE_MODELS =config['alternative_models']
 
-GENOME=config['genome']
-GENOME_dir=os.path.dirname(os.path.realpath(GENOME))
-GENOME_name=os.path.splitext(os.path.basename(GENOME))[0]
+# GENOME=config['genome']
+# GENOME_dir=os.path.dirname(os.path.realpath(GENOME))
+# GENOME_name=os.path.splitext(os.path.basename(GENOME))[0]
+
+GENOME_dir=config['genome_dir']
+GENOME_name,=glob_wildcards(GENOME_dir + "/{GENOME}"+ ".fasta")
 
 
 SAMPLES=config['samples'].split()
@@ -27,7 +30,7 @@ BARCODES=SAMPLES+[CONTROL]
 BARCODES = list(filter(None, BARCODES))
 
 dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "SINGLE", "BASECALLED", "DEMULTIPLEXED", "GENOMES", "TOMBO", "MEGALODON", "DEEPSIGNAL", "QC"]
-dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/03_FAST5_SINGLE", OUTPUT_DIR + "/01_BASECALLED", OUTPUT_DIR + "/02_DEMULTIPLEXED", OUTPUT_DIR + "/GENOMES", OUTPUT_DIR + "/04_TOMBO", OUTPUT_DIR + "/05_MEGALODON", OUTPUT_DIR + "/06_DEEPSIGNAL", OUTPUT_DIR + "/STATS"]
+dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/03_FAST5_SINGLE", OUTPUT_DIR + "/01_BASECALLED", OUTPUT_DIR + "/02_DEMULTIPLEXED", GENOME_dir , OUTPUT_DIR + "/04_TOMBO", OUTPUT_DIR + "/05_MEGALODON", OUTPUT_DIR + "/06_DEEPSIGNAL", OUTPUT_DIR + "/STATS"]
 dirs_dict = dict(zip(dir_list, dir_names))
 MODEL_MEGALODON=config['megalodon_model']
 #SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{{input.sample}}_" +".fast5")
@@ -67,10 +70,15 @@ rule deepsignal_run:
 	input:
 		expand(dirs_dict["DEEPSIGNAL"] + "/{barcode}_deepsignal-prob.tsv", barcode=BARCODES),
 
-rule tombo_run:
+rule tombo_run_denovo:
 	input:
 		expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}.tombo_denovo.stats", sample=SAMPLES),
 		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL),
+
+rule tombo_run_sampleCompare:
+	input:
+		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}.tombo_denovo.stats", sample=SAMPLES),
+		expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL),
 
 rule tombo_run_alternative:
 	input:
@@ -93,7 +101,6 @@ rule get_rerio_model:
 		./download_model.py basecall_models/res_dna_r941_min_modbases_5mC_CpG_v001
 		"""
 
-
 rule guppy_basecalling:
 	input:
 		raw_data=RAW_DATA_DIR,
@@ -113,9 +120,8 @@ rule guppy_basecalling:
 	threads: 32
 	shell:
 		"""
-		guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --flowcell {params.flowcell} --kit {params.kit} --barcode_kits {params.kit} --fast5_out --disable_qscore_filtering
+		guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' -c /opt/ont/guppy/data/dna_r9.4.1_450bps_sup.cfg --barcode_kits {params.kit} --fast5_out --disable_qscore_filtering --chunks_per_runner 128
 		"""
-
 
 rule demultiplexing:
 	input:
