@@ -314,7 +314,7 @@ rule tombo_alternative:
 	wildcard_constraints:
 		control="barcode..",
 		sample="barcode..",
-		genome=GENOME_name,
+		#genome=GENOME_name,
 	conda:
 		"envs/env1.yaml"
 	message:
