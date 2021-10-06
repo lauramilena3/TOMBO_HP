@@ -302,9 +302,9 @@ rule tombo_denovo:
 	params:
 		name="{barcode}_{genome}_denovo",
 		readstats="{barcode}_{genome}_denovo" ,
-		stats=dirs_dict["TOMBO"] + "/{genome}_{barcode}_denovo.tombo.stats" ,
-		significant=dirs_dict["TOMBO"] + "/{barcode}_{genome}_tombo_denovo_results.significant_regions.fasta",
-		meme=dirs_dict["TOMBO"] + "/{barcode}_{genome}_tombo_denovo_results.motif_detection.meme",
+		stats=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_denovo/{barcode}_{genome}_denovo.tombo.stats" ,
+		significant=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_denovo/{barcode}_{genome}_tombo_denovo_results.significant_regions.fasta",
+		meme=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_denovo/{barcode}_{genome}_tombo_denovo_results.motif_detection.meme",
 	conda:
 		"envs/env1.yaml"
 	message:
