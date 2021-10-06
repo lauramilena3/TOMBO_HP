@@ -300,9 +300,9 @@ rule tombo_denovo:
 		#plus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_plusmod_corrected.wig",
 		significant=dirs_dict["TOMBO"] + "/{barcode}_{genome}_tombo_denovo_results.significant_regions.fasta",
 	params:
-		name="{barcode}_{genome}_tombo_denovo",
-		readstats="{barcode}_{genome}.tombo_denovo_per_read" ,
-		stats=dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo.stats" ,
+		name="{barcode}_{genome}_denovo",
+		readstats="{barcode}_{genome}_denovo ,
+		stats=dirs_dict["TOMBO"] + "/{genome}_{barcode}.denovo.tombo.stats" ,
 		significant=dirs_dict["TOMBO"] + "/{barcode}_{genome}_tombo_denovo_results.significant_regions.fasta",
 		meme=dirs_dict["TOMBO"] + "/{barcode}_{genome}_tombo_denovo_results.motif_detection.meme",
 	conda:
