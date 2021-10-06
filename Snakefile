@@ -317,7 +317,7 @@ rule tombo_denovo:
 		tombo detect_modifications de_novo --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.readstats}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {params.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
 		tombo text_output signif_sequence_context --statistics-filename {params.stats} --genome-fasta {input.genome} --num-regions 100 --num-bases 15 --sequences-filename {params.significant}
-		meme -oc {params.meme} -dna -mod zoops {params.significant} -p {threads} -nmotifs 5 -minw 1 -maxw 8
+		meme -oc {params.meme} -dna -mod zoops {params.significant} -nmotifs 5 -minw 1 -maxw 8
 		"""
 
 rule tombo_alternative:
