@@ -73,7 +73,7 @@ rule deepsignal_run:
 
 rule tombo_run_denovo:
 	input:
-		expand(dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_denovo.stats", barcode=SAMPLES, genome=GENOME_name),
+		expand(dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_denovo", barcode=SAMPLES, genome=GENOME_name),
 		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL),
 
 rule tombo_run_sampleCompare:
@@ -291,17 +291,20 @@ rule tombo_denovo:
 		genome=GENOME_dir + "/{genome}.fasta",
 		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{barcode}_{genome}.txt"),
 	output:
-		stats=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_denovo.stats" ,
+		tombo_results_dir=directory(dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_denovo"),
 		#readstats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_denovo.per_read_stats" ,
 		#significant_filtered=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}.sig_filtered.fasta",
-		minus=dirs_dict["TOMBO"] + "/{barcode}_{genome}_minusmod.wig",
-		plus=dirs_dict["TOMBO"] + "/{barcode}_{genome}_plusmod.wig",
+		#minus=dirs_dict["TOMBO"] + "/{barcode}_{genome}_minusmod.wig",
+		#plus=dirs_dict["TOMBO"] + "/{barcode}_{genome}_plusmod.wig",
 		#minus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_minusmod_corrected.wig",
 		#plus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_plusmod_corrected.wig",
 		significant=dirs_dict["TOMBO"] + "/{barcode}_{genome}_tombo_denovo_results.significant_regions.fasta",
 	params:
 		name="{barcode}_{genome}_denovo",
 		readstats="{barcode}_{genome}.tombo_denovo_per_read" ,
+		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative_{model}.stats" ,
+		significant=dirs_dict["TOMBO"] + "/{barcode}_{genome}_tombo_denovo_results.significant_regions.fasta",
+		meme=dirs_dict["TOMBO"] + "/{barcode}_{genome}_tombo_denovo_results.motif_detection.meme",
 	conda:
 		"envs/env1.yaml"
 	message:
@@ -309,13 +312,12 @@ rule tombo_denovo:
 	threads: 16
 	shell:
 		"""
+		mkdir {output.tombo_results_dir}
+		cd {output.tombo_results_dir}
 		tombo detect_modifications de_novo --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.readstats}
-		mv {params.name}.tombo.stats {output.stats}
-		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
-		mv {params.name}.fraction_modified_reads.plus.wig {output.plus}
-		mv {params.name}.fraction_modified_reads.minus.wig {output.minus}
-		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 10000 --num-bases 10 --sequences-filename {output.significant}
-		#mv tombo_results.significant_regions.fasta {output.significant}
+		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {params.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
+		tombo text_output signif_sequence_context --statistics-filename {params.stats} --genome-fasta {input.genome} --num-regions 10000 --num-bases 50 --sequences-filename {params.significant}
+		meme -oc {params.meme} -dna -mod zoops {params.significant}
 		"""
 
 rule tombo_alternative:

@@ -12,6 +12,7 @@ dependencies:
   - pandas =1.0.3
   - numpy =1.18.1
   - h5py <3.0.0
+  - meme =5.3.0
   - pip =19.3.1
   - pip:
     - ont-fast5-api
