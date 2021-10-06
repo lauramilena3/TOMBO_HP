@@ -298,7 +298,7 @@ rule tombo_denovo:
 		#plus=dirs_dict["TOMBO"] + "/{barcode}_{genome}_plusmod.wig",
 		#minus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_minusmod_corrected.wig",
 		#plus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_plusmod_corrected.wig",
-		significant=dirs_dict["TOMBO"] + "/{barcode}_{genome}_tombo_denovo_results.significant_regions.fasta",
+		#significant=dirs_dict["TOMBO"] + "/{barcode}_{genome}_tombo_denovo_results.significant_regions.fasta",
 	params:
 		name="{barcode}_{genome}_denovo",
 		readstats="{barcode}_{genome}_denovo" ,
