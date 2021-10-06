@@ -302,7 +302,7 @@ rule tombo_denovo:
 	params:
 		name="{barcode}_{genome}_denovo",
 		readstats="{barcode}_{genome}_denovo" ,
-		stats=dirs_dict["TOMBO"] + "/{genome}_{barcode}.denovo.tombo.stats" ,
+		stats=dirs_dict["TOMBO"] + "/{genome}_{barcode}_denovo.tombo.stats" ,
 		significant=dirs_dict["TOMBO"] + "/{barcode}_{genome}_tombo_denovo_results.significant_regions.fasta",
 		meme=dirs_dict["TOMBO"] + "/{barcode}_{genome}_tombo_denovo_results.motif_detection.meme",
 	conda:
