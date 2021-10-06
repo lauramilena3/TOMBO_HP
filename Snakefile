@@ -318,7 +318,7 @@ rule tombo_denovo:
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {params.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
 		tombo text_output signif_sequence_context --statistics-filename {params.stats} --genome-fasta {input.genome} --num-regions 100 --num-bases 10 --sequences-filename {params.significant}
 		meme -oc {params.meme} -dna -mod zoops {params.significant} -nmotifs 20 -minw 2 -maxw 4
-		cp {params.meme}/*html .
+		cp {params.meme}/*html {params.meme}.html
 		"""
 
 rule tombo_alternative:
