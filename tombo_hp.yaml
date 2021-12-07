@@ -4,6 +4,8 @@ channels:
   - biobuilds
   - agbiome
 dependencies:
-  - snakemake-minimal =5.3.0
+  - snakemake-minimal =6.12.1
   - pandas =0.24.2
   - numpy =1.16.3
+  - seaborn =0.10.1
+  - mamba =0.19.0
