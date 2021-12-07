@@ -25,8 +25,9 @@ GENOME_name,=glob_wildcards(GENOME_dir + "/{GENOME}"+ ".fasta")
 
 
 SAMPLES=config['samples'].split()
-CONTROL=config['control']
+CONTROL=config['control'].split()
 BARCODES=SAMPLES+[CONTROL]
+BARCODES = list( dict.fromkeys(BARCODES) )
 BARCODES = list(filter(None, BARCODES))
 
 dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "SINGLE", "BASECALLED", "DEMULTIPLEXED", "GENOMES", "TOMBO", "MEGALODON", "DEEPSIGNAL", "QC"]

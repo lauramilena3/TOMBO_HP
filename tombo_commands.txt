@@ -1,14 +1,19 @@
 guppy_basecaller -i RAW_DATA/fast5/ -s basecalled_hq -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' --barcode_kits "SQK-RBK004" -c dna_r9.4.1_450bps_sup.cfg
 
 #demeter
-snakemake -p all --use-conda --config input_dir=/home/demeter/Storage/lmf/TOMBO_HP/ad/00_RAW_DATA work_dir=/home/demeter/Storage/lmf/TOMBO_HP/ad/ samples="barcode08" control=barcode09 genome=/home/demeter/lmf/TOMBO_HP/adC/Selected_phages_for_EpiSeq.fasta -j 32 -n
+snakemake -p all --use-conda --conda-frontend mamba --config input_dir=/home/demeter/Storage/lmf/TOMBO_HP/ad/00_RAW_DATA work_dir=/home/demeter/Storage/lmf/TOMBO_HP/ad/ samples="barcode08" control=barcode09 genome=/home/demeter/lmf/TOMBO_HP/adC/Selected_phages_for_EpiSeq.fasta -j 32 -n
 rsync -r  ad/03_DEMULTIPLEXED/ lmf@130.225.99.101:/home/lmf/AMARU/TOMBO_2/03_DEMULTIPLEXED/
 #thoth
-snakemake -p tombo_run --use-conda --config work_dir=/home/lmf/AMARU/TOMBO_2/ samples="barcode08" control=barcode09 genome=/home/lmf/AMARU/TOMBO_2/GENOMES/Selected_phages_for_EpiSeq.fasta -j 32 -n
+snakemake -p tombo_run --use-conda --conda-frontend mamba --config work_dir=/home/lmf/AMARU/TOMBO_2/ samples="barcode08" control=barcode09 genome=/home/lmf/AMARU/TOMBO_2/GENOMES/Selected_phages_for_EpiSeq.fasta -j 32 -n
 
 
-
+snakemake -p tombo_run_denovo --use-conda ---conda-frontend mamba -config input_dir=/home/demeter/Storage/lmf/TOMBO_HP/ad/00_RAW_DATA work_dir=/home/demeter/Storage/lmf/TOMBO_HP/ad/ genome_dir=/home/demeter/Storage/lmf/TOMBO_HP/ad/GENOMES samples="barcode08" control="barcode09" -j 32 -k -n
 #demeter
-snakemake  --use-conda --config input_dir=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/00_RAW_DATA work_dir=/home/demeter/lmf/TOMBO_HP/LEISE/ samples="barcode06 barcode07 barcode08" control=barcode09 genome=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/GENOMES/E_coli_MG1655.fasta -j 32 -n
+snakemake -p tombo_run --use-conda --conda-frontend mamba --config input_dir=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/00_RAW_DATA  work_dir=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/ samples="barcode06 barcode07 barcode08" control=barcode09 genome=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/GENOMES/E_coli_MG1655.fasta min_read_length=10000-j 32 -k -n
+#snakemake  --use-conda --conda-frontend mamba  --config input_dir=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/00_RAW_DATA  samples="barcode06 barcode07 barcode08" control=barcode09 genome=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/GENOMES/E_coli_MG1655.fasta -j 32 -n
+
+
 #thoth
-snakemake -p tombo_run --use-conda --config work_dir=/home/lmf/LEISE/PERSISTENCE/ samples="barcode06 barcode07 barcode08" control=barcode09 genome=/home/lmf/LEISE/PERSISTENCE/GENOMES/E_coli_MG1655.fasta -j 32 -n
+snakemake -p tombo_run --use-conda --conda-frontend mamba --config work_dir=/home/lmf/LEISE/PERSISTENCE/ samples="barcode06 barcode07 barcode08" control=barcode09 genome=/home/lmf/LEISE/PERSISTENCE/GENOMES/E_coli_MG1655.fasta -j 32 -n
+
+--conda-frontend mamba
