@@ -301,7 +301,7 @@ rule tombo_denovo:
 	conda:
 		"envs/env1.yaml"
 	message:
-		"Detecting modified bases with Tombo de novo for sample {wildcards.barcode}"
+		"Detecting modified bases with Tombo de novo"
 	threads: 16
 	shell:
 		"""
@@ -327,7 +327,7 @@ rule tombo_get_significant:
 	conda:
 		"envs/env1.yaml"
 	message:
-		"Detecting modified bases with Tombo de novo for sample {wildcards.barcode}"
+		"Detecting modified bases with Tombo de novo"
 	threads: 16
 	shell:
 		"""
@@ -355,7 +355,7 @@ rule tombo_alternative:
 	conda:
 		"envs/env1.yaml"
 	message:
-		"Detecting modified bases with Tombo de novo for sample {wildcards.sample}"
+		"Detecting modified bases with Tombo de novo"
 	threads: 16
 	shell:
 		"""
