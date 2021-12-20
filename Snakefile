@@ -74,7 +74,7 @@ rule deepsignal_run:
 
 rule tombo_run_denovo:
 	input:
-		expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo", barcode=SAMPLES, genome=GENOME_name),
+		#expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo", barcode=SAMPLES, genome=GENOME_name),
 		expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_tombo_denovo_results.motif_detection.meme.html", barcode=SAMPLES, genome=GENOME_name),
 
 		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL),
@@ -82,7 +82,7 @@ rule tombo_run_denovo:
 rule tombo_run_sampleCompare:
 	input:
 		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}.tombo_denovo.stats", sample=SAMPLES),
-		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
+		#expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
 		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}_tombo_sampleCompare_results.motif_detection.meme.html", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
 
 rule tombo_run_alternative:
