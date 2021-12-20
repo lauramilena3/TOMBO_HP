@@ -74,8 +74,8 @@ rule deepsignal_run:
 
 rule tombo_run_denovo:
 	input:
-		expand(dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_denovo", barcode=SAMPLES, genome=GENOME_name),
-		expand(dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_denovo/{barcode}_{genome}_tombo_denovo_results.motif_detection.meme.html", barcode=SAMPLES, genome=GENOME_name),
+		expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo", barcode=SAMPLES, genome=GENOME_name),
+		expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_tombo_denovo_results.motif_detection.meme.html", barcode=SAMPLES, genome=GENOME_name),
 
 		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL),
 
@@ -83,7 +83,7 @@ rule tombo_run_sampleCompare:
 	input:
 		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}.tombo_denovo.stats", sample=SAMPLES),
 		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
-		expand(dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_sampleCompare/{barcode}_{genome}_tombo_sampleCompare_results.motif_detection.meme.html", barcode=SAMPLES, genome=GENOME_name),
+		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}_tombo_sampleCompare_results.motif_detection.meme.html", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
 
 rule tombo_run_alternative:
 	input:
@@ -261,13 +261,13 @@ rule tombo_sample_compare:
 		resquiggled2=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{control}_{genome}.txt"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
-		tombo_results_dir=directory(dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_sampleCompare"),
+		tombo_results_dir=directory(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare"),
 	params:
 		name="{genome}_{sample}_{control}",
-		stats=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_sampleCompare/{genome}_{sample}_{control}.tombo.stats" ,
+		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}.tombo.stats" ,
 		#minus=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_minusmod.wig",
 		#plus=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_plusmod.wig",
-		significant=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_sampleCompare/{genome}_{sample}_{control}_tombo_results.significant_regions.fasta",
+		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}_tombo_results.significant_regions.fasta",
 	conda:
 		"envs/env1.yaml"
 	message:
@@ -292,11 +292,11 @@ rule tombo_denovo:
 		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{barcode}_{genome}.txt"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
-		tombo_results_dir=directory(dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_denovo"),
+		tombo_results_dir=directory(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo"),
 	params:
-		name="{barcode}_{genome}_denovo",
-		stats=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_denovo/{barcode}_{genome}_denovo.tombo.stats" ,
-		significant=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_denovo/{barcode}_{genome}_tombo_denovo_results.significant_regions.fasta",
+		name="{genome}_{barcode}_denovo",
+		stats=dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_denovo.tombo.stats" ,
+		significant=dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_tombo_denovo_results.significant_regions.fasta",
 		#meme=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_denovo/{barcode}_{genome}_tombo_denovo_results.motif_detection.meme",
 	conda:
 		"envs/env1.yaml"
@@ -314,16 +314,13 @@ rule tombo_denovo:
 
 rule tombo_get_significant:
 	input:
-		tombo_results_dir=directory(dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_{method}"),
+		tombo_results_dir=directory(dirs_dict["TOMBO"] + "/{genome}_{barcodes}.tombo_{method}"),
 	output:
-		meme_html=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_{method}/{barcode}_{genome}_tombo_{method}_results.motif_detection.meme.html",
-		meme_significant=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_{method}/{barcode}_{genome}_tombo_{method}_results.motif_detection.meme_significant.txt",
+		meme_html=dirs_dict["TOMBO"] + "/{genome}_{barcodes}.tombo_{method}/{genome}_{barcodes}_tombo_{method}_results.motif_detection.meme.html",
+		meme_significant=dirs_dict["TOMBO"] + "/{genome}_{barcodes}.tombo_{method}/{genome}_{barcodes}_tombo_{method}_results.motif_detection.meme_significant.txt",
 	params:
-		name="{barcode}_{genome}_{method}",
-		readstats="{barcode}_{genome}_{method}" ,
-		stats=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_{method}/{barcode}_{genome}_{method}.tombo.stats" ,
-		significant=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_{method}/{barcode}_{genome}_tombo_{method}_results.significant_regions.fasta",
-		meme=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_{method}/{barcode}_{genome}_tombo_{method}_results.motif_detection.meme",
+		significant=dirs_dict["TOMBO"] + "/{genome}_{barcodes}.tombo_{method}/{genome}_{barcodes}_tombo_{method}_results.significant_regions.fasta",
+		meme=dirs_dict["TOMBO"] + "/{genome}_{barcodes}.tombo_{method}/{genome}_{barcodes}_tombo_{method}_results.motif_detection.meme",
 	conda:
 		"envs/env1.yaml"
 	message:
