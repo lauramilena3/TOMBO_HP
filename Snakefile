@@ -75,12 +75,15 @@ rule deepsignal_run:
 rule tombo_run_denovo:
 	input:
 		expand(dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_denovo", barcode=SAMPLES, genome=GENOME_name),
+		expand(dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_denovo/{barcode}_{genome}_tombo_denovo_results.motif_detection.meme.html", barcode=SAMPLES, genome=GENOME_name),
+
 		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL),
 
 rule tombo_run_sampleCompare:
 	input:
 		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}.tombo_denovo.stats", sample=SAMPLES),
 		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
+		expand(dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_sampleCompare/{barcode}_{genome}_tombo_sampleCompare_results.motif_detection.meme.html", barcode=SAMPLES, genome=GENOME_name),
 
 rule tombo_run_alternative:
 	input:
@@ -256,19 +259,15 @@ rule tombo_sample_compare:
 		control=(dirs_dict["SINGLE"] + "/{control}_{genome}"),
 		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{sample}_{genome}.txt"),
 		resquiggled2=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{control}_{genome}.txt"),
-		#basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}",
-		#basecalled_control=dirs_dict["BASECALLED"] + "/{control}",
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
-		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo.stats" ,
-		#significant_filtered=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}.sig_filtered.fasta",
-		minus=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_minusmod.wig",
-		plus=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_plusmod.wig",
-		#minus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_minusmod_corrected.wig",
-		#plus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_{control}_plusmod_corrected.wig",
-		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_tombo_results.significant_regions.fasta",
+		tombo_results_dir=directory(dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_sampleCompare"),
 	params:
 		name="{genome}_{sample}_{control}",
+		stats=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_sampleCompare/{genome}_{sample}_{control}.tombo.stats" ,
+		#minus=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_minusmod.wig",
+		#plus=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_plusmod.wig",
+		significant=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_sampleCompare/{genome}_{sample}_{control}_tombo_results.significant_regions.fasta",
 	conda:
 		"envs/env1.yaml"
 	message:
@@ -276,36 +275,29 @@ rule tombo_sample_compare:
 	threads: 16
 	shell:
 		"""
-		tombo detect_modifications model_sample_compare --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-file-basename {params.name}
-		mv {params.name}.tombo.stats {output.stats}
-		tombo text_output browser_files --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
-		mv {params.name}.fraction_modified_reads.plus.wig {output.plus}
-		mv {params.name}.fraction_modified_reads.minus.wig {output.minus}
-		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 10000 --num-bases 10 --sequences-filename {output.significant}
-		#mv tombo_results.significant_regions.fasta {output.significant}
+		mkdir {output.tombo_results_dir}
+		cd {output.tombo_results_dir}
+		tombo detect_modifications model_sample_compare --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-file-basename {params.name} --per-read-statistics-basename {params.name}
+		tombo text_output browser_files --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-filename {params.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
+		tombo text_output signif_sequence_context --statistics-filename {params.stats} --genome-fasta {input.genome} --num-regions 100 --num-bases 10 --sequences-filename {params.significant}
+		#mv {params.name}.tombo.stats {params.stats}
+		# mv {params.name}.fraction_modified_reads.plus.wig {output.plus}
+		# mv {params.name}.fraction_modified_reads.minus.wig {output.minus}
+
 		"""
 
 rule tombo_denovo:
 	input:
 		sample=(dirs_dict["SINGLE"] + "/{barcode}_{genome}"),
-		#basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}",
-		genome=GENOME_dir + "/{genome}.fasta",
 		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{barcode}_{genome}.txt"),
+		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		tombo_results_dir=directory(dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_denovo"),
-		#readstats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_denovo.per_read_stats" ,
-		#significant_filtered=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}.sig_filtered.fasta",
-		#minus=dirs_dict["TOMBO"] + "/{barcode}_{genome}_minusmod.wig",
-		#plus=dirs_dict["TOMBO"] + "/{barcode}_{genome}_plusmod.wig",
-		#minus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_minusmod_corrected.wig",
-		#plus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_plusmod_corrected.wig",
-		#significant=dirs_dict["TOMBO"] + "/{barcode}_{genome}_tombo_denovo_results.significant_regions.fasta",
 	params:
 		name="{barcode}_{genome}_denovo",
-		readstats="{barcode}_{genome}_denovo" ,
 		stats=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_denovo/{barcode}_{genome}_denovo.tombo.stats" ,
 		significant=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_denovo/{barcode}_{genome}_tombo_denovo_results.significant_regions.fasta",
-		meme=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_denovo/{barcode}_{genome}_tombo_denovo_results.motif_detection.meme",
+		#meme=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_denovo/{barcode}_{genome}_tombo_denovo_results.motif_detection.meme",
 	conda:
 		"envs/env1.yaml"
 	message:
@@ -315,28 +307,44 @@ rule tombo_denovo:
 		"""
 		mkdir {output.tombo_results_dir}
 		cd {output.tombo_results_dir}
-		tombo detect_modifications de_novo --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.readstats}
+		tombo detect_modifications de_novo --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.name}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {params.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
 		tombo text_output signif_sequence_context --statistics-filename {params.stats} --genome-fasta {input.genome} --num-regions 100 --num-bases 10 --sequences-filename {params.significant}
+		"""
+
+rule tombo_get_significant:
+	input:
+		tombo_results_dir=directory(dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_{method}"),
+	output:
+		meme_html=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_{method}/{barcode}_{genome}_tombo_{method}_results.motif_detection.meme.html",
+		meme_significant=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_{method}/{barcode}_{genome}_tombo_{method}_results.motif_detection.meme_significant.txt",
+	params:
+		name="{barcode}_{genome}_{method}",
+		readstats="{barcode}_{genome}_{method}" ,
+		stats=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_{method}/{barcode}_{genome}_{method}.tombo.stats" ,
+		significant=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_{method}/{barcode}_{genome}_tombo_{method}_results.significant_regions.fasta",
+		meme=dirs_dict["TOMBO"] + "/{barcode}_{genome}.tombo_{method}/{barcode}_{genome}_tombo_{method}_results.motif_detection.meme",
+	conda:
+		"envs/env1.yaml"
+	message:
+		"Detecting modified bases with Tombo de novo for sample {wildcards.barcode}"
+	threads: 16
+	shell:
+		"""
 		meme -oc {params.meme} -dna -mod zoops {params.significant} -nmotifs 20 -minw 2 -maxw 4
-		cp {params.meme}/meme.html {params.meme}.html
+		cp {params.meme}/meme.html {output.meme_html}
 		grep "E-value" {params.meme}/meme.txt | cut -f 2 | cut -f5 -d"=" | awk -F"E" 'BEGIN{{OFMT="%10.10f"}} {{print $1 * (10 ^ $2)}}' | awk '$1 < 0.05' > {params.meme}_significant.txt
 		"""
 
 rule tombo_alternative:
 	input:
 		sample=(dirs_dict["SINGLE"] + "/{sample}"),
-		#basecalled_sample=dirs_dict["BASECALLED"] + "/{sample}",
 		genome=GENOME_dir + "/{genome}.fasta",
 		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{barcode}_{genome}.txt"),
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative_{model}.stats" ,
-		#readstats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_denovo.per_read_stats" ,
-		#significant_filtered=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}.sig_filtered.fasta",
 		minus=dirs_dict["TOMBO"] + "/{genome}_{sample}_alternative_{model}_minusmod.wig",
 		plus=dirs_dict["TOMBO"] + "/{genome}_{sample}_alternative_{model}_plusmod.wig",
-		#minus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_minusmod_corrected.wig",
-		#plus_corr=dirs_dict["TOMBO"] + "/{genome}/{genome}_{sample}_plusmod_corrected.wig",
 		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}_tombo_alternative_{model}_results.significant_regions.fasta",
 	params:
 		name="{genome}_{sample}_alternative_{model}",
@@ -344,7 +352,6 @@ rule tombo_alternative:
 	wildcard_constraints:
 		control="barcode..",
 		sample="barcode..",
-		#genome=GENOME_name,
 	conda:
 		"envs/env1.yaml"
 	message:
@@ -395,11 +402,6 @@ rule megalodon:
 		genome="{genome}",
 	output:
 		megalodon_dir=directory(dirs_dict["MEGALODON"] + "/{barcode}"),
-
-		#basecalls=dirs_dict["MEGALODON"] + "/{barcode}_basecalls",
-		#mappings=dirs_dict["MEGALODON"] + "/{barcode}_mappings",
-		#mod_mappings=dirs_dict["MEGALODON"] + "/{barcode}_mod_mappings",
-		#mods=dirs_dict["MEGALODON"] + "/{barcode}_mods",
 	params:
 		model_dir=dirs_dict["TOOLS"]+ "/rerio/basecall_models/",
 		model_name="res_dna_r941_min_modbases_5mC_CpG_v001.cfg",
@@ -532,7 +534,7 @@ rule megalodon:
 # 		do
 # 			touch {params.output_dir}/$barcode.fastq
 # 		done
-		"""
+#		"""
 
 # rule demultiplexing_Deepbinner:
 # 	input:
