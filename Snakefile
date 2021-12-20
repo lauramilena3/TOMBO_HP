@@ -281,10 +281,6 @@ rule tombo_sample_compare:
 		tombo detect_modifications model_sample_compare --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-file-basename {params.name} --per-read-statistics-basename {params.name}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 100 --num-bases 10 --sequences-filename {output.significant}
-		#mv {params.name}.tombo.stats {output.stats}
-		# mv {params.name}.fraction_modified_reads.plus.wig {output.plus}
-		# mv {params.name}.fraction_modified_reads.minus.wig {output.minus}
-
 		"""
 
 rule tombo_denovo:
