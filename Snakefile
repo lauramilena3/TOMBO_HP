@@ -309,7 +309,7 @@ rule tombo_denovo:
 		tombo detect_modifications de_novo --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.name}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 100 --num-bases 10 --sequences-filename {output.significant}
-		meme -oc {params.meme} -dna -mod zoops {params.significant} -nmotifs 20 -minw 2 -maxw 4
+		meme -oc {params.meme} -dna -mod zoops {output.significant} -nmotifs 20 -minw 2 -maxw 4
 		cp {params.meme}/meme.html {output.meme_html}
 		grep "E-value" {params.meme}/meme.txt | cut -f 2 | cut -f5 -d"=" | awk -F"E" 'BEGIN{{OFMT="%10.10f"}} {{print $1 * (10 ^ $2)}}' | awk '$1 < 0.05' > {params.meme}_significant.txt
 		"""
