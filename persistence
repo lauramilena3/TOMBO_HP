@@ -26,3 +26,7 @@ tombo detect_modifications model_sample_compare --fast5-basedirs basecalled01/wo
 In the run I only included three samples - from the beginning of the experiment (A1; barcode 6), before third exposure to Amp (A3; barcode 7) and before sixth exposure to Amp (A6; barcode 8). Also, a non-modified (WGA) sample was included as control (barcode 9).
 
 snakemake --use-conda --config work_dir=/home/demeter/lmf/PERSISTENCE/ input_dir=/home/demeter/lmf/PERSISTENCE/00_RAW_DATA/fast5 samples="barcode06 barcode07 barcode08" control=barcode09 genome=/home/demeter/lmf/PERSISTENCE/E_coli.fasta
+Megalodon + DeepSignal
+DeepSignal
+
+snakemake -s Deepsignal1 deepsignal_results/example_deepsignal-freq-perCG-raw.tsv

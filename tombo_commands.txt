@@ -7,9 +7,10 @@ rsync -r  ad/03_DEMULTIPLEXED/ lmf@130.225.99.101:/home/lmf/AMARU/TOMBO_2/03_DEM
 snakemake -p tombo_run --use-conda --conda-frontend mamba --config work_dir=/home/lmf/AMARU/TOMBO_2/ samples="barcode08" control=barcode09 genome=/home/lmf/AMARU/TOMBO_2/GENOMES/Selected_phages_for_EpiSeq.fasta -j 32 -n
 
 
+
 snakemake -p tombo_run_denovo --use-conda ---conda-frontend mamba -config input_dir=/home/demeter/Storage/lmf/TOMBO_HP/ad/00_RAW_DATA work_dir=/home/demeter/Storage/lmf/TOMBO_HP/ad/ genome_dir=/home/demeter/Storage/lmf/TOMBO_HP/ad/GENOMES samples="barcode08" control="barcode09" -j 32 -k -n
 #demeter
-snakemake -p tombo_run --use-conda --conda-frontend mamba --config input_dir=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/00_RAW_DATA  work_dir=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/ samples="barcode06 barcode07 barcode08" control=barcode09 genome=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/GENOMES/E_coli_MG1655.fasta min_read_length=10000-j 32 -k -n
+snakemake -p tombo_run --use-conda --conda-frontend mamba --config input_dir=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/00_RAW_DATA  work_dir=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/ samples="barcode06 barcode07 barcode08" control=barcode09 genome=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/GENOMES/E_coli_MG1655_assembled.fasta min_read_length=10000 -j 32 -k -n
 #snakemake  --use-conda --conda-frontend mamba  --config input_dir=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/00_RAW_DATA  samples="barcode06 barcode07 barcode08" control=barcode09 genome=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/GENOMES/E_coli_MG1655.fasta -j 32 -n
 
 
@@ -17,3 +18,13 @@ snakemake -p tombo_run --use-conda --conda-frontend mamba --config input_dir=/ho
 snakemake -p tombo_run --use-conda --conda-frontend mamba --config work_dir=/home/lmf/LEISE/PERSISTENCE/ samples="barcode06 barcode07 barcode08" control=barcode09 genome=/home/lmf/LEISE/PERSISTENCE/GENOMES/E_coli_MG1655.fasta -j 32 -n
 
 --conda-frontend mamba
+
+#7 december
+#run all vs all
+conda activate tombo_hp
+cd ~/Storage/lmf/TOMBO_HP
+snakemake -p tombo_run_sampleCompare --use-conda --conda-frontend mamba --config input_dir=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/00_RAW_DATA  work_dir=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/ samples="barcode06 barcode07 barcode08 barcode09" control="barcode06 barcode07 barcode08 barcode09" genome_dir=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/GENOMES min_read_length=10000 -j 32 -k -n
+
+
+#KATRINE on HIGH-QUALITY genomes
+snakemake -p tombo_run_denovo --use-conda --conda-frontend mamba --config input_dir=/home/demeter/Storage/lmf/TOMBO_HP/ORGANIC/00_RAW_DATA work_dir=/home/demeter/Storage/lmf/TOMBO_HP/ORGANIC/ genome_dir=/home/demeter/Storage/lmf/TOMBO_HP/ORGANIC/GENOMES samples="barcode08" control="barcode09" -j 16 -k

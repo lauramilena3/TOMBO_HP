@@ -273,15 +273,18 @@ rule tombo_sample_compare:
 		"envs/env1.yaml"
 	message:
 		"Detecting modified bases with Tombo sample compare"
-	threads: 16
+	threads: 8
 	shell:
 		"""
 		rm -r {params.tombo_results_dir}
 		mkdir {params.tombo_results_dir}
 		cd {params.tombo_results_dir}
-		tombo detect_modifications model_sample_compare --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-file-basename {params.name} --per-read-statistics-basename {params.name}
+		tombo detect_modifications model_sample_compare --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-file-basename {params.name} --per-read-statistics-basename {params.name} --processes {threads}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 100 --num-bases 10 --sequences-filename {output.significant}
+		meme -oc {params.meme} -dna -mod zoops {output.significant} -nmotifs 20 -minw 2 -maxw 4
+		cp {params.meme}/meme.html {output.meme_html}
+		grep "E-value" {params.meme}/meme.txt | cut -f 2 | cut -f5 -d"=" | awk -F"E" 'BEGIN{{OFMT="%10.10f"}} {{print $1 * (10 ^ $2)}}' | awk '$1 < 0.05' > {params.meme}_significant.txt
 		"""
 
 rule tombo_denovo:
