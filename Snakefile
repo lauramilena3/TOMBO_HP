@@ -319,13 +319,11 @@ rule tombo_denovo:
 		grep "E-value" {params.meme}/meme.txt | cut -f 2 | cut -f5 -d"=" | awk -F"E" 'BEGIN{{OFMT="%10.10f"}} {{print $1 * (10 ^ $2)}}' | awk '$1 < 0.05' > {params.meme}_significant.txt
 		"""
 
-
-
 rule tombo_alternative:
 	input:
 		sample=(dirs_dict["SINGLE"] + "/{sample}"),
+		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{sample}_{genome}.txt"),
 		genome=GENOME_dir + "/{genome}.fasta",
-		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{barcode}_{genome}.txt"),
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative_{model}.stats" ,
 		minus=dirs_dict["TOMBO"] + "/{genome}_{sample}_alternative_{model}_minusmod.wig",
@@ -333,6 +331,7 @@ rule tombo_alternative:
 		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}_tombo_alternative_{model}_results.significant_regions.fasta",
 	params:
 		name="{genome}_{sample}_alternative_{model}",
+		tombo_results_dir=directory(dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative"),
 		readstats="{genome}_{sample}.tombo_alternative_{model}_per_read" ,
 	wildcard_constraints:
 		control="barcode..",
@@ -344,13 +343,12 @@ rule tombo_alternative:
 	threads: 16
 	shell:
 		"""
+		rm -r {params.tombo_results_dir}
+		mkdir {params.tombo_results_dir}
+		cd {params.tombo_results_dir}
 		tombo detect_modifications alternative_model --alternate-bases {wildcards.model} --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.readstats}
-		#mv {params.name}.{wildcards.model}.tombo.stats {output.stats}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
-		#mv {params.name}.fraction_modified_reads.plus.wig {output.plus}
-		#mv {params.name}.fraction_modified_reads.mls inus.wig {output.minus}
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 10000 --num-bases 10 --sequences-filename {output.significant}
-		#mv tombo_results.significant_regions.fasta {output.significant}
 		"""
 rule deepsignal:
 	input:
