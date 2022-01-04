@@ -276,7 +276,7 @@ rule tombo_sample_compare:
 	threads: 8
 	shell:
 		"""
-		rm -r {params.tombo_results_dir}
+		rm -r {params.tombo_results_dir} || true
 		mkdir {params.tombo_results_dir}
 		cd {params.tombo_results_dir}
 		tombo detect_modifications model_sample_compare --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-file-basename {params.name} --per-read-statistics-basename {params.name} --processes {threads}
@@ -308,7 +308,7 @@ rule tombo_denovo:
 	threads: 16
 	shell:
 		"""
-		rm -r {params.tombo_results_dir}
+		rm -r {params.tombo_results_dir} || true
 		mkdir {params.tombo_results_dir}
 		cd {params.tombo_results_dir}
 		tombo detect_modifications de_novo --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.name}
@@ -343,7 +343,7 @@ rule tombo_alternative:
 	threads: 16
 	shell:
 		"""
-		rm -r {params.tombo_results_dir}
+		rm -r {params.tombo_results_dir} || true
 		mkdir {params.tombo_results_dir}
 		cd {params.tombo_results_dir}
 		tombo detect_modifications alternative_model --alternate-bases {wildcards.model} --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.readstats}
