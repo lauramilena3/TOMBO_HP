@@ -305,13 +305,13 @@ rule tombo_denovo:
 		"envs/env1.yaml"
 	message:
 		"Detecting modified bases with Tombo de novo"
-	threads: 16
+	threads: 8
 	shell:
 		"""
 		rm -r {params.tombo_results_dir} || true
 		mkdir {params.tombo_results_dir}
 		cd {params.tombo_results_dir}
-		tombo detect_modifications de_novo --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.name}
+		tombo detect_modifications de_novo --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.name} --processes {threads}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 100 --num-bases 10 --sequences-filename {output.significant}
 		meme -oc {params.meme} -dna -mod zoops {output.significant} -nmotifs 20 -minw 2 -maxw 4
@@ -340,13 +340,13 @@ rule tombo_alternative:
 		"envs/env1.yaml"
 	message:
 		"Detecting modified bases with Tombo de novo"
-	threads: 16
+	threads: 8
 	shell:
 		"""
 		rm -r {params.tombo_results_dir} || true
 		mkdir {params.tombo_results_dir}
 		cd {params.tombo_results_dir}
-		tombo detect_modifications alternative_model --alternate-bases {wildcards.model} --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.readstats}
+		tombo detect_modifications alternative_model --alternate-bases {wildcards.model} --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.readstats} --processes {threads}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 10000 --num-bases 10 --sequences-filename {output.significant}
 		"""
