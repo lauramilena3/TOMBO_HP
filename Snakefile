@@ -326,8 +326,8 @@ rule tombo_alternative:
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative/{genome}_{sample}.tombo_alternative_{model}.{model}.tombo.stats" ,
-		minus=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative/{genome}_{sample}_alternative_{model}_minusmod.wig",
-		plus=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative/{genome}_{sample}_alternative_{model}_plusmod.wig",
+		#minus=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative/{genome}_{sample}_alternative_{model}_minusmod.wig",
+		#plus=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative/{genome}_{sample}_alternative_{model}_plusmod.wig",
 		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative/{genome}_{sample}_tombo_alternative_{model}_results.significant_regions.fasta",
 	params:
 		name="{genome}_{sample}.tombo_alternative_{model}",
