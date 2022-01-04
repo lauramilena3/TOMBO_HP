@@ -325,8 +325,6 @@ rule tombo_alternative:
 		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{sample}_{genome}.txt"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
-			expand(dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative/{genome}_{sample}.tombo_alternative.{model}.tombo.stats", sample=SAMPLES, model=ALTERNATIVE_MODELS, genome=GENOME_name),
-
 		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative/{genome}_{sample}.tombo_alternative.{model}.tombo.stats" ,
 		minus=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative/{genome}_{sample}_alternative_{model}_minusmod.wig",
 		plus=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative/{genome}_{sample}_alternative_{model}_plusmod.wig",
