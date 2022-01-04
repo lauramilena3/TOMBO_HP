@@ -321,7 +321,7 @@ rule tombo_denovo:
 
 rule tombo_alternative:
 	input:
-		sample=(dirs_dict["SINGLE"] + "/{sample}"),
+		sample=(dirs_dict["SINGLE"] + "/{sample}_{genome}"),
 		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{sample}_{genome}.txt"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
