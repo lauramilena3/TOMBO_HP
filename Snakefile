@@ -87,7 +87,7 @@ rule tombo_run_sampleCompare:
 
 rule tombo_run_alternative:
 	input:
-		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative_{model}.stats", sample=SAMPLES, model=ALTERNATIVE_MODELS, genome=GENOME_name),
+		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative.{model}.tombo.stats", sample=SAMPLES, model=ALTERNATIVE_MODELS, genome=GENOME_name),
 		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL),
 
 
