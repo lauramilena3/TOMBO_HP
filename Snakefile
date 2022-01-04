@@ -325,12 +325,12 @@ rule tombo_alternative:
 		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{sample}_{genome}.txt"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
-		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative/{genome}_{sample}.tombo_alternative.{model}.tombo.stats" ,
+		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative/{genome}_{sample}.tombo_alternative_{model}.{model}.tombo.stats" ,
 		minus=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative/{genome}_{sample}_alternative_{model}_minusmod.wig",
 		plus=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative/{genome}_{sample}_alternative_{model}_plusmod.wig",
 		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative/{genome}_{sample}_tombo_alternative_{model}_results.significant_regions.fasta",
 	params:
-		name="{genome}_{sample}.tombo_alternative",
+		name="{genome}_{sample}.tombo_alternative_{model}",
 		tombo_results_dir=(dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative"),
 		readstats="{genome}_{sample}.tombo_alternative_{model}_per_read" ,
 	wildcard_constraints:
