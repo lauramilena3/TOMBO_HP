@@ -113,7 +113,7 @@ rule get_rerio_model:
 
 rule qualityCheckNanopore:
 	input:
-		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
+		demultiplexed_dir=(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
 	output:
 		nanoqc_dir=directory(dirs_dict["QC"] + "/{barcode}_nanoplot"),
 	params:
@@ -202,7 +202,7 @@ rule demultiplexing:
 
 rule multi_to_single_fast5:
 	input:
-		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}_{genome}"),
+		demultiplexed_dir=(dirs_dict["DEMULTIPLEXED"] + "/{barcode}_{genome}"),
 	output:
 		single_data=directory(dirs_dict["SINGLE"]+ "/{barcode}_{genome}"),
 	conda:
@@ -240,7 +240,7 @@ rule multi_to_single_fast5:
 rule resquiggle_tombo:
 	input:
 		#demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
-		single_data=directory(dirs_dict["SINGLE"]+ "/{barcode}_{genome}"),
+		single_data=(dirs_dict["SINGLE"]+ "/{barcode}_{genome}"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{barcode}_{genome}.txt"),
