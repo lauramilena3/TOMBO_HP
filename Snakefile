@@ -188,7 +188,8 @@ rule demultiplexing:
 		"Demultiplexing single fast5 files"
 	params:
 		min_read_length=config['min_read_length']
-
+	conda:
+		"envs/env1.yaml"
 	threads: 1
 	shell:
 		"""
