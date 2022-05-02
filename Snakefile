@@ -84,7 +84,7 @@ rule tombo_run_sampleCompare:
 		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}.tombo_denovo.stats", sample=SAMPLES),
 		#expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
 		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}_tombo_sampleCompare_results.motif_detection.meme.html", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
-		expand(directory(dirs_dict["QC"] + "/{barcode}_{genome}_nanoQC", barcode=BARCODES, genome=GENOME_name)),
+		expand(dirs_dict["QC"] + "/{barcode}_{genome}_nanoQC", barcode=BARCODES, genome=GENOME_name),
 
 rule tombo_run_alternative:
 	input:
