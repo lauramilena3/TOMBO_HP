@@ -168,7 +168,7 @@ rule qualityCheckNanopore:
 	message:
 		"Performing nanoQC statistics"
 	conda:
-		dirs_dict["ENVS_DIR"] + "/env3.yaml"
+		"envs/env3.yaml"
 	shell:
 		"""
 		nanoQC -o {output.nanoqc_dir} {input.mapped_fastq}
