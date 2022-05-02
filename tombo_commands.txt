@@ -28,3 +28,11 @@ snakemake -p tombo_run_sampleCompare --use-conda --conda-frontend mamba --config
 
 #KATRINE on HIGH-QUALITY genomes
 snakemake -p tombo_run_denovo --use-conda --conda-frontend mamba --config input_dir=/home/demeter/Storage/lmf/TOMBO_HP/ORGANIC/00_RAW_DATA work_dir=/home/demeter/Storage/lmf/TOMBO_HP/ORGANIC/ genome_dir=/home/demeter/Storage/lmf/TOMBO_HP/ORGANIC/GENOMES samples="barcode08" control="barcode09" -j 16 -k
+
+
+#SIF_phages
+snakemake -p tombo_run_sampleCompare --use-conda --conda-frontend mamba --config input_dir=/home/demeter/Storage/lmf/TOMBO_HP/SIF_ukendt/00_RAW_DATA  work_dir=/home/demeter/Storage/lmf/TOMBO_HP/SIF_ukendt samples="barcode01" control="barcode02" genome_dir=/home/demeter/Storage/lmf/TOMBO_HP/SIF_ukendt/GENOMES min_read_length=1000 -j 4 -k
+snakemake -p tombo_run_sampleCompare --use-conda --conda-frontend mamba --config input_dir=/home/demeter/Storage/lmf/TOMBO_HP/SIF_anhysbys/00_RAW_DATA  work_dir=/home/demeter/Storage/lmf/TOMBO_HP/SIF_anhysbys samples="barcode03" control="barcode04" genome_dir=/home/demeter/Storage/lmf/TOMBO_HP/SIF_anhysbys/GENOMES min_read_length=1000 -j 4 -k
+
+# JEPPE_JenP1
+snakemake -p tombo_run_sampleCompare --use-conda --conda-frontend mamba --config input_dir=/home/demeter/Storage/lmf/TOMBO_HP/JEPPE_JenP1/00_RAW_DATA  work_dir=/home/demeter/Storage/lmf/TOMBO_HP/JEPPE_JenP1 samples="barcode05" control="barcode06" genome_dir=/home/demeter/Storage/lmf/TOMBO_HP/JEPPE_JenP1/GENOMES min_read_length=10000 -j 4 -k

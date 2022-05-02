@@ -84,6 +84,7 @@ rule tombo_run_sampleCompare:
 		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}.tombo_denovo.stats", sample=SAMPLES),
 		#expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
 		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}_tombo_sampleCompare_results.motif_detection.meme.html", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
+		expand(directory(dirs_dict["QC"] + "/{barcode}_{genome}_nanoQC", barcode=BARCODES, genome=GENOME_name)),
 
 rule tombo_run_alternative:
 	input:
@@ -111,21 +112,6 @@ rule get_rerio_model:
 		./download_model.py basecall_models/res_dna_r941_min_modbases_5mC_CpG_v001
 		"""
 
-rule qualityCheckNanopore:
-	input:
-		demultiplexed_dir=(dirs_dict["DEMULTIPLEXED"] + "/{barcode}"),
-	output:
-		nanoqc_dir=directory(dirs_dict["QC"] + "/{barcode}_nanoplot"),
-	params:
-		raw_fastq=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}/batch0.fastq"),
-	message:
-		"Performing nanoQC statistics"
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env3.yaml"
-	shell:
-		"""
-		nanoQC -o {output.nanoqc_dir} {params.raw_fastq}
-		"""
 
 rule guppy_basecalling:
 	input:
@@ -157,6 +143,7 @@ rule map_to_genomes:
 		mapped_paf=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}.paf",
 		mapped_list=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_fast5_list_mapped.txt",
 		merged_fastq=temp(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}.fastq"),
+		mapped_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_mapped.fastq"),
 	params:
 		flowcell=FLOWCELL,
 		kit=KIT,
@@ -170,6 +157,21 @@ rule map_to_genomes:
 		cat {input.basecalled_dir}/*fastq > {output.merged_fastq}
 		/home/demeter/Storage/lmf/apps/minimap2/minimap2 -ax map-ont {input.genome} {output.merged_fastq} > {output.mapped_paf}
 		cat {output.mapped_paf} | cut -f1 > {output.mapped_list}
+		seqtk subseq {output.merged_fastq} {output.mapped_list} > {output.mapped_fastq}
+		"""
+
+rule qualityCheckNanopore:
+	input:
+		mapped_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_mapped.fastq"),
+	output:
+		nanoqc_dir=directory(dirs_dict["QC"] + "/{barcode}_{genome}_nanoQC"),
+	message:
+		"Performing nanoQC statistics"
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env3.yaml"
+	shell:
+		"""
+		nanoQC -o {output.nanoqc_dir} {input.mapped_fastq}
 		"""
 
 rule demultiplexing:
@@ -199,6 +201,8 @@ rule demultiplexing:
 		comm -12  <(sort {input.mapped_list}) <(sort {output.length_list}) > {output.demultiplexed_list}
 		fast5_subset -i {input.workspace_dir} -s {output.demultiplexed_dir} -l {output.demultiplexed_list} -n 1000000000
 		"""
+
+
 
 rule multi_to_single_fast5:
 	input:
@@ -236,6 +240,7 @@ rule multi_to_single_fast5:
 # 		tombo preprocess annotate_raw_with_fastqs --fast5-basedir {input.demultiplexed_dir} --fastq-filenames {input.basecalled_dir}/*fastq --sequencing-summary-filenames {input.basecalled_summary} --overwrite --processes {threads}
 # 		touch {output.annotated}
 # 		"""
+
 
 rule resquiggle_tombo:
 	input:
