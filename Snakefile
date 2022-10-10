@@ -132,7 +132,7 @@ rule guppy_basecalling:
 	threads: 32
 	shell:
 		"""
-		guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r --trim_barcodes -x 'cuda:0 cuda:1' -c /opt/ont/guppy/data/dna_r9.4.1_450bps_sup.cfg --barcode_kits {params.kit} --fast5_out --disable_qscore_filtering --chunks_per_runner 128
+		guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r -x 'cuda:0 cuda:1' -c /opt/ont/guppy/data/dna_r9.4.1_450bps_sup.cfg --barcode_kits {params.kit} --fast5_out --disable_qscore_filtering --chunks_per_runner 128
 		"""
 
 rule map_to_genomes:
