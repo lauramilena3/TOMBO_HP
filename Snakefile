@@ -125,7 +125,7 @@ rule guppy_basecalling:
 	params:
 		flowcell=FLOWCELL,
 		kit=KIT,
-		model=MODEL_GUPPY
+		model=MODEL_GUPPY,
 		basecalled_dir=directory(dirs_dict["BASECALLED"]),
 	conda:
 		"envs/env1.yaml"
