@@ -14,6 +14,7 @@ OUTPUT_DIR=config['work_dir'].rstrip("/")
 RAW_DATA_DIR =config['input_dir']
 FLOWCELL=config['flowcell']
 KIT=config['kit']
+MODEL_GUPPY=config['model']
 ALTERNATIVE_MODELS =config['alternative_models']
 
 # GENOME=config['genome']
@@ -124,6 +125,7 @@ rule guppy_basecalling:
 	params:
 		flowcell=FLOWCELL,
 		kit=KIT,
+		model=MODEL_GUPPY
 		basecalled_dir=directory(dirs_dict["BASECALLED"]),
 	conda:
 		"envs/env1.yaml"
@@ -132,7 +134,7 @@ rule guppy_basecalling:
 	threads: 32
 	shell:
 		"""
-		guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r -x 'cuda:0 cuda:1' -c /opt/ont/guppy/data/dna_r9.4.1_450bps_sup.cfg --barcode_kits {params.kit} --fast5_out --disable_qscore_filtering --chunks_per_runner 128
+		guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r -x 'cuda:0 cuda:1' -c /opt/ont/guppy/data/${params.model} --barcode_kits {params.kit} --fast5_out --disable_qscore_filtering --chunks_per_runner 128
 		"""
 
 rule map_to_genomes:

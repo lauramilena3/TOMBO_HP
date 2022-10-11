@@ -4,6 +4,7 @@ tools_dir: "tools"
 #guppy
 flowcell: "FLO-MIN106"
 kit: "SQK-RBK004"
+model: "dna_r9.4.1_450bps_sup.cfg"
 #tombo
 samples: ""
 control: ""
