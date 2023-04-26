@@ -136,7 +136,7 @@ if HACKED:
 		threads: 32
 		shell:
 			"""
-			guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r -x 'cuda:0 cuda:1' -c /opt/ont/guppy/data/{params.model} --barcode_kits {params.kit} --fast5_out --chunks_per_runner 128
+			guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r -x 'cuda:0 cuda:1' -c /opt/ont/guppy/data/{params.model} --barcode_kits {params.kit} --fast5_out --disable_qscore_filtering --chunks_per_runner 128
 			"""
 
 else:
@@ -164,27 +164,6 @@ else:
 			guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r -x 'cuda:0 cuda:1' -c /opt/ont/guppy/data/{params.model} --barcode_kits {params.kit} --fast5_out --disable_qscore_filtering --chunks_per_runner 128
 			"""
 
-input:
-			raw_data=RAW_DATA_DIR,
-		output:
-	#		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
-			basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
-			basecalled_dir=directory(expand(dirs_dict["BASECALLED"] + "/{barcode}",barcode=BARCODES)),
-			workspace_dir=directory(dirs_dict["BASECALLED"] + "/workspace"),
-		params:
-			flowcell=FLOWCELL,
-			kit=KIT,
-			model=MODEL_GUPPY,
-			basecalled_dir=directory(dirs_dict["BASECALLED"]),
-		conda:
-			"envs/env1.yaml"
-		message:
-			"Basecalling single fast5 files with guppy"
-		threads: 32
-		shell:
-			"""
-			guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r -x 'cuda:0 cuda:1' -c /opt/ont/guppy/data/{params.model} --barcode_kits {params.kit} --fast5_out --disable_qscore_filtering --chunks_per_runner 128
-			"""
 
 rule map_to_genomes:
 	input:
