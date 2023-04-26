@@ -127,7 +127,7 @@ if HACKED:
 		params:
 			flowcell=FLOWCELL,
 			kit=KIT,
-			model=MODEL_GUPPY,
+			model="dna_r9.4.1_450bps_hac.cfg",
 			basecalled_dir=directory(dirs_dict["BASECALLED"]),
 		conda:
 			"envs/env1.yaml"
@@ -136,7 +136,7 @@ if HACKED:
 		threads: 32
 		shell:
 			"""
-			guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r -x 'cuda:0 cuda:1' -c /opt/ont/guppy/data/{params.model} --barcode_kits {params.kit} --fast5_out --disable_qscore_filtering --chunks_per_runner 128
+			guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r -x 'cuda:0' -c /home/krakenosh/my_scripts/ont-guppy/data/{params.model} --barcode_kits {params.kit} --fast5_out --chunks_per_runner 128
 			"""
 
 else:
