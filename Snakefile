@@ -15,7 +15,7 @@ RAW_DATA_DIR =config['input_dir']
 FLOWCELL=config['flowcell']
 KIT=config['kit']
 MODEL_GUPPY=config['model']
-HACKED=config['hacked']d
+HACKED=config['hacked']
 ALTERNATIVE_MODELS =config['alternative_models']
 
 # GENOME=config['genome']
