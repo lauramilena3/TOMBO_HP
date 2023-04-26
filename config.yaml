@@ -13,3 +13,4 @@ megalodon_model: "/home/lmf/LEISE/PERSISTENCE/model.CpG.R9.4_1D.human_hx1.bn17.s
 guppy_server: "/usr/bin/guppy_basecall_server"
 alternative_models: ["dam", "dcm"]
 min_read_length: 1000
+hacked: False
