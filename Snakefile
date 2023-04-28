@@ -136,7 +136,7 @@ if HACKED:
 		threads: 32
 		shell:
 			"""
-			home/krakenosh/my_scripts/guppy_V5.0.16/bin/guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r -x 'cuda:0' -c /home/krakenosh/my_scripts/ont-guppy/data/{params.model} --barcode_kits {params.kit} --fast5_out --chunks_per_runner 160
+			/home/krakenosh/my_scripts/guppy_V5.0.16/bin/guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r -x 'cuda:0' -c /home/krakenosh/my_scripts/ont-guppy/data/{params.model} --barcode_kits {params.kit} --fast5_out --chunks_per_runner 160
 			guppy_barcoder  -i {params.basecalled_dir}  -t {threads} --kit SQK16S-GXO -s {params.basecalled_dir} -r			
 			"""
 
