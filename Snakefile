@@ -94,8 +94,8 @@ rule tombo_run_alternative:
 		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL),
 
 
-wildcard_constraints:
-	barcode="barcode..",
+# wildcard_constraints:
+# 	barcode="barcode..",
 
 
 rule get_rerio_model:
@@ -370,9 +370,9 @@ rule tombo_alternative:
 		name="{genome}_{sample}.tombo_alternative_{model}",
 		tombo_results_dir=(dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative_{model}"),
 		readstats="{genome}_{sample}.tombo_alternative_{model}_per_read" ,
-	wildcard_constraints:
-		control="barcode..",
-		sample="barcode..",
+	# wildcard_constraints:
+	# 	control="barcode..",
+	# 	sample="barcode..",
 	conda:
 		"envs/env1.yaml"
 	message:
