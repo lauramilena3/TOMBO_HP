@@ -25,6 +25,7 @@ conda activate tombo_hp
 cd ~/Storage/lmf/TOMBO_HP
 snakemake -p tombo_run_sampleCompare --use-conda --conda-frontend mamba --config input_dir=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/00_RAW_DATA  work_dir=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/ samples="barcode06 barcode07 barcode08 barcode09" control="barcode06 barcode07 barcode08 barcode09" genome_dir=/home/demeter/Storage/lmf/TOMBO_HP/LEISE/GENOMES min_read_length=10000 -j 32 -k -n
 
+snakemake -p tombo_run_sampleCompare --use-conda --conda-frontend mamba --config input_dir=/media/krakenosh/25289ce3-5e4b-4a16-821a-c95942864847/LAURA/TEST_TOMBO/00_RAW_DATA  work_dir=/media/krakenosh/25289ce3-5e4b-4a16-821a-c95942864847/LAURA/TEST_TOMBO samples="barcode24" control="barcode28" genome_dir=/media/krakenosh/25289ce3-5e4b-4a16-821a-c95942864847/LAURA/TEST_TOMBO/GENOMES min_read_length=10000 -j 32 -k
 
 #KATRINE on HIGH-QUALITY genomes
 snakemake -p tombo_run_denovo --use-conda --conda-frontend mamba --config input_dir=/home/demeter/Storage/lmf/TOMBO_HP/ORGANIC/00_RAW_DATA work_dir=/home/demeter/Storage/lmf/TOMBO_HP/ORGANIC/ genome_dir=/home/demeter/Storage/lmf/TOMBO_HP/ORGANIC/GENOMES samples="barcode08" control="barcode09" -j 16 -k
