@@ -114,57 +114,57 @@ rule get_rerio_model:
 		./download_model.py basecall_models/res_dna_r941_min_modbases_5mC_CpG_v001
 		"""
 
-if HACKED:
+# if HACKED:
 
-	rule guppy_basecalling:
-		input:
-			raw_data=RAW_DATA_DIR,
-		output:
-	#		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
-			basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
-			basecalled_dir=directory(expand(dirs_dict["BASECALLED"] + "/{barcode}",barcode=BARCODES)),
-			workspace_dir=directory(dirs_dict["BASECALLED"] + "/workspace"),
-		params:
-			flowcell=FLOWCELL,
-			kit=KIT,
-			model=MODEL_GUPPY,
-			basecalled_dir=directory(dirs_dict["BASECALLED"]),
-		conda:
-			"envs/env1.yaml"
-		message:
-			"Basecalling single fast5 files with guppy"
-		threads: 32
-		shell:
-			"""
-			/home/krakenosh/my_scripts/guppy_V5.0.16/bin/guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r -x 'cuda:0' -c /home/krakenosh/my_scripts/ont-guppy/data/{params.model} --barcode_kits {params.kit} --fast5_out --chunks_per_runner 160
-			guppy_barcoder  -i {params.basecalled_dir}  -t {threads} --kit SQK16S-GXO -s {params.basecalled_dir} -r			
-			"""
+# 	rule guppy_basecalling:
+# 		input:
+# 			raw_data=RAW_DATA_DIR,
+# 		output:
+# 	#		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
+# 			basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
+# 			basecalled_dir=directory(expand(dirs_dict["BASECALLED"] + "/{barcode}",barcode=BARCODES)),
+# 			workspace_dir=directory(dirs_dict["BASECALLED"] + "/workspace"),
+# 		params:
+# 			flowcell=FLOWCELL,
+# 			kit=KIT,
+# 			model=MODEL_GUPPY,
+# 			basecalled_dir=directory(dirs_dict["BASECALLED"]),
+# 		conda:
+# 			"envs/env1.yaml"
+# 		message:
+# 			"Basecalling single fast5 files with guppy"
+# 		threads: 32
+# 		shell:
+# 			"""
+# 			/home/krakenosh/my_scripts/guppy_V5.0.16/bin/guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r -x 'cuda:0' -c /home/krakenosh/my_scripts/ont-guppy/data/{params.model} --barcode_kits {params.kit} --fast5_out --chunks_per_runner 160
+# 			guppy_barcoder  -i {params.basecalled_dir}  -t {threads} --kit SQK16S-GXO -s {params.basecalled_dir} -r			
+# 			"""
 
-else:
+# else:
 
-	rule guppy_basecalling:
-		input:
-			raw_data=RAW_DATA_DIR,
-		output:
-	#		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
-			basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
-			basecalled_dir=directory(expand(dirs_dict["BASECALLED"] + "/{barcode}",barcode=BARCODES)),
-			workspace_dir=directory(dirs_dict["BASECALLED"] + "/workspace"),
-		params:
-			flowcell=FLOWCELL,
-			kit=KIT,
-			model=MODEL_GUPPY,
-			basecalled_dir=directory(dirs_dict["BASECALLED"]),
-		conda:
-			"envs/env1.yaml"
-		message:
-			"Basecalling single fast5 files with guppy"
-		threads: 32
-		shell:
-			"""
-			guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r -x 'cuda:0 cuda:1' -c /opt/ont/guppy/data/{params.model} --barcode_kits {params.kit} --post_out --disable_qscore_filtering --chunks_per_runner 128
-			# --chunks_per_runner 1 --gpu_runners_per_device 1 --num_callers 1
-			"""
+rule guppy_basecalling:
+	input:
+		raw_data=RAW_DATA_DIR,
+	output:
+#		demultiplexed_dir=directory(expand((dirs_dict["DEMULTIPLEXED"] + "/{barcode}"), barcode=BARCODES)),
+		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
+		basecalled_dir=directory(expand(dirs_dict["BASECALLED"] + "/{barcode}",barcode=BARCODES)),
+		workspace_dir=directory(dirs_dict["BASECALLED"] + "/workspace"),
+	params:
+		flowcell=FLOWCELL,
+		kit=KIT,
+		model=MODEL_GUPPY,
+		basecalled_dir=directory(dirs_dict["BASECALLED"]),
+	conda:
+		"envs/env1.yaml"
+	message:
+		"Basecalling single fast5 files with guppy"
+	threads: 32
+	shell:
+		"""
+		guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r -x 'cuda:0 cuda:1' -c /opt/ont/guppy/data/{params.model} --barcode_kits {params.kit} --post_out --disable_qscore_filtering --chunks_per_runner 128
+		# --chunks_per_runner 1 --gpu_runners_per_device 1 --num_callers 1
+		"""
 
 
 rule map_to_genomes:
@@ -234,8 +234,6 @@ rule demultiplexing:
 		comm -12  <(sort {input.mapped_list}) <(sort {output.length_list}) > {output.demultiplexed_list}
 		fast5_subset -i {input.workspace_dir} -s {output.demultiplexed_dir} -l {output.demultiplexed_list} -n 1000000000
 		"""
-
-
 
 rule multi_to_single_fast5:
 	input:
@@ -318,6 +316,8 @@ rule tombo_sample_compare:
 		rm -r {params.tombo_results_dir} || true
 		mkdir {params.tombo_results_dir}
 		cd {params.tombo_results_dir}
+		tombo filter clear_filters {input.sample}
+		tombo filter clear_filters {input.control}
 		tombo detect_modifications model_sample_compare --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-file-basename {params.name} --per-read-statistics-basename {params.name} --processes {threads}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 100 --num-bases 10 --sequences-filename {output.significant}
