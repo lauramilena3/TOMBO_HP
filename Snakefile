@@ -282,7 +282,7 @@ rule resquiggle_tombo:
 		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{barcode}_{genome}.txt"),
 	threads: 16
 	conda:
-		"envs/env2.yaml"
+		"envs/env1.yaml"
 	shell:
 		"""
 		tombo resquiggle --dna {input.single_data} {input.genome} --processes {threads} --overwrite --ignore-read-locks
