@@ -351,7 +351,6 @@ rule tombo_denovo:
 		mkdir {params.tombo_results_dir}
 		cd {params.tombo_results_dir}
 		tombo filter clear_filters --fast5-basedirs {input.sample}
-		tombo filter clear_filters --fast5-basedirs {input.control}
 		tombo detect_modifications de_novo --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.name} --processes {threads}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 100 --num-bases 10 --sequences-filename {output.significant}
