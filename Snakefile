@@ -56,11 +56,14 @@ rule all:
 		#expand(dirs_dict["GUPPY"] + "/{barcode}/fastq/{barcode}.fastq",barcode=BARCODES),
 #		cp fastq_runid_*{params.barcode_number}_0.fastq {output.basecalled}
 #		directory(expand(dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES),
-		expand(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{barcode}.txt", barcode=BARCODES),
+#		expand(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{barcode}.txt", barcode=BARCODES),
 #		expand(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt", barcode=BARCODES),
 #		expand(dirs_dict["SINGLE"] + "/{barcode}", barcode=BARCODES),
 #		expand(dirs_dict["MEGALODON"] + "/{barcode}", barcode=BARCODES),
 #		expand(dirs_dict["DEEPSIGNAL"] + "/{barcode}_deepsignal-prob.tsv", barcode=BARCODES),
+		expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_denovo.tombo.stats", barcode=BARCODES, genome=GENOME_name),
+		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
+		expand(dirs_dict["QC"] + "/{barcode}_{genome}_nanoQC", barcode=BARCODES, genome=GENOME_name),
 
 rule demultiplex_run:
 	input:
@@ -78,7 +81,8 @@ rule tombo_run_denovo:
 	input:
 		#expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo", barcode=SAMPLES, genome=GENOME_name),
 		#expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_tombo_denovo_results.motif_detection.meme.html", barcode=SAMPLES, genome=GENOME_name),
-		expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_denovo.tombo.stats", barcode=SAMPLES, genome=GENOME_name),
+		expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_denovo.tombo.stats", barcode=BARCODES, genome=GENOME_name),
+		expand(dirs_dict["QC"] + "/{barcode}_{genome}_nanoQC", barcode=BARCODES, genome=GENOME_name),
 
 rule tombo_run_sampleCompare:
 	input:
