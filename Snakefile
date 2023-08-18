@@ -78,8 +78,7 @@ rule tombo_run_denovo:
 	input:
 		#expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo", barcode=SAMPLES, genome=GENOME_name),
 		#expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_tombo_denovo_results.motif_detection.meme.html", barcode=SAMPLES, genome=GENOME_name),
-		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL),
-		expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_denovo.tombo.stats", sample=SAMPLES, genome=GENOME_name),
+		expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_denovo.tombo.stats", barcode=SAMPLES, genome=GENOME_name),
 
 rule tombo_run_sampleCompare:
 	input:
