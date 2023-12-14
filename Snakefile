@@ -230,14 +230,14 @@ rule demultiplexing:
 		min_read_length=config['min_read_length']
 	conda:
 		"envs/env1.yaml"
-	threads: 1
+	threads: 32
 	shell:
 		"""
 		cat {input.basecalled_dir}/*fastq | sed -n '1~4s/^@/>/p;2~4p' | sed 's/\s.*$//' |
 			awk '$0 ~ ">" {{print c; c=0;printf substr($0,2,100) "\t"; }} $0 !~ ">" {{c+=length($0);}} END {{ print c; }}' |
 			awk '$2>{params.min_read_length}' | cut -f1 > {output.length_list}
 		comm -12  <(sort {input.mapped_list}) <(sort {output.length_list}) > {output.demultiplexed_list}
-		fast5_subset -i {input.workspace_dir} -s {output.demultiplexed_dir} -l {output.demultiplexed_list} -n 1000000000
+		fast5_subset -i {input.workspace_dir} -s {output.demultiplexed_dir} -l {output.demultiplexed_list} -n 1000000000 -t {threads}
 		"""
 
 rule multi_to_single_fast5:
@@ -249,7 +249,7 @@ rule multi_to_single_fast5:
 		"envs/env1.yaml"
 	message:
 		"Converting multi fast5 to single fast5"
-	threads: 16
+	threads: 32
 	shell:
 		"""
 		multi_to_single_fast5 --input_path {input.demultiplexed_dir} --save_path {output.single_data} -t {threads}
