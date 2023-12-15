@@ -243,7 +243,7 @@ rule demultiplexing:
 		
 		mkdir {output.demultiplexed_dir}
 		mv {output.demultiplexed_dir}_parallel*/*fast5 {output.demultiplexed_dir}
-		rm -rf {output.demultiplexed_dir}_parallel*
+		rm -rf {output.demultiplexed_dir}_parallel* {output.demultiplexed_list}_split*
 		"""
 
 rule multi_to_single_fast5:
