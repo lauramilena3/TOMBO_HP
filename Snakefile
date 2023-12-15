@@ -237,7 +237,13 @@ rule demultiplexing:
 			awk '$0 ~ ">" {{print c; c=0;printf substr($0,2,100) "\t"; }} $0 !~ ">" {{c+=length($0);}} END {{ print c; }}' |
 			awk '$2>{params.min_read_length}' | cut -f1 > {output.length_list}
 		comm -12  <(sort {input.mapped_list}) <(sort {output.length_list}) > {output.demultiplexed_list}
-		fast5_subset -i {input.workspace_dir} -s {output.demultiplexed_dir} -l {output.demultiplexed_list} -n 1000000000 -t {threads}
+
+		split -d -n l/20 {output.demultiplexed_list} split_{output.demultiplexed_list}
+		parallel fast5_subset -i {input.workspace_dir} -s {output.demultiplexed_dir}_parallel{{}} -l /home/lmf/WITOLD/Erebus/02_DEMULTIPLEXED/split_{output.demultiplexed_list} -n 10000 -t 4 ::: {00..19}
+		
+		mkdir {output.demultiplexed_dir}
+		mv {output.demultiplexed_dir}_parallel*/* {output.demultiplexed_dir}
+		rm -rf {output.demultiplexed_dir}_parallel*/*
 		"""
 
 rule multi_to_single_fast5:
