@@ -239,7 +239,7 @@ rule demultiplexing:
 		comm -12  <(sort {input.mapped_list}) <(sort {output.length_list}) > {output.demultiplexed_list}
 
 		split -d -n l/20 {output.demultiplexed_list} split_{output.demultiplexed_list}
-		parallel fast5_subset -i {input.workspace_dir} -s {output.demultiplexed_dir}_parallel{{}} -l /home/lmf/WITOLD/Erebus/02_DEMULTIPLEXED/split_{output.demultiplexed_list} -n 10000 -t 4 ::: {00..19}
+		parallel fast5_subset -i {input.workspace_dir} -s {output.demultiplexed_dir}_parallel{{}} -l /home/lmf/WITOLD/Erebus/02_DEMULTIPLEXED/split_{output.demultiplexed_list} -n 10000 -t 4 ::: {{00..19}}
 		
 		mkdir {output.demultiplexed_dir}
 		mv {output.demultiplexed_dir}_parallel*/* {output.demultiplexed_dir}
