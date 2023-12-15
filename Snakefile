@@ -166,7 +166,7 @@ rule guppy_basecalling:
 	threads: 32
 	shell:
 		"""
-		guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r -x 'cuda:0 cuda:1' -c /opt/ont/guppy/data/{params.model} --barcode_kits {params.kit} --post_out --disable_qscore_filtering --chunks_per_runner 124 --gpu_runners_per_device 2 --num_callers 8
+		guppy_basecaller -i {input.raw_data} -s {params.basecalled_dir} -q 0 -r -x 'cuda:0 cuda:1' -c /opt/ont/guppy/data/{params.model} --barcode_kits {params.kit} --post_out --disable_qscore_filtering --chunks_per_runner 32 --gpu_runners_per_device 2 --num_callers 8
 		# --chunks_per_runner 1 --gpu_runners_per_device 1 --num_callers 1
 		# --chunks_per_runner 128
 		"""
