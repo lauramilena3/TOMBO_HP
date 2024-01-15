@@ -383,7 +383,7 @@ rule tombo_alternative:
 rule parse_tombo_results:
 	input:
 		stats_sampleCompare=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}.tombo.stats" ,
-		stats_deNovo=dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_denovo.tombo.stats",
+		# stats_deNovo=dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_denovo.tombo.stats",
 	output:
 		modfrac_png= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_per_base_modfrac_10000_sampleCompare.pdf",
 		coverage_png= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_per_base_coverage_sampleCompare.pdf",
