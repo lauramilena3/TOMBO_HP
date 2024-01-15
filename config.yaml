@@ -8,9 +8,11 @@ model: "dna_r9.4.1_450bps_sup.cfg"
 #tombo
 samples: ""
 control: ""
-genome_dir: "GENOMES"
+genome_dir: ""
 megalodon_model: "/home/lmf/LEISE/PERSISTENCE/model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+"
 guppy_server: "/usr/bin/guppy_basecall_server"
 alternative_models: ["dam", "dcm"]
 min_read_length: 1000
 hacked: False
+sample_sheet: ""
+

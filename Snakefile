@@ -18,11 +18,9 @@ MODEL_GUPPY=config['model']
 HACKED=config['hacked']
 ALTERNATIVE_MODELS =config['alternative_models']
 
-# GENOME=config['genome']
-# GENOME_dir=os.path.dirname(os.path.realpath(GENOME))
-# GENOME_name=os.path.splitext(os.path.basename(GENOME))[0]
-
 GENOME_dir=config['genome_dir']
+if len(GENOME_dir)==0:
+	GENOME_dir=OUTPUT_DIR + "GENOMES"
 GENOME_name,=glob_wildcards(GENOME_dir + "/{GENOME}"+ ".fasta")
 
 
@@ -32,8 +30,8 @@ BARCODES=SAMPLES+CONTROL
 BARCODES = list( dict.fromkeys(BARCODES) )
 BARCODES = list(filter(None, BARCODES))
 
-dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "SINGLE", "BASECALLED", "DEMULTIPLEXED", "GENOMES", "TOMBO", "MEGALODON", "DEEPSIGNAL", "QC"]
-dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/03_FAST5_SINGLE", OUTPUT_DIR + "/01_BASECALLED", OUTPUT_DIR + "/02_DEMULTIPLEXED", GENOME_dir , OUTPUT_DIR + "/04_TOMBO", OUTPUT_DIR + "/05_MEGALODON", OUTPUT_DIR + "/06_DEEPSIGNAL", OUTPUT_DIR + "/STATS"]
+dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "SINGLE", "BASECALLED", "DEMULTIPLEXED", "GENOMES", "TOMBO", "MEGALODON", "DEEPSIGNAL", "QC", PLOTS_DIR]
+dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/03_FAST5_SINGLE", OUTPUT_DIR + "/01_BASECALLED", OUTPUT_DIR + "/02_DEMULTIPLEXED", GENOME_dir , OUTPUT_DIR + "/04_TOMBO", OUTPUT_DIR + "/05_MEGALODON", OUTPUT_DIR + "/06_DEEPSIGNAL", OUTPUT_DIR + "/STATS", OUTPUT_DIR + "/FIGURES_AND_TABLES"]
 dirs_dict = dict(zip(dir_list, dir_names))
 MODEL_MEGALODON=config['megalodon_model']
 #SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{{input.sample}}_" +".fast5")
@@ -49,10 +47,6 @@ print("genome", GENOME_name)
 
 rule all:
 	input:
-		#plus_corr=expand(dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_{sample}_" + CONTROL + "_plusmod_corrected.wig", sample=SAMPLES),
-		#genome_oneline=dirs_dict["GENOMES"] + "/" + GENOME + "_one.fasta",
-		#stats=expand(dirs_dict["TOMBO"] + "/" + GENOME + "/" + GENOME + "_{sample}_" + CONTROL + ".tombo.stats", sample=SAMPLES) ,
-		#directory((dirs_dict["BASECALLED"])),
 		#expand(dirs_dict["GUPPY"] + "/{barcode}/fastq/{barcode}.fastq",barcode=BARCODES),
 #		cp fastq_runid_*{params.barcode_number}_0.fastq {output.basecalled}
 #		directory(expand(dirs_dict["BASECALLED"] + "/{barcode}"), barcode=BARCODES),
@@ -64,6 +58,10 @@ rule all:
 		expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_denovo.tombo.stats", barcode=BARCODES, genome=GENOME_name),
 		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
 		expand(dirs_dict["QC"] + "/{barcode}_{genome}_nanoQC", barcode=BARCODES, genome=GENOME_name),
+		expand(dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_hexaucleotide_histogram_sampleCompare.pdf")
+
+rule run_modifications_batch:
+
 
 rule demultiplex_run:
 	input:
@@ -79,23 +77,17 @@ rule deepsignal_run:
 
 rule tombo_run_denovo:
 	input:
-		#expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo", barcode=SAMPLES, genome=GENOME_name),
-		#expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_tombo_denovo_results.motif_detection.meme.html", barcode=SAMPLES, genome=GENOME_name),
 		expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_denovo.tombo.stats", barcode=BARCODES, genome=GENOME_name),
 		expand(dirs_dict["QC"] + "/{barcode}_{genome}_nanoQC", barcode=BARCODES, genome=GENOME_name),
 
 rule tombo_run_sampleCompare:
 	input:
-		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}.tombo_denovo.stats", sample=SAMPLES),
-		#expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
-		#expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}_tombo_sampleCompare_results.motif_detection.meme.html", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
 		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
 		expand(dirs_dict["QC"] + "/{barcode}_{genome}_nanoQC", barcode=BARCODES, genome=GENOME_name),
 
 rule tombo_run_alternative:
 	input:
 		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative_{model}/{genome}_{sample}.tombo_alternative_{model}.{model}.tombo.stats", sample=SAMPLES, model=ALTERNATIVE_MODELS, genome=GENOME_name),
-		#expand(dirs_dict["TOMBO"] + "/"+ GENOME_name + "_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL),
 
 
 # wildcard_constraints:
@@ -218,12 +210,10 @@ rule demultiplexing:
 		workspace_dir=dirs_dict["BASECALLED"] + "/workspace",
 		basecalled_dir=dirs_dict["BASECALLED"] + "/{barcode}",
 		mapped_list=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_fast5_list_mapped.txt",
-		# annotated=(dirs_dict["BASECALLED"] + "/annotated_checkpoint_{barcode}.txt"),
 	output:
 		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}_{genome}"),
 		length_list=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_{genome}_fast5_list_length.txt",
 		demultiplexed_list=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_{genome}_fast5_list_pass.txt",
-#		checkpoint=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_checkpoint.txt",
 	message:
 		"Demultiplexing single fast5 files"
 	params:
@@ -367,8 +357,6 @@ rule tombo_alternative:
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative_{model}/{genome}_{sample}.tombo_alternative_{model}.{model}.tombo.stats" ,
-		#minus=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative/{genome}_{sample}_alternative_{model}_minusmod.wig",
-		#plus=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative/{genome}_{sample}_alternative_{model}_plusmod.wig",
 		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative_{model}/{genome}_{sample}_tombo_alternative_{model}_results.significant_regions.fasta",
 	params:
 		name="{genome}_{sample}.tombo_alternative_{model}",
@@ -391,51 +379,76 @@ rule tombo_alternative:
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 10000 --num-bases 10 --sequences-filename {output.significant}
 		"""
-rule deepsignal:
-	input:
- 		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
-		genome="{genome}",
-		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{barcode}_{genome}.txt"),
-	output:
-		extract=dirs_dict["BASECALLED"] + "/{barcode}_deepsignal-feature.tsv"
-	conda:
-		"envs/env2.yaml"
-	threads: 8
-	shell:
-		"""
-		deepsignal extract --fast5_dir {input.demultiplexed_dir} --reference_path {input.genome} --is_dna true --write_path {output.extract} --nproc {threads}
-		"""
 
-rule call_modification_deepsignal:
+rule parse_tombo_results:
 	input:
-		extract=dirs_dict["BASECALLED"] + "/{barcode}_deepsignal-feature.tsv",
-		model=(dirs_dict["TOOLS"]+ "/deepsignal/model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+"),
+		stats_sampleCompare=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}.tombo.stats" ,
+		stats_deNovo=dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_denovo.tombo.stats" ,
 	output:
-		dirs_dict["DEEPSIGNAL"] + "{barcode}_deepsignal-prob.tsv"
-	conda:
-		"envs/env2.yaml"
-	shell:
-		"""
-		deepsignal call_mods --input_path {input.extract} --is_gpu no --nproc {threads} --model_path {input.model}/bn_17.sn_360.epoch_9.ckpt --result_file {output}
-		"""
-
-rule megalodon:
-	input:
-		rerio_dir=(dirs_dict["TOOLS"]+ "/rerio"),
-		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
-		genome="{genome}",
-	output:
-		megalodon_dir=directory(dirs_dict["MEGALODON"] + "/{barcode}"),
+		modfrac_png= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_per_base_modfrac_10000_sampleCompare.pdf"
+		coverage_png= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_per_base_coverage_sampleCompare.pdf"
+		dinucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_dinucleotide_histogram_sampleCompare.pdf"
+		trinucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_trinucleotide_histogram_sampleCompare.pdf"
+		tetranucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_tetranucleotide_histogram_sampleCompare.pdf"
+		pentanucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_pentanucleotide_histogram_sampleCompare.pdf"
+		hexanucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_hexaucleotide_histogram_sampleCompare.pdf"
 	params:
-		model_dir=dirs_dict["TOOLS"]+ "/rerio/basecall_models/",
-		model_name="res_dna_r941_min_modbases_5mC_CpG_v001.cfg",
-		server=config['guppy_server']
-	threads: 32
-	conda:
-		"envs/env2.yaml"
-	shell:
-		"""
-		megalodon {input.demultiplexed_dir} --guppy-params "-d {params.model_dir}" --guppy-config {params.model_name} \
-			--outputs  mappings mod_mappings mods per_read_mods  --output-directory {output.megalodon_dir} \
-			--reference {input.genome} --mod-motif m CG 0 --processes {threads} --guppy-server-path {params.server}
-		"""
+		tombo_dir=dirs_dict["TOMBO"],
+		genome="{genome}",
+		sample="{sample}",
+		control="{control}",
+		threshold_modfrac=0.3,
+		workdir=OUTPUT_DIR
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/04_TOMBO_parsing_sampleCompare_{genome}_{sample}_{control}.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/04_TOMBO_parsing_sampleCompare.py.ipynb"
+
+# rule deepsignal:
+# 	input:
+#  		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
+# 		genome="{genome}",
+# 		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{barcode}_{genome}.txt"),
+# 	output:
+# 		extract=dirs_dict["BASECALLED"] + "/{barcode}_deepsignal-feature.tsv"
+# 	conda:
+# 		"envs/env2.yaml"
+# 	threads: 8
+# 	shell:
+# 		"""
+# 		deepsignal extract --fast5_dir {input.demultiplexed_dir} --reference_path {input.genome} --is_dna true --write_path {output.extract} --nproc {threads}
+# 		"""
+
+# rule call_modification_deepsignal:
+# 	input:
+# 		extract=dirs_dict["BASECALLED"] + "/{barcode}_deepsignal-feature.tsv",
+# 		model=(dirs_dict["TOOLS"]+ "/deepsignal/model.CpG.R9.4_1D.human_hx1.bn17.sn360.v0.1.7+"),
+# 	output:
+# 		dirs_dict["DEEPSIGNAL"] + "{barcode}_deepsignal-prob.tsv"
+# 	conda:
+# 		"envs/env2.yaml"
+# 	shell:
+# 		"""
+# 		deepsignal call_mods --input_path {input.extract} --is_gpu no --nproc {threads} --model_path {input.model}/bn_17.sn_360.epoch_9.ckpt --result_file {output}
+# 		"""
+
+# rule megalodon:
+# 	input:
+# 		rerio_dir=(dirs_dict["TOOLS"]+ "/rerio"),
+# 		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
+# 		genome="{genome}",
+# 	output:
+# 		megalodon_dir=directory(dirs_dict["MEGALODON"] + "/{barcode}"),
+# 	params:
+# 		model_dir=dirs_dict["TOOLS"]+ "/rerio/basecall_models/",
+# 		model_name="res_dna_r941_min_modbases_5mC_CpG_v001.cfg",
+# 		server=config['guppy_server']
+# 	threads: 32
+# 	conda:
+# 		"envs/env2.yaml"
+# 	shell:
+# 		"""
+# 		megalodon {input.demultiplexed_dir} --guppy-params "-d {params.model_dir}" --guppy-config {params.model_name} \
+# 			--outputs  mappings mod_mappings mods per_read_mods  --output-directory {output.megalodon_dir} \
+# 			--reference {input.genome} --mod-motif m CG 0 --processes {threads} --guppy-server-path {params.server}
+# 		"""
