@@ -383,15 +383,15 @@ rule tombo_alternative:
 rule parse_tombo_results:
 	input:
 		stats_sampleCompare=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}.tombo.stats" ,
-		stats_deNovo=dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_denovo.tombo.stats" ,
+		stats_deNovo=dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_denovo.tombo.stats",
 	output:
-		modfrac_png= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_per_base_modfrac_10000_sampleCompare.pdf"
-		coverage_png= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_per_base_coverage_sampleCompare.pdf"
-		dinucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_dinucleotide_histogram_sampleCompare.pdf"
-		trinucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_trinucleotide_histogram_sampleCompare.pdf"
-		tetranucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_tetranucleotide_histogram_sampleCompare.pdf"
-		pentanucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_pentanucleotide_histogram_sampleCompare.pdf"
-		hexanucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_hexaucleotide_histogram_sampleCompare.pdf"
+		modfrac_png= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_per_base_modfrac_10000_sampleCompare.pdf",
+		coverage_png= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_per_base_coverage_sampleCompare.pdf",
+		dinucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_dinucleotide_histogram_sampleCompare.pdf",
+		trinucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_trinucleotide_histogram_sampleCompare.pdf",
+		tetranucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_tetranucleotide_histogram_sampleCompare.pdf",
+		pentanucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_pentanucleotide_histogram_sampleCompare.pdf",
+		hexanucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_hexaucleotide_histogram_sampleCompare.pdf",
 	params:
 		tombo_dir=dirs_dict["TOMBO"],
 		genome="{genome}",
