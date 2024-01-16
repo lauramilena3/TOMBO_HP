@@ -71,8 +71,8 @@ def input_modifications_batch(wildcards):
 		row_control=row["control"]
 		row_genome=row["genome"]
 		print(row_sample, row_control,row_genome)
-		inputs.extend(expand(dirs_dict["QC"] + "/{sample}_{genome}_nanoQC", sample=[row_sample], genome=[row_genome])),
-		inputs.extend(expand(dirs_dict["QC"] + "/{control}_{genome}_nanoQC", control=[row_control], genome=[row_genome])),
+		# inputs.extend(expand(dirs_dict["QC"] + "/{sample}_{genome}_nanoQC", sample=[row_sample], genome=[row_genome])),
+		# inputs.extend(expand(dirs_dict["QC"] + "/{control}_{genome}_nanoQC", control=[row_control], genome=[row_genome])),
 		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_hexaucleotide_histogram_sampleCompare.pdf", sample=row_sample, control=row_control, genome=row_genome)),
 		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_hexaucleotide_histogram_deNovo.pdf", sample=row_sample, genome=row_genome)),
 	print(inputs)
