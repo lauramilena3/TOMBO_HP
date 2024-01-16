@@ -66,9 +66,9 @@ def input_modifications_batch(wildcards):
 	sample_sheet=pd.read_csv(SAMPLE_SHEET, sep="\t")
 	print(sample_sheet.columns)
 	for index,row in sample_sheet.iterrows():
-		row_sample=row["sample"].iloc[0]
-		row_control=row["control"].iloc[0]
-		row_genome=row["genome"].iloc[0]
+		row_sample=row["sample"]
+		row_control=row["control"]
+		row_genome=row["genome"]
 		inputs.extend(dirs_dict["QC"] + "/{sample}_{genome}_nanoQC", sample=[row_sample], genome=[row_genome]),
 		# inputs.extend(dirs_dict["QC"] + "/{control}_{genome}_nanoQC", control=row_control, genome=row_genome),
 		inputs.extend(dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_hexaucleotide_histogram_sampleCompare.pdf", sample=row_sample, control=row_control, genome=row_genome),
