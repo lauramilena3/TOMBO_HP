@@ -65,6 +65,7 @@ def input_modifications_batch(wildcards):
 # Read counts
 	inputs=[]
 	sample_sheet=pd.read_csv(SAMPLE_SHEET)
+	print(sample_sheet)
 	for index,row in sample_sheet:
 		row_sample=row["sample"].iloc[0]
 		row_control=row["control"].iloc[0]
@@ -77,6 +78,7 @@ def input_modifications_batch(wildcards):
 
 rule run_modifications_batch:
 	input:
+		print(wildcards)
 		input_modifications_batch,
 
 rule demultiplex_run:
