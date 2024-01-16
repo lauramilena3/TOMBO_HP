@@ -421,11 +421,10 @@ rule parse_tombo_results_deNovo:
 		tombo_dir=dirs_dict["TOMBO"],
 		genome="{genome}",
 		sample="{sample}",
-		control="{control}",
 		threshold_modfrac=0.3,
 		workdir=OUTPUT_DIR
 	log:
-		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/04_TOMBO_parsing_deNovo_{genome}_{sample}_{control}.ipynb"
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/04_TOMBO_parsing_deNovo_{genome}_{sample}.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/04_TOMBO_parsing_deNovo.py.ipynb"
 # rule deepsignal:
