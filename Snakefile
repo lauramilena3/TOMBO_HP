@@ -70,15 +70,14 @@ def input_modifications_batch(wildcards):
 		row_sample=row["sample"].iloc[0]
 		row_control=row["control"].iloc[0]
 		row_genome=row["genome"].iloc[0]
-		inputs.append(dirs_dict["QC"] + "/row_" + sample + "_" + genome + "_nanoQC")
-		inputs.append(dirs_dict["QC"] + "/row_" + control + "_" + genome + "_nanoQC")
-		inputs.append(dirs_dict["PLOTS_DIR"] + "/" + genome + "_" + sample + "_" + control + "_hexaucleotide_histogram_sampleCompare.pdf")
-		inputs.append(dirs_dict["PLOTS_DIR"] + "/" + genome + "_" + sample + "_hexaucleotide_histogram_deNovo.pdf")
+		# inputs.append(dirs_dict["QC"] + "/row_" + sample + "_" + genome + "_nanoQC")
+		# inputs.append(dirs_dict["QC"] + "/row_" + control + "_" + genome + "_nanoQC")
+		# inputs.append(dirs_dict["PLOTS_DIR"] + "/" + genome + "_" + sample + "_" + control + "_hexaucleotide_histogram_sampleCompare.pdf")
+		# inputs.append(dirs_dict["PLOTS_DIR"] + "/" + genome + "_" + sample + "_hexaucleotide_histogram_deNovo.pdf")
 	return inputs
 
 rule run_modifications_batch:
 	input:
-		# print(wildcards),
 		input_modifications_batch,
 
 rule demultiplex_run:
