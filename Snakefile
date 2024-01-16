@@ -61,7 +61,7 @@ rule all:
 		expand(dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_hexaucleotide_histogram_sampleCompare.pdf", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
 		expand(dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_hexaucleotide_histogram_deNovo.pdf", sample=SAMPLES, genome=GENOME_name),
 
-def input_modifications_batch():
+def input_modifications_batch(wildcards):
 # Read counts
 	inputs=[]
 	sample_sheet=pd.read_csv(SAMPLE_SHEET)
