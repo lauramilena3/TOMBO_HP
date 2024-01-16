@@ -196,8 +196,7 @@ rule map_to_genomes:
 		flowcell=FLOWCELL,
 		kit=KIT,
 	wildcard_constraints:
-		control="barcode..",
-		sample="barcode..",
+		barcode="barcode..",
 	conda:
 		"envs/env1.yaml"
 	message:
