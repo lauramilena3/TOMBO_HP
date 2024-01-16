@@ -65,10 +65,11 @@ def input_modifications_batch(wildcards):
 # Read counts
 	sample_sheet=pd.read_csv(SAMPLE_SHEET)
 	for index,row in sample_sheet.iterrows():
+		print(row.columns)
 		row_sample=row["sample"].iloc[0]
 		row_control=row["control"].iloc[0]
 		row_genome=row["genome"].iloc[0]
-		inputs.extend(dirs_dict["QC"] + "/{sample}_{genome}_nanoQC", sample=row_sample, genome=row_genome),
+		inputs.extend(dirs_dict["QC"] + "/{sample}_{genome}_nanoQC", sample=[row_sample], genome=[row_genome]),
 		# inputs.extend(dirs_dict["QC"] + "/{control}_{genome}_nanoQC", control=row_control, genome=row_genome),
 		inputs.extend(dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_hexaucleotide_histogram_sampleCompare.pdf", sample=row_sample, control=row_control, genome=row_genome),
 		inputs.extend(dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_hexaucleotide_histogram_deNovo.pdf", sample=row_sample, genome=row_genome),
