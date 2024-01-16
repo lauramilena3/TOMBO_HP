@@ -59,6 +59,7 @@ rule all:
 		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
 		expand(dirs_dict["QC"] + "/{barcode}_{genome}_nanoQC", barcode=BARCODES, genome=GENOME_name),
 		expand(dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_hexaucleotide_histogram_sampleCompare.pdf", sample=SAMPLES, control=CONTROL, genome=GENOME_name)
+		expand(dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_hexaucleotide_histogram_deNovo.pdf", sample=SAMPLES, genome=GENOME_name)
 
 rule run_modifications_batch:
 
@@ -380,12 +381,12 @@ rule tombo_alternative:
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 10000 --num-bases 10 --sequences-filename {output.significant}
 		"""
 
-rule parse_tombo_results:
+rule parse_tombo_results_sampleCompare:
 	input:
 		stats_sampleCompare=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}.tombo.stats" ,
-		# stats_deNovo=dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_denovo.tombo.stats",
 	output:
 		modfrac_png= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_per_base_modfrac_10000_sampleCompare.pdf",
+		modfrac_kmers_table= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_kmer_modfrac_sampleCompare.csv",
 		coverage_png= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_per_base_coverage_sampleCompare.pdf",
 		dinucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_dinucleotide_histogram_sampleCompare.pdf",
 		trinucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_trinucleotide_histogram_sampleCompare.pdf",
@@ -404,6 +405,29 @@ rule parse_tombo_results:
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/04_TOMBO_parsing_sampleCompare.py.ipynb"
 
+rule parse_tombo_results_deNovo:
+	input:
+		stats_deNovo=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_denovo/{genome}_{sample}_denovo.tombo.stats",
+	output:
+		modfrac_png= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_per_base_modfrac_10000_deNovo.pdf",
+		modfrac_kmers_table= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_kmer_modfrac_deNovo.csv",
+		coverage_png= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_per_base_coverage_deNovo.pdf",
+		dinucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_dinucleotide_histogram_deNovo.pdf",
+		trinucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_trinucleotide_histogram_deNovo.pdf",
+		tetranucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_tetranucleotide_histogram_deNovo.pdf",
+		pentanucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_pentanucleotide_histogram_deNovo.pdf",
+		hexanucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_hexaucleotide_histogram_deNovo.pdf",
+	params:
+		tombo_dir=dirs_dict["TOMBO"],
+		genome="{genome}",
+		sample="{sample}",
+		control="{control}",
+		threshold_modfrac=0.3,
+		workdir=OUTPUT_DIR
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/04_TOMBO_parsing_deNovo_{genome}_{sample}_{control}.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/04_TOMBO_parsing_deNovo.py.ipynb"
 # rule deepsignal:
 # 	input:
 #  		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
