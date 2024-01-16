@@ -64,7 +64,7 @@ rule all:
 def input_modifications_batch(wildcards):
 # Read counts
 	sample_sheet=pd.read_csv(SAMPLE_SHEET)
-	for index,row in sample_sheet:
+	for index,row in sample_sheet.iterrows():
 		row_sample=row["sample"].iloc[0]
 		row_control=row["control"].iloc[0]
 		row_genome=row["genome"].iloc[0]
