@@ -1,6 +1,6 @@
 import os
 import re
-#import pandas as pd
+import pandas as pd
 #======================================================
 # Config files
 #======================================================
@@ -23,7 +23,7 @@ if len(GENOME_dir)==0:
 	GENOME_dir=OUTPUT_DIR + "GENOMES"
 GENOME_name,=glob_wildcards(GENOME_dir + "/{GENOME}"+ ".fasta")
 
-
+SAMPLE_SHEET=config['sample_sheet']
 SAMPLES=config['samples'].split()
 CONTROL=config['control'].split()
 BARCODES=SAMPLES+CONTROL
@@ -61,8 +61,22 @@ rule all:
 		expand(dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_hexaucleotide_histogram_sampleCompare.pdf", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
 		expand(dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_hexaucleotide_histogram_deNovo.pdf", sample=SAMPLES, genome=GENOME_name),
 
-rule run_modifications_batch:
+def input_modifications_batch(wildcards):
+# Read counts
+	inputs=[]
+	sample_sheet=pd.read_csv(SAMPLE_SHEET)
+	for index,row in sample_sheet:
+		row_sample=row["sample"].iloc[0]
+		row_control=row["control"].iloc[0]
+		row_genome=row["genome"].iloc[0]
+		inputs.extend(dirs_dict["QC"] + "/row_" + sample + "_" + genome + "_nanoQC")
+		inputs.extend(dirs_dict["QC"] + "/row_" + control + "_" + genome + "_nanoQC")
+		inputs.extend(dirs_dict["PLOTS_DIR"] + "/" + genome + "_" + sample + "_" + control + "_hexaucleotide_histogram_sampleCompare.pdf")
+		inputs.extend(dirs_dict["PLOTS_DIR"] + "/" + genome + "_" + sample + "_hexaucleotide_histogram_deNovo.pdf")
+	return inputs
 
+rule run_modifications_batch:
+	input_modifications_batch;
 
 rule demultiplex_run:
 	input:
