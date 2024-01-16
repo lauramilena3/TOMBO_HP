@@ -20,7 +20,7 @@ ALTERNATIVE_MODELS =config['alternative_models']
 
 GENOME_dir=config['genome_dir']
 if len(GENOME_dir)==0:
-	GENOME_dir=OUTPUT_DIR + "GENOMES"
+	GENOME_dir=OUTPUT_DIR + "/GENOMES"
 GENOME_name,=glob_wildcards(GENOME_dir + "/{GENOME}"+ ".fasta")
 
 SAMPLE_SHEET=config['sample_sheet']
