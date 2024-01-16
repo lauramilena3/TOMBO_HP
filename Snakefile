@@ -395,6 +395,7 @@ rule parse_tombo_results_sampleCompare:
 		hexanucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_hexaucleotide_histogram_sampleCompare.pdf",
 	params:
 		tombo_dir=dirs_dict["TOMBO"],
+		figdir=dirs_dict["PLOTS_DIR"],
 		genome="{genome}",
 		sample="{sample}",
 		control="{control}",
@@ -419,6 +420,7 @@ rule parse_tombo_results_deNovo:
 		hexanucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_hexaucleotide_histogram_deNovo.pdf",
 	params:
 		tombo_dir=dirs_dict["TOMBO"],
+		figdir=dirs_dict["PLOTS_DIR"],
 		genome="{genome}",
 		sample="{sample}",
 		threshold_modfrac=0.3,
