@@ -63,22 +63,21 @@ rule all:
 
 def input_modifications_batch(wildcards):
 # Read counts
-	inputs=[]
 	sample_sheet=pd.read_csv(SAMPLE_SHEET)
-	print(sample_sheet)
 	for index,row in sample_sheet:
 		row_sample=row["sample"].iloc[0]
 		row_control=row["control"].iloc[0]
 		row_genome=row["genome"].iloc[0]
-		# inputs.append(dirs_dict["QC"] + "/row_" + sample + "_" + genome + "_nanoQC")
-		# inputs.append(dirs_dict["QC"] + "/row_" + control + "_" + genome + "_nanoQC")
-		# inputs.append(dirs_dict["PLOTS_DIR"] + "/" + genome + "_" + sample + "_" + control + "_hexaucleotide_histogram_sampleCompare.pdf")
-		# inputs.append(dirs_dict["PLOTS_DIR"] + "/" + genome + "_" + sample + "_hexaucleotide_histogram_deNovo.pdf")
+		inputs.extend(dirs_dict["QC"] + "/{sample}_{genome}_nanoQC", sample=row_sample, genome=row_genome),
+		inputs.extend(dirs_dict["QC"] + "/{conrtol}_{genome}_nanoQC", control=row_control, genome=row_genome),
+		inputs.extend(dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_{control}_hexaucleotide_histogram_sampleCompare.pdf", sample=row_sample, control=row_control, genome=row_genome),
+		inputs.extend(dirs_dict["PLOTS_DIR"] + "/{genome}_{sample}_hexaucleotide_histogram_deNovo.pdf", sample=row_sample, genome=row_genome),
+	inputs=[]
 	return inputs
 
 rule run_modifications_batch:
 	input:
-		input_modifications_batch,
+		input_modifications_batch;
 
 rule demultiplex_run:
 	input:
