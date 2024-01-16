@@ -77,7 +77,7 @@ def input_modifications_batch(wildcards):
 
 rule run_modifications_batch:
 	input:
-		input_modifications_batch;
+		input_modifications_batch,
 
 rule demultiplex_run:
 	input:
