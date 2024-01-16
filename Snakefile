@@ -63,7 +63,7 @@ rule all:
 
 def input_modifications_batch(wildcards):
 # Read counts
-	sample_sheet=pd.read_csv(SAMPLE_SHEET)
+	sample_sheet=pd.read_csv(SAMPLE_SHEET, sep="\t")
 	print(sample_sheet.columns)
 	for index,row in sample_sheet.iterrows():
 		row_sample=row["sample"].iloc[0]
