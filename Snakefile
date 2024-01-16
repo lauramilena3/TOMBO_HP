@@ -352,6 +352,9 @@ rule tombo_denovo:
 		name="{genome}_{barcode}_denovo",
 		tombo_results_dir=directory(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo"),
 		meme=dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_tombo_denovo_results.motif_detection.meme",
+	wildcard_constraints:
+		control="barcode..",
+		sample="barcode..",
 	conda:
 		"envs/env1.yaml"
 	message:
@@ -380,9 +383,9 @@ rule tombo_alternative:
 		name="{genome}_{sample}.tombo_alternative_{model}",
 		tombo_results_dir=(dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative_{model}"),
 		readstats="{genome}_{sample}.tombo_alternative_{model}_per_read" ,
-	# wildcard_constraints:
-	# 	control="barcode..",
-	# 	sample="barcode..",
+	wildcard_constraints:
+		control="barcode..",
+		sample="barcode..",
 	conda:
 		"envs/env1.yaml"
 	message:
