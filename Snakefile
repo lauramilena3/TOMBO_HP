@@ -109,8 +109,8 @@ rule tombo_run_alternative:
 		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative_{model}/{genome}_{sample}.tombo_alternative_{model}.{model}.tombo.stats", sample=SAMPLES, model=ALTERNATIVE_MODELS, genome=GENOME_name),
 
 
-# wildcard_constraints:
-# 	barcode="barcode..",
+wildcard_constraints:
+	barcode="barcode..",
 
 
 rule get_rerio_model:
