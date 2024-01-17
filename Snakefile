@@ -72,8 +72,8 @@ def input_modifications_batch(wildcards):
 		row_genome=row["genome"]
 		inputs.extend(expand(dirs_dict["QC"] + "/{sample}_{genome}_nanoQC", sample=[row_sample], genome=[row_genome])),
 		inputs.extend(expand(dirs_dict["QC"] + "/{control}_{genome}_nanoQC", control=[row_control], genome=[row_genome])),
-		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/sampleCompare_{genome}_{sample}_{control}_histogram_pentanucleotide.pdf", sample=row_sample, control=row_control, genome=row_genome)),
-		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/denovo_{genome}_{sample}_histogram_pentanucleotide.pdf", sample=row_sample, genome=row_genome)),
+		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/sampleCompare_{genome}_{sample}_{control}_histogram_dinucleotide.pdf", sample=row_sample, control=row_control, genome=row_genome)),
+		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/denovo_{genome}_{sample}_histogram_dinucleotide.pdf", sample=row_sample, genome=row_genome)),
 	return inputs
 
 rule run_modifications_batch:
@@ -410,9 +410,9 @@ rule parse_tombo_results_sampleCompare:
 		modfrac_kmers_table= dirs_dict["PLOTS_DIR"] + "/sampleCompare_{genome}_{sample}_{control}_kmer_modfrac.csv",
 		coverage_png= dirs_dict["PLOTS_DIR"] + "/sampleCompare_{genome}_{sample}_{control}_per_base_coverage.pdf",
 		dinucleotide= dirs_dict["PLOTS_DIR"] + "/sampleCompare_{genome}_{sample}_{control}_histogram_dinucleotide.pdf",
-		trinucleotide= dirs_dict["PLOTS_DIR"] + "/sampleCompare_{genome}_{sample}_{control}_histogram_trinucleotide.pdf",
-		tetranucleotide= dirs_dict["PLOTS_DIR"] + "/sampleCompare_{genome}_{sample}_{control}_histogram_tetranucleotide.pdf",
-		pentanucleotide= dirs_dict["PLOTS_DIR"] + "/sampleCompare_{genome}_{sample}_{control}_histogram_pentanucleotide.pdf",
+		# trinucleotide= dirs_dict["PLOTS_DIR"] + "/sampleCompare_{genome}_{sample}_{control}_histogram_trinucleotide.pdf",
+		# tetranucleotide= dirs_dict["PLOTS_DIR"] + "/sampleCompare_{genome}_{sample}_{control}_histogram_tetranucleotide.pdf",
+		# pentanucleotide= dirs_dict["PLOTS_DIR"] + "/sampleCompare_{genome}_{sample}_{control}_histogram_pentanucleotide.pdf",
 		# hexanucleotide= dirs_dict["PLOTS_DIR"] + "/sampleCompare_{genome}_{sample}_{control}_histogram_hexanucleotide.pdf",
 	params:
 		tombo_dir=dirs_dict["TOMBO"],
@@ -435,9 +435,9 @@ rule parse_tombo_results_deNovo:
 		modfrac_kmers_table= dirs_dict["PLOTS_DIR"] + "/denovo_{genome}_{sample}_kmer_modfrac.csv",
 		coverage_png= dirs_dict["PLOTS_DIR"] + "/denovo_{genome}_{sample}_per_base_coverage.pdf",
 		dinucleotide= dirs_dict["PLOTS_DIR"] + "/denovo_{genome}_{sample}_histogram_dinucleotide.pdf",
-		trinucleotide= dirs_dict["PLOTS_DIR"] + "/denovo_{genome}_{sample}_histogram_trinucleotide.pdf",
-		tetranucleotide= dirs_dict["PLOTS_DIR"] + "/denovo_{genome}_{sample}_histogram_tetranucleotide.pdf",
-		pentanucleotide= dirs_dict["PLOTS_DIR"] + "/denovo_{genome}_{sample}_histogram_pentanucleotide.pdf",
+		# trinucleotide= dirs_dict["PLOTS_DIR"] + "/denovo_{genome}_{sample}_histogram_trinucleotide.pdf",
+		# tetranucleotide= dirs_dict["PLOTS_DIR"] + "/denovo_{genome}_{sample}_histogram_tetranucleotide.pdf",
+		# pentanucleotide= dirs_dict["PLOTS_DIR"] + "/denovo_{genome}_{sample}_histogram_pentanucleotide.pdf",
 		# hexanucleotide= dirs_dict["PLOTS_DIR"] + "/denovo_{genome}_{sample}_histogram_hexanucleotide.pdf",
 	params:
 		tombo_dir=dirs_dict["TOMBO"],
