@@ -426,8 +426,10 @@ rule tombo_sample_compare:
 	input:
 		sample=(dirs_dict["SINGLE"] + "/{genome}_{sample}"),
 		control=(dirs_dict["SINGLE"] + "/{genome}_{control}"),
-		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}_{mapping}.txt"),
-		resquiggled2=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{control}_{mapping}.txt"),
+		resquiggled_default_sample=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}_default.txt"),
+		resquiggled_loose_sample=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}_loose.txt"),
+		resquiggled_default_control=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{control}_default.txt"),
+		resquiggled_loose_control=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{control}_loose.txt"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_{mapping}.tombo_sampleCompare/{genome}_{sample}_{control}_{mapping}.tombo.stats" ,
@@ -456,7 +458,8 @@ rule tombo_sample_compare:
 rule tombo_denovo:
 	input:
 		sample=(dirs_dict["SINGLE"] + "/{genome}_{barcode}"),
-		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{barcode}_{mapping}.txt"),
+		resquiggled_default=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}_default.txt"),
+		resquiggled_loose=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}_loose.txt"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}_{barcode}_{mapping}.tombo_denovo/{genome}_{barcode}_{mapping}_denovo.tombo.stats" ,
@@ -486,7 +489,8 @@ rule tombo_denovo:
 rule tombo_alternative:
 	input:
 		sample=(dirs_dict["SINGLE"] + "/{genome}_{sample}"),
-		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}_{mapping}.txt"),
+		resquiggled_default=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}_default.txt"),
+		resquiggled_loose=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}_loose.txt"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}_{mapping}.tombo_alternative_{model}/{genome}_{sample}_{mapping}.tombo_alternative_{model}.{model}.tombo.stats" ,
