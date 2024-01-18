@@ -259,9 +259,9 @@ rule genome_stats:
 		samtools view -f 0x10 {output.bam} | cut -f1 > {output.mapped_list_reverse}
 		cat {output.mapped_list_forward} {output.mapped_list_reverse} > {output.mapped_list}
 
-		seqtk subseq {output.merged_fastq} {output.mapped_list_forward} > {output.mapped_fastq_forward}
-		seqtk subseq {output.merged_fastq} {output.mapped_list_reverse} > {output.mapped_fastq_reverse}
-		seqtk subseq {output.merged_fastq} {output.mapped_list} > {output.mapped_fastq}
+		seqtk subseq {input.merged_fastq} {output.mapped_list_forward} > {output.mapped_fastq_forward}
+		seqtk subseq {input.merged_fastq} {output.mapped_list_reverse} > {output.mapped_fastq_reverse}
+		seqtk subseq {input.merged_fastq} {output.mapped_list} > {output.mapped_fastq}
 		"""
 
 rule qualityCheckNanopore:
