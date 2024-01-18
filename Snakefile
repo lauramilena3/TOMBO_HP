@@ -441,7 +441,7 @@ rule tombo_sample_compare:
 rule tombo_denovo:
 	input:
 		sample=(dirs_dict["SINGLE"] + "/{genome}_{barcode}"),
-		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{barcode}_{mapping}_.txt"),
+		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{barcode}_{mapping}.txt"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}_{barcode}_{mapping}.tombo_denovo/{genome}_{barcode}_{mapping}_denovo.tombo.stats" ,
