@@ -75,9 +75,9 @@ def input_modifications_batch(wildcards):
 		row_genome=row["genome"]
 		inputs.extend(expand(dirs_dict["QC"] + "/{genome}_{sample}_{mapping}_nanoQC", sample=[row_sample], genome=[row_genome], mapping=MAPPING_TYPES)),
 		inputs.extend(expand(dirs_dict["QC"] + "/{genome}_{control}_{mapping}_nanoQC", control=[row_control], genome=[row_genome], mapping=MAPPING_TYPES)),
-		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare/sampleCompare_{genome}_{sample}_{control}_histogram_dinucleotide.pdf", sample=row_sample, control=row_control, genome=row_genome)),
-		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/{genome}/denovo/denovo_{genome}_{sample}_histogram_dinucleotide.pdf", sample=row_sample, genome=row_genome)),
-		inputs.extend(expand(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}_loose.txt",sample=row_sample, genome=row_genome)),
+		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare_{mapping}/sampleCompare_{genome}_{sample}_{control}_{mapping}_histogram_dinucleotide.pdf", sample=row_sample, control=row_control, genome=row_genome, mapping=[MAPPING_TYPES])),
+		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/{genome}/denovo_{mapping}/denovo_{genome}_{sample}_{mapping}_histogram_dinucleotide.pdf", sample=row_sample, genome=row_genome, mapping=[MAPPING_TYPES])),
+		# inputs.extend(expand(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}_loose.txt",sample=row_sample, genome=row_genome)),
 
 	return inputs
 
@@ -110,7 +110,6 @@ rule tombo_run_sampleCompare:
 rule tombo_run_alternative:
 	input:
 		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative_{model}/{genome}_{sample}.tombo_alternative_{model}.{model}.tombo.stats", sample=SAMPLES, model=ALTERNATIVE_MODELS, genome=GENOME_name),
-
 
 rule get_rerio_model:
 	output:
@@ -382,13 +381,13 @@ rule resquiggle_tombo:
 		single_data=(dirs_dict["SINGLE"]+ "/{genome}_{barcode}"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
-		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{barcode}.txt"),
+		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{barcode}_default.txt"),
 	threads: 16
 	conda:
 		"envs/env1.yaml"
 	shell:
 		"""
-		tombo resquiggle --dna {input.single_data} {input.genome} --processes {threads} --overwrite --ignore-read-locks
+		tombo resquiggle --dna {input.single_data} {input.genome} --processes {threads} --overwrite --ignore-read-locks --corrected-group "default"
 		touch {output.resquiggled}
 		"""
 
@@ -400,12 +399,13 @@ rule resquiggle_tombo_loose:
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{barcode}_loose.txt"),
+		params 
 	threads: 16
 	conda:
 		"envs/env1_loose.yaml"
 	shell:
 		"""
-		tombo resquiggle --dna {input.single_data} {input.genome} --processes {threads} --overwrite --ignore-read-locks --corrected-group "LOOSE"
+		tombo resquiggle --dna {input.single_data} {input.genome} --processes {threads} --overwrite --ignore-read-locks --corrected-group "loose"
 		touch {output.resquiggled}
 		"""
 
@@ -413,16 +413,16 @@ rule tombo_sample_compare:
 	input:
 		sample=(dirs_dict["SINGLE"] + "/{genome}_{sample}"),
 		control=(dirs_dict["SINGLE"] + "/{genome}_{control}"),
-		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}.txt"),
-		resquiggled2=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{control}.txt"),
+		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}_{mapping}.txt"),
+		resquiggled2=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{control}_{mapping}.txt"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
-		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}.tombo.stats" ,
-		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}_tombo_results.significant_regions.fasta",
+		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_{mapping}.tombo_sampleCompare/{genome}_{sample}_{control}_{mapping}.tombo.stats" ,
+		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_{mapping}.tombo_sampleCompare/{genome}_{sample}_{control}_{mapping}_tombo_results.significant_regions.fasta",
 	params:
-		name="{genome}_{sample}_{control}",
-		tombo_results_dir=directory(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare"),
-		meme=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}_tombo_sampleCompare_results.motif_detection.meme",
+		name="{genome}_{sample}_{control}_{mapping}",
+		tombo_results_dir=directory(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_{mapping}.tombo_sampleCompare"),
+		meme=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_{mapping}.tombo_sampleCompare/{genome}_{sample}_{control}_{mapping}_tombo_sampleCompare_results.motif_detection.meme",
 	conda:
 		"envs/env1.yaml"
 	message:
@@ -433,9 +433,9 @@ rule tombo_sample_compare:
 		rm -r {params.tombo_results_dir} || true
 		mkdir {params.tombo_results_dir}
 		cd {params.tombo_results_dir}
-		tombo filter clear_filters --fast5-basedirs {input.sample}
-		tombo filter clear_filters --fast5-basedirs {input.control}
-		tombo detect_modifications model_sample_compare --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-file-basename {params.name} --per-read-statistics-basename {params.name} --processes {threads}
+		# tombo filter clear_filters --fast5-basedirs {input.sample}
+		# tombo filter clear_filters --fast5-basedirs {input.control}
+		tombo detect_modifications model_sample_compare --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-file-basename {params.name} --per-read-statistics-basename {params.name} --processes {threads} --corrected-group {wildcards.mapping}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 100 --num-bases 10 --sequences-filename {output.significant}
 		"""
@@ -443,15 +443,15 @@ rule tombo_sample_compare:
 rule tombo_denovo:
 	input:
 		sample=(dirs_dict["SINGLE"] + "/{genome}_{barcode}"),
-		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{barcode}.txt"),
+		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{barcode}_{mapping}_.txt"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
-		stats=dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_denovo.tombo.stats" ,
-		significant=dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_tombo_denovo_results.significant_regions.fasta",
+		stats=dirs_dict["TOMBO"] + "/{genome}_{barcode}_{mapping}.tombo_denovo/{genome}_{barcode}_{mapping}_denovo.tombo.stats" ,
+		significant=dirs_dict["TOMBO"] + "/{genome}_{barcode}_{mapping}.tombo_denovo/{genome}_{barcode}_{mapping}_tombo_denovo_results.significant_regions.fasta",
 	params:
 		name="{genome}_{barcode}_denovo",
-		tombo_results_dir=directory(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo"),
-		meme=dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_tombo_denovo_results.motif_detection.meme",
+		tombo_results_dir=directory(dirs_dict["TOMBO"] + "/{genome}_{barcode}_{mapping}.tombo_denovo"),
+		meme=dirs_dict["TOMBO"] + "/{genome}_{barcode}_{mapping}.tombo_denovo/{genome}_{barcode}_{mapping}_tombo_denovo_results.motif_detection.meme",
 	wildcard_constraints:
 		control="barcode..",
 		sample="barcode..",
@@ -465,7 +465,7 @@ rule tombo_denovo:
 		rm -r {params.tombo_results_dir} || true
 		mkdir {params.tombo_results_dir}
 		cd {params.tombo_results_dir}
-		tombo filter clear_filters --fast5-basedirs {input.sample}
+		# tombo filter clear_filters --fast5-basedirs {input.sample}
 		tombo detect_modifications de_novo --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.name} --processes {threads}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 100 --num-bases 10 --sequences-filename {output.significant}
@@ -474,15 +474,15 @@ rule tombo_denovo:
 rule tombo_alternative:
 	input:
 		sample=(dirs_dict["SINGLE"] + "/{genome}_{sample}"),
-		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}.txt"),
+		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}_{mapping}.txt"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
-		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative_{model}/{genome}_{sample}.tombo_alternative_{model}.{model}.tombo.stats" ,
-		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative_{model}/{genome}_{sample}_tombo_alternative_{model}_results.significant_regions.fasta",
+		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}_{mapping}.tombo_alternative_{model}/{genome}_{sample}_{mapping}.tombo_alternative_{model}.{model}.tombo.stats" ,
+		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}_{mapping}.tombo_alternative_{model}/{genome}_{sample}_{mapping}_tombo_alternative_{model}_results.significant_regions.fasta",
 	params:
-		name="{genome}_{sample}.tombo_alternative_{model}",
-		tombo_results_dir=(dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative_{model}"),
-		readstats="{genome}_{sample}.tombo_alternative_{model}_per_read" ,
+		name="{genome}_{sample}_{mapping}.tombo_alternative_{model}",
+		tombo_results_dir=(dirs_dict["TOMBO"] + "/{genome}_{sample}_{mapping}.tombo_alternative_{model}"),
+		readstats="{genome}_{sample}_{mapping}.tombo_alternative_{model}_per_read" ,
 	wildcard_constraints:
 		control="barcode..",
 		sample="barcode..",
@@ -503,16 +503,16 @@ rule tombo_alternative:
 
 rule parse_tombo_results_sampleCompare:
 	input:
-		stats_sampleCompare=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}.tombo.stats" ,
+		stats_sampleCompare=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_{mapping}.tombo_sampleCompare/{genome}_{sample}_{control}_{mapping}.tombo.stats" ,
 	output:
-		modfrac_png= dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare/sampleCompare_{genome}_{sample}_{control}_per_base_modfrac_10000.pdf",
-		modfrac_kmers_table= dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare/sampleCompare_{genome}_{sample}_{control}_kmer_modfrac.csv",
-		coverage_png= dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare/sampleCompare_{genome}_{sample}_{control}_per_base_coverage.pdf",
-		dinucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare/sampleCompare_{genome}_{sample}_{control}_histogram_dinucleotide.pdf",
-		trinucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare/sampleCompare_{genome}_{sample}_{control}_histogram_trinucleotide.pdf",
-		tetranucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare/sampleCompare_{genome}_{sample}_{control}_histogram_tetranucleotide.pdf",
-		pentanucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare/sampleCompare_{genome}_{sample}_{control}_histogram_pentanucleotide.pdf",
-		# hexanucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare/sampleCompare_{genome}_{sample}_{control}_histogram_hexanucleotide.pdf",
+		modfrac_png= dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare_{mapping}/sampleCompare_{genome}_{sample}_{control}_{mapping}_per_base_modfrac_10000.pdf",
+		modfrac_kmers_table= dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare_{mapping}/sampleCompare_{genome}_{sample}_{control}_{mapping}_kmer_modfrac.csv",
+		coverage_png= dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare_{mapping}/sampleCompare_{genome}_{sample}_{control}_{mapping}_per_base_coverage.pdf",
+		dinucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare_{mapping}/sampleCompare_{genome}_{sample}_{control}_{mapping}_histogram_dinucleotide.pdf",
+		trinucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare_{mapping}/sampleCompare_{genome}_{sample}_{control}_{mapping}_histogram_trinucleotide.pdf",
+		tetranucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare_{mapping}/sampleCompare_{genome}_{sample}_{control}_{mapping}_histogram_tetranucleotide.pdf",
+		pentanucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare_{mapping}/sampleCompare_{genome}_{sample}_{control}_{mapping}_histogram_pentanucleotide.pdf",
+		# hexanucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare_{mapping}/sampleCompare_{genome}_{sample}_{control}_{mapping}_histogram_hexanucleotide.pdf",
 	params:
 		tombo_dir=dirs_dict["TOMBO"],
 		figdir=dirs_dict["PLOTS_DIR"],
@@ -522,22 +522,22 @@ rule parse_tombo_results_sampleCompare:
 		threshold_modfrac=0.3,
 		workdir=OUTPUT_DIR
 	log:
-		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/04_TOMBO_parsing_sampleCompare_{genome}_{sample}_{control}.ipynb"
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/04_TOMBO_parsing_sampleCompare_{genome}_{sample}_{control}_{mapping}.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/04_TOMBO_parsing_sampleCompare.py.ipynb"
 
 rule parse_tombo_results_deNovo:
 	input:
-		stats_deNovo=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_denovo/{genome}_{sample}_denovo.tombo.stats",
+		stats_deNovo=dirs_dict["TOMBO"] + "/{genome}_{sample}_{mapping}.tombo_denovo/{genome}_{sample}_{mapping}_denovo.tombo.stats",
 	output:
-		modfrac_png= dirs_dict["PLOTS_DIR"] + "/{genome}/denovo/denovo_{genome}_{sample}_per_base_modfrac_10000.pdf",
-		modfrac_kmers_table= dirs_dict["PLOTS_DIR"] + "/{genome}/denovo/denovo_{genome}_{sample}_kmer_modfrac.csv",
-		coverage_png= dirs_dict["PLOTS_DIR"] + "/{genome}/denovo/denovo_{genome}_{sample}_per_base_coverage.pdf",
-		dinucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/denovo/denovo_{genome}_{sample}_histogram_dinucleotide.pdf",
-		trinucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/denovo/denovo_{genome}_{sample}_histogram_trinucleotide.pdf",
-		tetranucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/denovo/denovo_{genome}_{sample}_histogram_tetranucleotide.pdf",
-		pentanucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/denovo/denovo_{genome}_{sample}_histogram_pentanucleotide.pdf",
-		# hexanucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/denovo/denovo_{genome}_{sample}_histogram_hexanucleotide.pdf",
+		modfrac_png= dirs_dict["PLOTS_DIR"] + "/{genome}/denovo_{mapping}/denovo_{genome}_{sample}_{mapping}_per_base_modfrac_10000.pdf",
+		modfrac_kmers_table= dirs_dict["PLOTS_DIR"] + "/{genome}/denovo_{mapping}/denovo_{genome}_{sample}_{mapping}_kmer_modfrac.csv",
+		coverage_png= dirs_dict["PLOTS_DIR"] + "/{genome}/denovo_{mapping}/denovo_{genome}_{sample}_{mapping}_per_base_coverage.pdf",
+		dinucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/denovo_{mapping}/denovo_{genome}_{sample}_{mapping}_histogram_dinucleotide.pdf",
+		trinucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/denovo_{mapping}/denovo_{genome}_{sample}_{mapping}_histogram_trinucleotide.pdf",
+		tetranucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/denovo_{mapping}/denovo_{genome}_{sample}_{mapping}_histogram_tetranucleotide.pdf",
+		pentanucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/denovo_{mapping}/denovo_{genome}_{sample}_{mapping}_histogram_pentanucleotide.pdf",
+		# hexanucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/denovo_{mapping}/denovo_{genome}_{sample}_{mapping}_histogram_hexanucleotide.pdf",
 	params:
 		tombo_dir=dirs_dict["TOMBO"],
 		figdir=dirs_dict["PLOTS_DIR"],
@@ -546,9 +546,10 @@ rule parse_tombo_results_deNovo:
 		threshold_modfrac=0.3,
 		workdir=OUTPUT_DIR
 	log:
-		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/04_TOMBO_parsing_deNovo_{genome}_{sample}.ipynb"
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/04_TOMBO_parsing_deNovo_{genome}_{sample}_{mapping}.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/04_TOMBO_parsing_deNovo.py.ipynb"
+
 # rule deepsignal:
 # 	input:
 #  		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
