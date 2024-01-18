@@ -29,6 +29,7 @@ CONTROL=config['control'].split()
 BARCODES=SAMPLES+CONTROL
 BARCODES = list( dict.fromkeys(BARCODES) )
 BARCODES = list(filter(None, BARCODES))
+MAPPING_TYPES= ["default", "loose"]
 
 dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "SINGLE", "BASECALLED", "DEMULTIPLEXED", "GENOMES", "TOMBO", "MEGALODON", "DEEPSIGNAL", "QC", "PLOTS_DIR", "RAW_NOTEBOOKS","NOTEBOOKS_DIR"]
 dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/03_FAST5_SINGLE", OUTPUT_DIR + "/01_BASECALLED", OUTPUT_DIR + "/02_DEMULTIPLEXED", GENOME_dir , OUTPUT_DIR + "/04_TOMBO", OUTPUT_DIR + "/05_MEGALODON", OUTPUT_DIR + "/06_DEEPSIGNAL", OUTPUT_DIR + "/STATS", OUTPUT_DIR + "/FIGURES_AND_TABLES", "notebooks", OUTPUT_DIR + "/NOTEBOOKS"]
@@ -70,8 +71,8 @@ def input_modifications_batch(wildcards):
 		row_sample=row["sample"]
 		row_control=row["control"]
 		row_genome=row["genome"]
-		inputs.extend(expand(dirs_dict["QC"] + "/{sample}_{genome}_nanoQC", sample=[row_sample], genome=[row_genome])),
-		inputs.extend(expand(dirs_dict["QC"] + "/{control}_{genome}_nanoQC", control=[row_control], genome=[row_genome])),
+		inputs.extend(expand(dirs_dict["QC"] + "/{sample}_{genome}_{mapping}_nanoQC", sample=[row_sample], genome=[row_genome], mapping=MAPPING_TYPES)),
+		inputs.extend(expand(dirs_dict["QC"] + "/{control}_{genome}_{mapping}_nanoQC", control=[row_control], genome=[row_genome], mapping=MAPPING_TYPES)),
 		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare/sampleCompare_{genome}_{sample}_{control}_histogram_dinucleotide.pdf", sample=row_sample, control=row_control, genome=row_genome)),
 		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/{genome}/denovo/denovo_{genome}_{sample}_histogram_dinucleotide.pdf", sample=row_sample, genome=row_genome)),
 	return inputs
@@ -180,40 +181,94 @@ rule guppy_basecalling:
 		# --chunks_per_runner 128
 		"""
 
-
-rule map_to_genomes:
+rule merge_fastq:
 	input:
 		basecalled_dir=dirs_dict["BASECALLED"] + "/{barcode}",
+	output:
+		merged_fastq=temp(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}.fastq"),
+	message:
+		"Merging fastq files"
+	shell:
+		"""
+		cat {input.basecalled_dir}/*fastq > {output.merged_fastq}
+		"""
+
+rule map_to_genomes_default:
+	input:
+		merged_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}.fastq"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
-		mapped_paf=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}.paf",
-		mapped_list=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_fast5_list_mapped.txt",
-		merged_fastq=temp(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}.fastq"),
-		mapped_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_mapped.fastq"),
-	params:
-		flowcell=FLOWCELL,
-		kit=KIT,
-	wildcard_constraints:
-		barcode="barcode..",
+		sam=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_default.sam",
 	conda:
 		"envs/env1.yaml"
 	message:
 		"Mapping reads to genomes with minimap2"
-	threads: 32
+	threads: 4
 	shell:
 		"""
-		cat {input.basecalled_dir}/*fastq > {output.merged_fastq}
-		# /home/demeter/Storage/lmf/apps/minimap2/minimap2 -ax map-ont {input.genome} {output.merged_fastq} > {output.mapped_paf}
-		minimap2 -ax map-ont {input.genome} {output.merged_fastq} > {output.mapped_paf}
-		cat {output.mapped_paf} | cut -f1 > {output.mapped_list}
+		# DEFAULT MAPPING
+		minimap2 -t {threads} -ax -k 15 -w 10 -B 4 -O 4,24 map-ont {input.genome} {output.merged_fastq} > {output.sam}
+		"""
+
+rule map_to_genomes_default:
+	input:
+		merged_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}.fastq"),
+		genome=GENOME_dir + "/{genome}.fasta",
+	output:
+		loose=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_loose.sam",
+	conda:
+		"envs/env1.yaml"
+	message:
+		"Mapping reads to genomes with minimap2"
+	threads: 4
+	shell:
+		"""
+		# LOOSE MAPPING
+		minimap2 -t {threads} -ax -k 10 -w 3 -B 3 -O 2,8 map-ont {input.genome} {output.merged_fastq} > {output.sam_loose}
+		"""
+
+rule map_to_genomes:
+	input:
+		merged_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}.fastq"),
+		genome=GENOME_dir + "/{genome}.fasta",
+	output:
+		sam=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}.sam",
+		bam=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_sorted.bam",
+		plus_cov=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_coverage_plus.bedgraph",
+		minus_cov=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_coverage_minus.bedgraph",
+		mapped_list_forward=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_list_mapped_forward.txt",
+		mapped_list_reverse=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_list_mapped_reverse.txt",
+		mapped_fastq_forward=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_mapped_forward.fastq"),
+		mapped_fastq_reverse=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_mapped_reverse.fastq"),
+		mapped_list=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_fast5_list_mapped.txt",
+		mapped_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_mapped.fastq"),
+	conda:
+		"envs/env1.yaml"
+	message:
+		"Mapping statistics"
+	threads: 1
+	shell:
+		"""
+		samtools view -bS {output.sam} | samtools sort -o {output.bam}
+		samtools index {output.bam}
+		
+		bedtools genomecov -ibam {output.bam} -bg -strand + > {output.plus_cov}
+		bedtools genomecov -ibam {output.bam} -bg -strand - > {output.minus_cov}
+		
+		samtools view -F 0x10 {output.bam} | cut -f1 > {output.mapped_list_forward}
+		samtools view -f 0x10 {output.bam} | cut -f1 > {output.mapped_list_reverse}
+		cat {output.mapped_list_forward} {output.mapped_list_reverse} > {output.mapped_list}
+
+		seqtk subseq {output.merged_fastq} {output.mapped_list_forward} > {output.mapped_fastq_forward}
+		seqtk subseq {output.merged_fastq} {output.mapped_list_reverse} > {output.mapped_fastq_reverse}
 		seqtk subseq {output.merged_fastq} {output.mapped_list} > {output.mapped_fastq}
 		"""
 
 rule qualityCheckNanopore:
 	input:
-		mapped_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_mapped.fastq"),
+		mapped_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_mapped.fastq"),
 	output:
-		nanoqc_dir=directory(dirs_dict["QC"] + "/{barcode}_{genome}_nanoQC"),
+		nanoqc_dir=directory(dirs_dict["QC"] + "/{barcode}_{genome}_{mapping}_nanoQC"),
 	message:
 		"Performing nanoQC statistics"
 	conda:
@@ -228,7 +283,7 @@ rule demultiplexing:
 		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
 		workspace_dir=dirs_dict["BASECALLED"] + "/workspace",
 		basecalled_dir=dirs_dict["BASECALLED"] + "/{barcode}",
-		mapped_list=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_fast5_list_mapped.txt",
+		mapped_list=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_loose_fast5_list_mapped.txt",
 	output:
 		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}_{genome}"),
 		length_list=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_{genome}_fast5_list_length.txt",
