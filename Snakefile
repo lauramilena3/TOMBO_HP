@@ -60,7 +60,7 @@ rule all:
 #		expand(dirs_dict["DEEPSIGNAL"] + "/{barcode}_deepsignal-prob.tsv", barcode=BARCODES),
 		expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_denovo.tombo.stats", barcode=BARCODES, genome=GENOME_name),
 		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
-		expand(dirs_dict["QC"] + "/{barcode}_{genome}_nanoQC", barcode=BARCODES, genome=GENOME_name),
+		expand(dirs_dict["QC"] + "/{genome}_{barcode}_nanoQC", barcode=BARCODES, genome=GENOME_name),
 		expand(dirs_dict["PLOTS_DIR"] + "/sampleCompare_{genome}_{sample}_{control}_histogram_pentanucleotide.pdf", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
 		expand(dirs_dict["PLOTS_DIR"] + "/denovo_{genome}_{sample}_histogram_pentanucleotide.pdf", sample=SAMPLES, genome=GENOME_name),
 
@@ -73,10 +73,12 @@ def input_modifications_batch(wildcards):
 		row_sample=row["sample"]
 		row_control=row["control"]
 		row_genome=row["genome"]
-		inputs.extend(expand(dirs_dict["QC"] + "/{sample}_{genome}_{mapping}_nanoQC", sample=[row_sample], genome=[row_genome], mapping=MAPPING_TYPES)),
-		inputs.extend(expand(dirs_dict["QC"] + "/{control}_{genome}_{mapping}_nanoQC", control=[row_control], genome=[row_genome], mapping=MAPPING_TYPES)),
+		inputs.extend(expand(dirs_dict["QC"] + "/{genome}_{sample}_{mapping}_nanoQC", sample=[row_sample], genome=[row_genome], mapping=MAPPING_TYPES)),
+		inputs.extend(expand(dirs_dict["QC"] + "/{genome}_{control}_{mapping}_nanoQC", control=[row_control], genome=[row_genome], mapping=MAPPING_TYPES)),
 		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare/sampleCompare_{genome}_{sample}_{control}_histogram_dinucleotide.pdf", sample=row_sample, control=row_control, genome=row_genome)),
 		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/{genome}/denovo/denovo_{genome}_{sample}_histogram_dinucleotide.pdf", sample=row_sample, genome=row_genome)),
+		inputs.extend((dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}_loose.txt",sample=row_sample, control=row_control)),
+
 	return inputs
 
 rule run_modifications_batch:
@@ -98,12 +100,12 @@ rule demultiplex_run:
 rule tombo_run_denovo:
 	input:
 		expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_denovo.tombo.stats", barcode=BARCODES, genome=GENOME_name),
-		expand(dirs_dict["QC"] + "/{barcode}_{genome}_nanoQC", barcode=BARCODES, genome=GENOME_name),
+		expand(dirs_dict["QC"] + "/{genome}_{barcode}_nanoQC", barcode=BARCODES, genome=GENOME_name),
 
 rule tombo_run_sampleCompare:
 	input:
 		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
-		expand(dirs_dict["QC"] + "/{barcode}_{genome}_nanoQC", barcode=BARCODES, genome=GENOME_name),
+		expand(dirs_dict["QC"] + "/{genome}_{barcode}_nanoQC", barcode=BARCODES, genome=GENOME_name),
 
 rule tombo_run_alternative:
 	input:
@@ -182,8 +184,8 @@ rule merge_fastq:
 	input:
 		basecalled_dir=dirs_dict["BASECALLED"] + "/{barcode}",
 	output:
-		merged_fastq=temp(dirs_dict["QC"] + "/{barcode}_vs_{genome}_merged.fastq"),
-		merged_fastq_porechopped=(dirs_dict["QC"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
+		merged_fastq=temp(dirs_dict["QC"] + "/{genome}_{barcode}_merged.fastq"),
+		merged_fastq_porechopped=(dirs_dict["QC"] + "/{genome}_{barcode}_merged_porechop.fastq"),
 	conda:
 		"envs/env3.yaml"
 	message:
@@ -197,10 +199,10 @@ rule merge_fastq:
 
 rule map_to_genomes_default:
 	input:
-		merged_fastq_porechopped=(dirs_dict["QC"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
+		merged_fastq_porechopped=(dirs_dict["QC"] + "/{genome}_{barcode}_merged_porechop.fastq"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
-		sam=dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_default.sam",
+		sam=dirs_dict["MAPPING"] + "/{genome}_{barcode}_default.sam",
 	conda:
 		"envs/env1.yaml"
 	message:
@@ -214,10 +216,10 @@ rule map_to_genomes_default:
 
 rule map_to_genomes_loose:
 	input:
-		merged_fastq_porechopped=(dirs_dict["QC"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
+		merged_fastq_porechopped=(dirs_dict["QC"] + "/{genome}_{barcode}_merged_porechop.fastq"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
-		sam=dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_loose.sam",
+		sam=dirs_dict["MAPPING"] + "/{genome}_{barcode}_loose.sam",
 	conda:
 		"envs/env1.yaml"
 	message:
@@ -231,18 +233,18 @@ rule map_to_genomes_loose:
 
 rule genome_stats:
 	input:
-		merged_fastq_porechopped=(dirs_dict["QC"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
-		sam=dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_{mapping}.sam",
+		merged_fastq_porechopped=(dirs_dict["QC"] + "/{genome}_{barcode}_merged_porechop.fastq"),
+		sam=dirs_dict["MAPPING"] + "/{genome}_{barcode}_{mapping}.sam",
 	output:
-		bam=dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_{mapping}_sorted.bam",
-		plus_cov=dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_{mapping}_coverage_plus.bedgraph",
-		minus_cov=dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_{mapping}_coverage_minus.bedgraph",
-		mapped_list_forward=dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_{mapping}_list_mapped_forward.txt",
-		mapped_list_reverse=dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_{mapping}_list_mapped_reverse.txt",
-		mapped_fastq_forward=(dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_{mapping}_mapped_forward.fastq"),
-		mapped_fastq_reverse=(dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_{mapping}_mapped_reverse.fastq"),
-		mapped_list=dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_{mapping}_fast5_list_mapped.txt",
-		mapped_fastq=(dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_{mapping}_mapped.fastq"),
+		bam=dirs_dict["MAPPING"] + "/{genome}_{barcode}_{mapping}_sorted.bam",
+		plus_cov=dirs_dict["MAPPING"] + "/{genome}_{barcode}_{mapping}_coverage_plus.bedgraph",
+		minus_cov=dirs_dict["MAPPING"] + "/{genome}_{barcode}_{mapping}_coverage_minus.bedgraph",
+		mapped_list_forward=dirs_dict["MAPPING"] + "/{genome}_{barcode}_{mapping}_list_mapped_forward.txt",
+		mapped_list_reverse=dirs_dict["MAPPING"] + "/{genome}_{barcode}_{mapping}_list_mapped_reverse.txt",
+		mapped_fastq_forward=(dirs_dict["MAPPING"] + "/{genome}_{barcode}_{mapping}_mapped_forward.fastq"),
+		mapped_fastq_reverse=(dirs_dict["MAPPING"] + "/{genome}_{barcode}_{mapping}_mapped_reverse.fastq"),
+		mapped_list=dirs_dict["MAPPING"] + "/{genome}_{barcode}_{mapping}_fast5_list_mapped.txt",
+		mapped_fastq=(dirs_dict["MAPPING"] + "/{genome}_{barcode}_{mapping}_mapped.fastq"),
 	conda:
 		"envs/env1.yaml"
 	message:
@@ -267,9 +269,9 @@ rule genome_stats:
 
 rule qualityCheckNanopore:
 	input:
-		merged_fastq_porechopped=(dirs_dict["QC"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
+		merged_fastq_porechopped=(dirs_dict["QC"] + "/{genome}_{barcode}_merged_porechop.fastq"),
 	output:
-		nanoqc_dir=directory(dirs_dict["QC"] + "/{barcode}_{genome}_{mapping}_nanoQC"),
+		nanoqc_dir=directory(dirs_dict["QC"] + "/{genome}_{barcode}_{mapping}_nanoQC"),
 	message:
 		"Performing nanoQC statistics"
 	conda:
@@ -281,9 +283,9 @@ rule qualityCheckNanopore:
 
 # rule asemblyFlye:
 # 	input:
-# 		mapped_fastq_forward=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_mapped_forward.fastq"),
-# 		mapped_fastq_reverse=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_mapped_reverse.fastq"),
-# 		merged_fastq_porechopped=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
+# 		mapped_fastq_forward=(dirs_dict["BASECALLED"] + "/{genome}_{barcode}_{mapping}_mapped_forward.fastq"),
+# 		mapped_fastq_reverse=(dirs_dict["BASECALLED"] + "/{genome}_{barcode}_{mapping}_mapped_reverse.fastq"),
+# 		merged_fastq_porechopped=(dirs_dict["BASECALLED"] + "/{genome}_{barcode}_merged_porechop.fastq"),
 # 	output:
 # 		scaffolds=dirs_dict["ASSEMBLY_DIR"] + "/flye_{sample}_{sampling}/assembly.fasta",
 # 		scaffolds_final=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_flye.{sampling}.fasta"
@@ -309,11 +311,11 @@ rule demultiplexing:
 		basecalled_summary=dirs_dict["BASECALLED"] + "/sequencing_summary.txt",
 		workspace_dir=dirs_dict["BASECALLED"] + "/workspace",
 		basecalled_dir=dirs_dict["BASECALLED"] + "/{barcode}",
-		mapped_list=dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_loose_fast5_list_mapped.txt",
+		mapped_list=dirs_dict["MAPPING"] + "/{genome}_{barcode}_loose_fast5_list_mapped.txt",
 	output:
-		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{barcode}_{genome}"),
-		length_list=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_{genome}_fast5_list_length.txt",
-		demultiplexed_list=dirs_dict["DEMULTIPLEXED"] + "/{barcode}_{genome}_fast5_list_pass.txt",
+		demultiplexed_dir=directory(dirs_dict["DEMULTIPLEXED"] + "/{genome}_{barcode}"),
+		length_list=dirs_dict["DEMULTIPLEXED"] + "/{genome}_{barcode}_fast5_list_length.txt",
+		demultiplexed_list=dirs_dict["DEMULTIPLEXED"] + "/{genome}_{barcode}_fast5_list_pass.txt",
 	message:
 		"Demultiplexing single fast5 files"
 	params:
@@ -338,9 +340,9 @@ rule demultiplexing:
 
 rule multi_to_single_fast5:
 	input:
-		demultiplexed_dir=(dirs_dict["DEMULTIPLEXED"] + "/{barcode}_{genome}"),
+		demultiplexed_dir=(dirs_dict["DEMULTIPLEXED"] + "/{genome}_{barcode}"),
 	output:
-		single_data=directory(dirs_dict["SINGLE"]+ "/{barcode}_{genome}"),
+		single_data=directory(dirs_dict["SINGLE"]+ "/{genome}_{barcode}"),
 	conda:
 		"envs/env1.yaml"
 	message:
@@ -377,10 +379,10 @@ rule multi_to_single_fast5:
 rule resquiggle_tombo:
 	input:
 		#demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
-		single_data=(dirs_dict["SINGLE"]+ "/{barcode}_{genome}"),
+		single_data=(dirs_dict["SINGLE"]+ "/{genome}_{barcode}"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
-		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{barcode}_{genome}.txt"),
+		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{barcode}.txt"),
 	threads: 16
 	conda:
 		"envs/env1.yaml"
@@ -390,13 +392,28 @@ rule resquiggle_tombo:
 		touch {output.resquiggled}
 		"""
 
+rule resquiggle_tombo_loose:
+	input:
+		#demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
+		single_data=(dirs_dict["SINGLE"]+ "/{genome}_{barcode}"),
+		genome=GENOME_dir + "/{genome}.fasta",
+	output:
+		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{barcode}_loose.txt"),
+	threads: 16
+	conda:
+		"envs/env1_loose.yaml"
+	shell:
+		"""
+		tombo resquiggle --dna {input.single_data} {input.genome} --processes {threads} --overwrite --ignore-read-locks --corrected-group "LOOSE"
+		touch {output.resquiggled}
+		"""
 
 rule tombo_sample_compare:
 	input:
-		sample=(dirs_dict["SINGLE"] + "/{sample}_{genome}"),
-		control=(dirs_dict["SINGLE"] + "/{control}_{genome}"),
-		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{sample}_{genome}.txt"),
-		resquiggled2=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{control}_{genome}.txt"),
+		sample=(dirs_dict["SINGLE"] + "/{genome}_{sample}"),
+		control=(dirs_dict["SINGLE"] + "/{genome}_{control}"),
+		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}.txt"),
+		resquiggled2=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{control}.txt"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}.tombo.stats" ,
@@ -424,8 +441,8 @@ rule tombo_sample_compare:
 
 rule tombo_denovo:
 	input:
-		sample=(dirs_dict["SINGLE"] + "/{barcode}_{genome}"),
-		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{barcode}_{genome}.txt"),
+		sample=(dirs_dict["SINGLE"] + "/{genome}_{barcode}"),
+		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{barcode}.txt"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_denovo.tombo.stats" ,
@@ -455,8 +472,8 @@ rule tombo_denovo:
 
 rule tombo_alternative:
 	input:
-		sample=(dirs_dict["SINGLE"] + "/{sample}_{genome}"),
-		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{sample}_{genome}.txt"),
+		sample=(dirs_dict["SINGLE"] + "/{genome}_{sample}"),
+		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}.txt"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative_{model}/{genome}_{sample}.tombo_alternative_{model}.{model}.tombo.stats" ,
@@ -535,7 +552,7 @@ rule parse_tombo_results_deNovo:
 # 	input:
 #  		demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
 # 		genome="{genome}",
-# 		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{barcode}_{genome}.txt"),
+# 		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{barcode}.txt"),
 # 	output:
 # 		extract=dirs_dict["BASECALLED"] + "/{barcode}_deepsignal-feature.tsv"
 # 	conda:
