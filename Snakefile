@@ -58,8 +58,8 @@ rule all:
 #		expand(dirs_dict["SINGLE"] + "/{barcode}", barcode=BARCODES),
 #		expand(dirs_dict["MEGALODON"] + "/{barcode}", barcode=BARCODES),
 #		expand(dirs_dict["DEEPSIGNAL"] + "/{barcode}_deepsignal-prob.tsv", barcode=BARCODES),
-		expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_denovo.tombo.stats", barcode=BARCODES, genome=GENOME_name),
-		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
+		expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}_denovo.tombo/{genome}_{barcode}_denovo.tombo.stats", barcode=BARCODES, genome=GENOME_name),
+		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_sampleCompare.tombo/{genome}_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
 		expand(dirs_dict["QC"] + "/{genome}_{barcode}_nanoQC", barcode=BARCODES, genome=GENOME_name),
 		expand(dirs_dict["PLOTS_DIR"] + "/sampleCompare_{genome}_{sample}_{control}_histogram_pentanucleotide.pdf", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
 		expand(dirs_dict["PLOTS_DIR"] + "/denovo_{genome}_{sample}_histogram_pentanucleotide.pdf", sample=SAMPLES, genome=GENOME_name),
@@ -100,12 +100,12 @@ rule demultiplex_run:
 
 rule tombo_run_denovo:
 	input:
-		expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}.tombo_denovo/{genome}_{barcode}_denovo.tombo.stats", barcode=BARCODES, genome=GENOME_name),
+		expand(dirs_dict["TOMBO"] + "/{genome}_{barcode}_denovo.tombo/{genome}_{barcode}_denovo.tombo.stats", barcode=BARCODES, genome=GENOME_name),
 		expand(dirs_dict["QC"] + "/{genome}_{barcode}_nanoQC", barcode=BARCODES, genome=GENOME_name),
 
 rule tombo_run_sampleCompare:
 	input:
-		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}.tombo_sampleCompare/{genome}_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
+		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_sampleCompare.tombo/{genome}_{sample}_{control}.tombo.stats", sample=SAMPLES, control=CONTROL, genome=GENOME_name),
 		expand(dirs_dict["QC"] + "/{genome}_{barcode}_nanoQC", barcode=BARCODES, genome=GENOME_name),
 
 rule tombo_run_alternative:
@@ -432,12 +432,12 @@ rule tombo_sample_compare:
 		resquiggled_loose_control=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{control}_loose.txt"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
-		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_{mapping}.tombo_sampleCompare/{genome}_{sample}_{control}_{mapping}_sampleCompare.tombo.stats" ,
-		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_{mapping}.tombo_sampleCompare/{genome}_{sample}_{control}_{mapping}_tombo_sampleCompare_results.significant_regions.fasta",
+		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_{mapping}_sampleCompare.tombo/{genome}_{sample}_{control}_{mapping}_sampleCompare.tombo.stats" ,
+		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_{mapping}_sampleCompare.tombo/{genome}_{sample}_{control}_{mapping}_tombo_sampleCompare_results.significant_regions.fasta",
 	params:
-		name="{genome}_{sample}_{control}_{mapping}",
-		tombo_results_dir=directory(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_{mapping}.tombo_sampleCompare"),
-		meme=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_{mapping}.tombo_sampleCompare/{genome}_{sample}_{control}_{mapping}_tombo_sampleCompare_results.motif_detection.meme",
+		name="{genome}_{sample}_{control}_{mapping}_sampleCompare",
+		tombo_results_dir=directory(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_{mapping}_sampleCompare.tombo"),
+		meme=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_{mapping}_sampleCompare.tombo/{genome}_{sample}_{control}_{mapping}_tombo_sampleCompare_results.motif_detection.meme",
 	conda:
 		"envs/env1.yaml"
 	message:
@@ -462,12 +462,12 @@ rule tombo_denovo:
 		resquiggled_loose=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{barcode}_loose.txt"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
-		stats=dirs_dict["TOMBO"] + "/{genome}_{barcode}_{mapping}.tombo_denovo/{genome}_{barcode}_{mapping}_denovo.tombo.stats" ,
-		significant=dirs_dict["TOMBO"] + "/{genome}_{barcode}_{mapping}.tombo_denovo/{genome}_{barcode}_{mapping}_tombo_denovo_results.significant_regions.fasta",
+		stats=dirs_dict["TOMBO"] + "/{genome}_{barcode}_{mapping}_denovo.tombo/{genome}_{barcode}_{mapping}_denovo.tombo.stats" ,
+		significant=dirs_dict["TOMBO"] + "/{genome}_{barcode}_{mapping}_denovo.tombo/{genome}_{barcode}_{mapping}_tombo_denovo_results.significant_regions.fasta",
 	params:
 		name="{genome}_{barcode}_{mapping}_denovo",
-		tombo_results_dir=directory(dirs_dict["TOMBO"] + "/{genome}_{barcode}_{mapping}.tombo_denovo"),
-		meme=dirs_dict["TOMBO"] + "/{genome}_{barcode}_{mapping}.tombo_denovo/{genome}_{barcode}_{mapping}_tombo_denovo_results.motif_detection.meme",
+		tombo_results_dir=directory(dirs_dict["TOMBO"] + "/{genome}_{barcode}_{mapping}_denovo.tombo"),
+		meme=dirs_dict["TOMBO"] + "/{genome}_{barcode}_{mapping}_denovo.tombo/{genome}_{barcode}_{mapping}_tombo_denovo_results.motif_detection.meme",
 	wildcard_constraints:
 		control="barcode..",
 		sample="barcode..",
@@ -519,7 +519,7 @@ rule tombo_alternative:
 
 rule parse_tombo_results_sampleCompare:
 	input:
-		stats_sampleCompare=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_{mapping}.tombo_sampleCompare/{genome}_{sample}_{control}_{mapping}_sampleCompare.tombo.stats" ,
+		stats_sampleCompare=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_{mapping}_sampleCompare.tombo/{genome}_{sample}_{control}_{mapping}_sampleCompare.tombo.stats" ,
 	output:
 		modfrac_png= dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare_{mapping}/sampleCompare_{genome}_{sample}_{control}_{mapping}_per_base_modfrac_10000.pdf",
 		modfrac_kmers_table= dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare_{mapping}/sampleCompare_{genome}_{sample}_{control}_{mapping}_kmer_modfrac.csv",
@@ -545,7 +545,7 @@ rule parse_tombo_results_sampleCompare:
 
 rule parse_tombo_results_deNovo:
 	input:
-		stats_deNovo=dirs_dict["TOMBO"] + "/{genome}_{sample}_{mapping}.tombo_denovo/{genome}_{sample}_{mapping}_denovo.tombo.stats" ,
+		stats_deNovo=dirs_dict["TOMBO"] + "/{genome}_{sample}_{mapping}_denovo.tombo/{genome}_{sample}_{mapping}_denovo.tombo.stats" ,
 	output:
 		modfrac_png= dirs_dict["PLOTS_DIR"] + "/{genome}/denovo_{mapping}/denovo_{genome}_{sample}_{mapping}_per_base_modfrac_10000.pdf",
 		modfrac_kmers_table= dirs_dict["PLOTS_DIR"] + "/{genome}/denovo_{mapping}/denovo_{genome}_{sample}_{mapping}_kmer_modfrac.csv",
