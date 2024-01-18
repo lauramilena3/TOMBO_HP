@@ -232,7 +232,6 @@ rule genome_stats:
 		merged_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged.fastq"),
 		sam=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}.sam",
 	output:
-		sam=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}.sam",
 		bam=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_sorted.bam",
 		plus_cov=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_coverage_plus.bedgraph",
 		minus_cov=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_coverage_minus.bedgraph",
