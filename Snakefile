@@ -215,7 +215,7 @@ rule map_to_genomes_loose:
 		merged_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged.fastq"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
-		loose=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_loose.sam",
+		sam=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_loose.sam",
 	conda:
 		"envs/env1.yaml"
 	message:
@@ -224,7 +224,7 @@ rule map_to_genomes_loose:
 	shell:
 		"""
 		# LOOSE MAPPING
-		minimap2 -t {threads} -ax -k 10 -w 3 -B 3 -O 2,8 map-ont {input.genome} {input.merged_fastq} > {output.sam_loose}
+		minimap2 -t {threads} -ax -k 10 -w 3 -B 3 -O 2,8 map-ont {input.genome} {input.merged_fastq} > {output.sam}
 		"""
 
 rule genome_stats:
