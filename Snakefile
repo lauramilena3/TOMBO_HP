@@ -280,30 +280,30 @@ rule qualityCheckNanopore:
 		nanoQC -o {output.nanoqc_dir} {input.merged_fastq_porechopped}
 		"""
 
-rule asemblyFlye:
-	input:
-		mapped_fastq_forward=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_mapped_forward.fastq"),
-		mapped_fastq_reverse=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_mapped_reverse.fastq"),
-		merged_fastq_porechopped=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
-	output:
-		scaffolds=dirs_dict["ASSEMBLY_DIR"] + "/flye_{sample}_{sampling}/assembly.fasta",
-		scaffolds_final=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_flye.{sampling}.fasta"
-	message:
-		"Assembling Nanopore reads with Flye"
-	params:
-		assembly_dir=dirs_dict["ASSEMBLY_DIR"] + "/flye_{sample}_{sampling}",
-		genome_size=config["genome_size"],
-		metagenomic_flag=METAGENOME_FLAG,
-	conda:
-		dirs_dict["ENVS_DIR"] + "/env1.yaml"
-	benchmark:
-		dirs_dict["BENCHMARKS"] +"/asemblyFlye/{sample}_{sampling}.tsv"
-	threads: 4
-	shell:
-		"""
-		flye --nano-raw {input.mapped_fastq_forward} --out-dir {params.assembly_dir} --genome-size {params.genome_size} --threads {threads} 
-		cp {output.scaffolds} {output.scaffolds_final}
-		"""
+# rule asemblyFlye:
+# 	input:
+# 		mapped_fastq_forward=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_mapped_forward.fastq"),
+# 		mapped_fastq_reverse=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_mapped_reverse.fastq"),
+# 		merged_fastq_porechopped=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
+# 	output:
+# 		scaffolds=dirs_dict["ASSEMBLY_DIR"] + "/flye_{sample}_{sampling}/assembly.fasta",
+# 		scaffolds_final=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_flye.{sampling}.fasta"
+# 	message:
+# 		"Assembling Nanopore reads with Flye"
+# 	params:
+# 		assembly_dir=dirs_dict["ASSEMBLY_DIR"] + "/flye_{sample}_{sampling}",
+# 		genome_size=config["genome_size"],
+# 		metagenomic_flag=METAGENOME_FLAG,
+# 	conda:
+# 		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+# 	benchmark:
+# 		dirs_dict["BENCHMARKS"] +"/asemblyFlye/{sample}_{sampling}.tsv"
+# 	threads: 4
+# 	shell:
+# 		"""
+# 		flye --nano-raw {input.mapped_fastq_forward} --out-dir {params.assembly_dir} --genome-size {params.genome_size} --threads {threads} 
+# 		cp {output.scaffolds} {output.scaffolds_final}
+# 		"""
 
 rule demultiplexing:
 	input:
