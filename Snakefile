@@ -183,7 +183,7 @@ rule merge_fastq:
 		basecalled_dir=dirs_dict["BASECALLED"] + "/{barcode}",
 	output:
 		merged_fastq=temp(dirs_dict["QC"] + "/{barcode}_vs_{genome}_merged.fastq"),
-		merged_fastq_porechopped=temp(dirs_dict["QC"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
+		merged_fastq_porechopped=(dirs_dict["QC"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
 	conda:
 		"envs/env3.yaml"
 	message:
