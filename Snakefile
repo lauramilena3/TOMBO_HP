@@ -77,7 +77,7 @@ def input_modifications_batch(wildcards):
 		inputs.extend(expand(dirs_dict["QC"] + "/{genome}_{control}_{mapping}_nanoQC", control=[row_control], genome=[row_genome], mapping=MAPPING_TYPES)),
 		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare/sampleCompare_{genome}_{sample}_{control}_histogram_dinucleotide.pdf", sample=row_sample, control=row_control, genome=row_genome)),
 		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/{genome}/denovo/denovo_{genome}_{sample}_histogram_dinucleotide.pdf", sample=row_sample, genome=row_genome)),
-		inputs.extend((dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}_loose.txt",sample=row_sample, genome=row_genome)),
+		inputs.extend(expand(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}_loose.txt",sample=row_sample, genome=row_genome)),
 
 	return inputs
 
