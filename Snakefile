@@ -31,8 +31,8 @@ BARCODES = list( dict.fromkeys(BARCODES) )
 BARCODES = list(filter(None, BARCODES))
 MAPPING_TYPES= ["default", "loose"]
 
-dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "SINGLE", "BASECALLED", "DEMULTIPLEXED", "GENOMES", "TOMBO", "MEGALODON", "DEEPSIGNAL", "QC", "PLOTS_DIR", "RAW_NOTEBOOKS","NOTEBOOKS_DIR"]
-dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools", OUTPUT_DIR + "/03_FAST5_SINGLE", OUTPUT_DIR + "/01_BASECALLED", OUTPUT_DIR + "/02_DEMULTIPLEXED", GENOME_dir , OUTPUT_DIR + "/04_TOMBO", OUTPUT_DIR + "/05_MEGALODON", OUTPUT_DIR + "/06_DEEPSIGNAL", OUTPUT_DIR + "/STATS", OUTPUT_DIR + "/FIGURES_AND_TABLES", "notebooks", OUTPUT_DIR + "/NOTEBOOKS"]
+dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "GENOMES", "BASECALLED", "DEMULTIPLEXED", "SINGLE", "QC", "TOMBO", "ASSEMBLY_DIR", "PLOTS_DIR", "RAW_NOTEBOOKS","NOTEBOOKS_DIR"]
+dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools" ,GENOME_dir , OUTPUT_DIR + "/01_BASECALLED", OUTPUT_DIR + "/02_DEMULTIPLEXED", OUTPUT_DIR + "/03_FAST5_SINGLE", OUTPUT_DIR + "/04_QC" , OUTPUT_DIR + "/05_TOMBO", OUTPUT_DIR + "/06_ASSEMBLY", OUTPUT_DIR + "/FIGURES_AND_TABLES", "notebooks", OUTPUT_DIR + "/NOTEBOOKS"]
 dirs_dict = dict(zip(dir_list, dir_names))
 MODEL_MEGALODON=config['megalodon_model']
 #SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{{input.sample}}_" +".fast5")
@@ -45,6 +45,8 @@ print("genome", GENOME_name)
 #======================================================
 # Rules
 #======================================================
+wildcard_constraints:
+	barcode="barcode..",
 
 rule all:
 	input:
@@ -106,10 +108,6 @@ rule tombo_run_sampleCompare:
 rule tombo_run_alternative:
 	input:
 		expand(dirs_dict["TOMBO"] + "/{genome}_{sample}.tombo_alternative_{model}/{genome}_{sample}.tombo_alternative_{model}.{model}.tombo.stats", sample=SAMPLES, model=ALTERNATIVE_MODELS, genome=GENOME_name),
-
-
-wildcard_constraints:
-	barcode="barcode..",
 
 
 rule get_rerio_model:
@@ -186,16 +184,21 @@ rule merge_fastq:
 		basecalled_dir=dirs_dict["BASECALLED"] + "/{barcode}",
 	output:
 		merged_fastq=temp(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged.fastq"),
+		merged_fastq_porechopped=temp(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
+	conda:
+		"envs/env3.yaml"
 	message:
 		"Merging fastq files"
+	threads: 2
 	shell:
 		"""
 		cat {input.basecalled_dir}/*fastq > {output.merged_fastq}
+		porechop -i {output.merged_fastq} -o {output.merged_fastq_porechopped} --threads {threads}
 		"""
 
 rule map_to_genomes_default:
 	input:
-		merged_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged.fastq"),
+		merged_fastq_porechopped=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		sam=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_default.sam",
@@ -207,12 +210,12 @@ rule map_to_genomes_default:
 	shell:
 		"""
 		# DEFAULT MAPPING
-		minimap2 -t {threads} -k 15 -w 10 -B 4 -O 4,24 -ax map-ont {input.genome} {input.merged_fastq} > {output.sam}
+		minimap2 -t {threads} -k 15 -w 10 -B 4 -O 4,24 -ax map-ont {input.genome} {input.merged_fastq_porechopped} > {output.sam}
 		"""
 
 rule map_to_genomes_loose:
 	input:
-		merged_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged.fastq"),
+		merged_fastq_porechopped=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		sam=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_loose.sam",
@@ -224,12 +227,12 @@ rule map_to_genomes_loose:
 	shell:
 		"""
 		# LOOSE MAPPING
-		minimap2 -t {threads} -k 10 -w 3 -B 3 -O 2,8 -ax map-ont {input.genome} {input.merged_fastq} > {output.sam}
+		minimap2 -t {threads} -k 10 -w 3 -B 3 -O 2,8 -ax map-ont {input.genome} {input.merged_fastq_porechopped} > {output.sam}
 		"""
 
 rule genome_stats:
 	input:
-		merged_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged.fastq"),
+		merged_fastq_porechopped=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
 		sam=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}.sam",
 	output:
 		bam=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_sorted.bam",
@@ -258,14 +261,14 @@ rule genome_stats:
 		samtools view -f 0x10 {output.bam} | cut -f1 > {output.mapped_list_reverse}
 		cat {output.mapped_list_forward} {output.mapped_list_reverse} > {output.mapped_list}
 
-		seqtk subseq {input.merged_fastq} {output.mapped_list_forward} > {output.mapped_fastq_forward}
-		seqtk subseq {input.merged_fastq} {output.mapped_list_reverse} > {output.mapped_fastq_reverse}
-		seqtk subseq {input.merged_fastq} {output.mapped_list} > {output.mapped_fastq}
+		seqtk subseq {input.merged_fastq_porechopped} {output.mapped_list_forward} > {output.mapped_fastq_forward}
+		seqtk subseq {input.merged_fastq_porechopped} {output.mapped_list_reverse} > {output.mapped_fastq_reverse}
+		seqtk subseq {input.merged_fastq_porechopped} {output.mapped_list} > {output.mapped_fastq}
 		"""
 
 rule qualityCheckNanopore:
 	input:
-		mapped_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_mapped.fastq"),
+		merged_fastq_porechopped=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
 	output:
 		nanoqc_dir=directory(dirs_dict["QC"] + "/{barcode}_{genome}_{mapping}_nanoQC"),
 	message:
@@ -274,7 +277,32 @@ rule qualityCheckNanopore:
 		"envs/env3.yaml"
 	shell:
 		"""
-		nanoQC -o {output.nanoqc_dir} {input.mapped_fastq}
+		nanoQC -o {output.nanoqc_dir} {input.merged_fastq_porechopped}
+		"""
+
+rule asemblyFlye:
+	input:
+		mapped_fastq_forward=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_mapped_forward.fastq"),
+		mapped_fastq_reverse=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_mapped_reverse.fastq"),
+		merged_fastq_porechopped=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
+	output:
+		scaffolds=dirs_dict["ASSEMBLY_DIR"] + "/flye_{sample}_{sampling}/assembly.fasta",
+		scaffolds_final=dirs_dict["ASSEMBLY_DIR"] + "/{sample}_contigs_flye.{sampling}.fasta"
+	message:
+		"Assembling Nanopore reads with Flye"
+	params:
+		assembly_dir=dirs_dict["ASSEMBLY_DIR"] + "/flye_{sample}_{sampling}",
+		genome_size=config["genome_size"],
+		metagenomic_flag=METAGENOME_FLAG,
+	conda:
+		dirs_dict["ENVS_DIR"] + "/env1.yaml"
+	benchmark:
+		dirs_dict["BENCHMARKS"] +"/asemblyFlye/{sample}_{sampling}.tsv"
+	threads: 4
+	shell:
+		"""
+		flye --nano-raw {input.mapped_fastq_forward} --out-dir {params.assembly_dir} --genome-size {params.genome_size} --threads {threads} 
+		cp {output.scaffolds} {output.scaffolds_final}
 		"""
 
 rule demultiplexing:
