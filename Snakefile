@@ -75,10 +75,11 @@ def input_modifications_batch(wildcards):
 		row_genome=row["genome"]
 		inputs.extend(expand(dirs_dict["QC"] + "/{genome}_{sample}_{mapping}_nanoQC", sample=[row_sample], genome=[row_genome], mapping=MAPPING_TYPES)),
 		inputs.extend(expand(dirs_dict["QC"] + "/{genome}_{control}_{mapping}_nanoQC", control=[row_control], genome=[row_genome], mapping=MAPPING_TYPES)),
+		inputs.extend(expand(dirs_dict["QC"] + "/{genome}_{sample}_nanoQC", sample=[row_sample], genome=[row_genome])),
+		inputs.extend(expand(dirs_dict["QC"] + "/{genome}_{control}_nanoQC", control=[row_control], genome=[row_genome])),
 		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/{genome}/sampleCompare_{mapping}/sampleCompare_{genome}_{sample}_{control}_{mapping}_histogram_dinucleotide.pdf", sample=row_sample, control=row_control, genome=row_genome, mapping=MAPPING_TYPES)),
 		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/{genome}/denovo_{mapping}/denovo_{genome}_{sample}_{mapping}_histogram_dinucleotide.pdf", sample=row_sample, genome=row_genome, mapping=MAPPING_TYPES)),
 		# inputs.extend(expand(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}_loose.txt",sample=row_sample, genome=row_genome)),
-
 	return inputs
 
 rule run_modifications_batch:
@@ -266,11 +267,25 @@ rule genome_stats:
 		seqtk subseq {input.merged_fastq_porechopped} {output.mapped_list} > {output.mapped_fastq}
 		"""
 
-rule qualityCheckNanopore:
+rule qualityCheckNanopore_mapped:
 	input:
 		mapped_fastq=(dirs_dict["MAPPING"] + "/{genome}_{barcode}_{mapping}_mapped.fastq"),
 	output:
 		nanoqc_dir=directory(dirs_dict["QC"] + "/{genome}_{barcode}_{mapping}_nanoQC"),
+	message:
+		"Performing nanoQC statistics"
+	conda:
+		"envs/env3.yaml"
+	shell:
+		"""
+		nanoQC -o {output.nanoqc_dir} {input.mapped_fastq}
+		"""
+
+rule qualityCheckNanopore:
+	input:
+		merged_fastq_porechopped=(dirs_dict["QC"] + "/{genome}_{barcode}_merged_porechop.fastq"),
+	output:
+		nanoqc_dir=directory(dirs_dict["QC"] + "/{genome}_{barcode}_nanoQC"),
 	message:
 		"Performing nanoQC statistics"
 	conda:
