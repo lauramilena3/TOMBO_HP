@@ -545,7 +545,7 @@ rule parse_tombo_results_sampleCompare:
 
 rule parse_tombo_results_deNovo:
 	input:
-		stats_deNovo=dirs_dict["TOMBO"] + "/{genome}_{barcode}_{mapping}.tombo_denovo/{genome}_{barcode}_{mapping}_denovo.tombo.stats" ,
+		stats_deNovo=dirs_dict["TOMBO"] + "/{genome}_{sample}_{mapping}.tombo_denovo/{genome}_{sample}_{mapping}_denovo.tombo.stats" ,
 	output:
 		modfrac_png= dirs_dict["PLOTS_DIR"] + "/{genome}/denovo_{mapping}/denovo_{genome}_{sample}_{mapping}_per_base_modfrac_10000.pdf",
 		modfrac_kmers_table= dirs_dict["PLOTS_DIR"] + "/{genome}/denovo_{mapping}/denovo_{genome}_{sample}_{mapping}_kmer_modfrac.csv",
