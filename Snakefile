@@ -185,7 +185,7 @@ rule merge_fastq:
 	input:
 		basecalled_dir=dirs_dict["BASECALLED"] + "/{barcode}",
 	output:
-		merged_fastq=temp(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}.fastq"),
+		merged_fastq=temp(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged.fastq"),
 	message:
 		"Merging fastq files"
 	shell:
@@ -195,7 +195,7 @@ rule merge_fastq:
 
 rule map_to_genomes_default:
 	input:
-		merged_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}.fastq"),
+		merged_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged.fastq"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		sam=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_default.sam",
@@ -212,7 +212,7 @@ rule map_to_genomes_default:
 
 rule map_to_genomes_loose:
 	input:
-		merged_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}.fastq"),
+		merged_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged.fastq"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		loose=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_loose.sam",
@@ -229,7 +229,7 @@ rule map_to_genomes_loose:
 
 rule genome_stats:
 	input:
-		merged_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}.fastq"),
+		merged_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged.fastq"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		sam=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}.sam",
