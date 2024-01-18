@@ -207,7 +207,7 @@ rule map_to_genomes_default:
 	shell:
 		"""
 		# DEFAULT MAPPING
-		minimap2 -t {threads} -ax -k 15 -w 10 -B 4 -O 4,24 map-ont {input.genome} {input.merged_fastq} > {output.sam}
+		minimap2 -t {threads} -k 15 -w 10 -B 4 -O 4,24 -ax map-ont {input.genome} {input.merged_fastq} > {output.sam}
 		"""
 
 rule map_to_genomes_loose:
@@ -224,7 +224,7 @@ rule map_to_genomes_loose:
 	shell:
 		"""
 		# LOOSE MAPPING
-		minimap2 -t {threads} -ax -k 10 -w 3 -B 3 -O 2,8 map-ont {input.genome} {input.merged_fastq} > {output.sam}
+		minimap2 -t {threads} -k 10 -w 3 -B 3 -O 2,8 -ax map-ont {input.genome} {input.merged_fastq} > {output.sam}
 		"""
 
 rule genome_stats:
