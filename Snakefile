@@ -210,7 +210,7 @@ rule map_to_genomes_default:
 		minimap2 -t {threads} -ax -k 15 -w 10 -B 4 -O 4,24 map-ont {input.genome} {output.merged_fastq} > {output.sam}
 		"""
 
-rule map_to_genomes_default:
+rule map_to_genomes_loose:
 	input:
 		merged_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}.fastq"),
 		genome=GENOME_dir + "/{genome}.fasta",
@@ -227,7 +227,7 @@ rule map_to_genomes_default:
 		minimap2 -t {threads} -ax -k 10 -w 3 -B 3 -O 2,8 map-ont {input.genome} {output.merged_fastq} > {output.sam_loose}
 		"""
 
-rule map_to_genomes:
+rule genome_stats:
 	input:
 		merged_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}.fastq"),
 		genome=GENOME_dir + "/{genome}.fasta",
