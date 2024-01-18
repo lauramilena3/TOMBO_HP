@@ -152,7 +152,6 @@ rule get_rerio_model:
 # 			guppy_barcoder  -i {params.basecalled_dir}  -t {threads} --kit SQK16S-GXO -s {params.basecalled_dir} -r			
 # 			"""
 
-# else:
 
 rule guppy_basecalling:
 	input:
