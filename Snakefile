@@ -184,8 +184,8 @@ rule merge_fastq:
 	input:
 		basecalled_dir=dirs_dict["BASECALLED"] + "/{barcode}",
 	output:
-		merged_fastq=temp(dirs_dict["QC"] + "/{genome}_{barcode}_merged.fastq"),
-		merged_fastq_porechopped=(dirs_dict["QC"] + "/{genome}_{barcode}_merged_porechop.fastq"),
+		merged_fastq=temp(dirs_dict["QC"] + "/{barcode}_merged.fastq"),
+		merged_fastq_porechopped=(dirs_dict["QC"] + "/{barcode}_merged_porechop.fastq"),
 	conda:
 		"envs/env3.yaml"
 	message:
@@ -199,7 +199,7 @@ rule merge_fastq:
 
 rule map_to_genomes_default:
 	input:
-		merged_fastq_porechopped=(dirs_dict["QC"] + "/{genome}_{barcode}_merged_porechop.fastq"),
+		merged_fastq_porechopped=(dirs_dict["QC"] + "/{barcode}_merged_porechop.fastq"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		sam=dirs_dict["MAPPING"] + "/{genome}_{barcode}_default.sam",
@@ -216,7 +216,7 @@ rule map_to_genomes_default:
 
 rule map_to_genomes_loose:
 	input:
-		merged_fastq_porechopped=(dirs_dict["QC"] + "/{genome}_{barcode}_merged_porechop.fastq"),
+		merged_fastq_porechopped=(dirs_dict["QC"] + "/{barcode}_merged_porechop.fastq"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		sam=dirs_dict["MAPPING"] + "/{genome}_{barcode}_loose.sam",
@@ -233,7 +233,7 @@ rule map_to_genomes_loose:
 
 rule genome_stats:
 	input:
-		merged_fastq_porechopped=(dirs_dict["QC"] + "/{genome}_{barcode}_merged_porechop.fastq"),
+		merged_fastq_porechopped=(dirs_dict["QC"] + "/{barcode}_merged_porechop.fastq"),
 		sam=dirs_dict["MAPPING"] + "/{genome}_{barcode}_{mapping}.sam",
 	output:
 		bam=dirs_dict["MAPPING"] + "/{genome}_{barcode}_{mapping}_sorted.bam",
@@ -283,7 +283,7 @@ rule qualityCheckNanopore_mapped:
 
 rule qualityCheckNanopore:
 	input:
-		merged_fastq_porechopped=(dirs_dict["QC"] + "/{genome}_{barcode}_merged_porechop.fastq"),
+		merged_fastq_porechopped=(dirs_dict["QC"] + "/{barcode}_merged_porechop.fastq"),
 	output:
 		nanoqc_dir=directory(dirs_dict["QC"] + "/{genome}_{barcode}_nanoQC"),
 	message:
