@@ -462,7 +462,7 @@ rule tombo_denovo:
 		stats=dirs_dict["TOMBO"] + "/{genome}_{barcode}_{mapping}.tombo_denovo/{genome}_{barcode}_{mapping}_denovo.tombo.stats" ,
 		significant=dirs_dict["TOMBO"] + "/{genome}_{barcode}_{mapping}.tombo_denovo/{genome}_{barcode}_{mapping}_tombo_denovo_results.significant_regions.fasta",
 	params:
-		name="{genome}_{barcode}_denovo",
+		name="{genome}_{barcode}_{mapping}_denovo",
 		tombo_results_dir=directory(dirs_dict["TOMBO"] + "/{genome}_{barcode}_{mapping}.tombo_denovo"),
 		meme=dirs_dict["TOMBO"] + "/{genome}_{barcode}_{mapping}.tombo_denovo/{genome}_{barcode}_{mapping}_tombo_denovo_results.motif_detection.meme",
 	wildcard_constraints:
@@ -478,7 +478,6 @@ rule tombo_denovo:
 		rm -r {params.tombo_results_dir} || true
 		mkdir {params.tombo_results_dir}
 		cd {params.tombo_results_dir}
-		# tombo filter clear_filters --fast5-basedirs {input.sample}
 		tombo detect_modifications de_novo --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.name} --processes {threads} --corrected-group {wildcards.mapping}
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 100 --num-bases 10 --sequences-filename {output.significant}
