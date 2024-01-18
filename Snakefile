@@ -268,7 +268,7 @@ rule genome_stats:
 
 rule qualityCheckNanopore:
 	input:
-		merged_fastq_porechopped=(dirs_dict["QC"] + "/{genome}_{barcode}_merged_porechop.fastq"),
+		mapped_fastq=(dirs_dict["MAPPING"] + "/{genome}_{barcode}_{mapping}_mapped.fastq"),
 	output:
 		nanoqc_dir=directory(dirs_dict["QC"] + "/{genome}_{barcode}_{mapping}_nanoQC"),
 	message:
