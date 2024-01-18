@@ -404,7 +404,7 @@ rule resquiggle_tombo:
 		tombo resquiggle --dna {input.single_data} {input.genome} --processes {threads} --overwrite --ignore-read-locks --corrected-group "default"
 		touch {output.resquiggled}
 		"""
-
+           
 rule resquiggle_tombo_loose:
 	input:
 		#demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
