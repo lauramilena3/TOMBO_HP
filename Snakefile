@@ -395,6 +395,7 @@ rule resquiggle_tombo:
 rule resquiggle_tombo_loose:
 	input:
 		#demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
+		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{barcode}.txt"),
 		single_data=(dirs_dict["SINGLE"]+ "/{genome}_{barcode}"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
