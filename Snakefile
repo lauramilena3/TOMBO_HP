@@ -230,7 +230,7 @@ rule map_to_genomes_loose:
 rule genome_stats:
 	input:
 		merged_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged.fastq"),
-		genome=GENOME_dir + "/{genome}.fasta",
+		sam=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}.sam",
 	output:
 		sam=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}.sam",
 		bam=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_sorted.bam",
@@ -249,7 +249,7 @@ rule genome_stats:
 	threads: 1
 	shell:
 		"""
-		samtools view -bS {output.sam} | samtools sort -o {output.bam}
+		samtools view -bS {input.sam} | samtools sort -o {output.bam}
 		samtools index {output.bam}
 		
 		bedtools genomecov -ibam {output.bam} -bg -strand + > {output.plus_cov}
