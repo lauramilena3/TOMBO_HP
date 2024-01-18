@@ -374,7 +374,6 @@ rule multi_to_single_fast5:
 # 		touch {output.annotated}
 # 		"""
 
-
 rule resquiggle_tombo:
 	input:
 		#demultiplexed_dir=dirs_dict["DEMULTIPLEXED"] + "/{barcode}",
@@ -399,7 +398,6 @@ rule resquiggle_tombo_loose:
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		resquiggled=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{barcode}_loose.txt"),
-		params 
 	threads: 16
 	conda:
 		"envs/env1_loose.yaml"
