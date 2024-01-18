@@ -31,8 +31,8 @@ BARCODES = list( dict.fromkeys(BARCODES) )
 BARCODES = list(filter(None, BARCODES))
 MAPPING_TYPES= ["default", "loose"]
 
-dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "GENOMES", "BASECALLED", "DEMULTIPLEXED", "SINGLE", "QC", "TOMBO", "ASSEMBLY_DIR", "PLOTS_DIR", "RAW_NOTEBOOKS","NOTEBOOKS_DIR"]
-dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools" ,GENOME_dir , OUTPUT_DIR + "/01_BASECALLED", OUTPUT_DIR + "/02_DEMULTIPLEXED", OUTPUT_DIR + "/03_FAST5_SINGLE", OUTPUT_DIR + "/04_QC" , OUTPUT_DIR + "/05_TOMBO", OUTPUT_DIR + "/06_ASSEMBLY", OUTPUT_DIR + "/FIGURES_AND_TABLES", "notebooks", OUTPUT_DIR + "/NOTEBOOKS"]
+dir_list = ["RULES_DIR","ENVS_DIR","DB", "TOOLS", "GENOMES", "BASECALLED", "MAPPING", "QC", "DEMULTIPLEXED", "SINGLE", "TOMBO", "ASSEMBLY_DIR", "PLOTS_DIR", "RAW_NOTEBOOKS","NOTEBOOKS_DIR"]
+dir_names = ["rules", "../envs", OUTPUT_DIR + "/db", OUTPUT_DIR + "/tools" ,GENOME_dir , OUTPUT_DIR + "/01_BASECALLED", OUTPUT_DIR + "/02_MAPPING", OUTPUT_DIR + "/03_QC", OUTPUT_DIR + "/04_DEMULTIPLEXED", OUTPUT_DIR + "/05_FAST5_SINGLE" , OUTPUT_DIR + "/06_TOMBO", OUTPUT_DIR + "/07_ASSEMBLY", OUTPUT_DIR + "/FIGURES_AND_TABLES", "notebooks", OUTPUT_DIR + "/NOTEBOOKS"]
 dirs_dict = dict(zip(dir_list, dir_names))
 MODEL_MEGALODON=config['megalodon_model']
 #SAMPLES,=glob_wildcards(RAW_DATA_DIR + "/{{input.sample}}_" +".fast5")
@@ -183,8 +183,8 @@ rule merge_fastq:
 	input:
 		basecalled_dir=dirs_dict["BASECALLED"] + "/{barcode}",
 	output:
-		merged_fastq=temp(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged.fastq"),
-		merged_fastq_porechopped=temp(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
+		merged_fastq=temp(dirs_dict["QC"] + "/{barcode}_vs_{genome}_merged.fastq"),
+		merged_fastq_porechopped=temp(dirs_dict["QC"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
 	conda:
 		"envs/env3.yaml"
 	message:
@@ -198,10 +198,10 @@ rule merge_fastq:
 
 rule map_to_genomes_default:
 	input:
-		merged_fastq_porechopped=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
+		merged_fastq_porechopped=(dirs_dict["QC"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
-		sam=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_default.sam",
+		sam=dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_default.sam",
 	conda:
 		"envs/env1.yaml"
 	message:
@@ -215,10 +215,10 @@ rule map_to_genomes_default:
 
 rule map_to_genomes_loose:
 	input:
-		merged_fastq_porechopped=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
+		merged_fastq_porechopped=(dirs_dict["QC"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
-		sam=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_loose.sam",
+		sam=dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_loose.sam",
 	conda:
 		"envs/env1.yaml"
 	message:
@@ -232,18 +232,18 @@ rule map_to_genomes_loose:
 
 rule genome_stats:
 	input:
-		merged_fastq_porechopped=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
-		sam=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}.sam",
+		merged_fastq_porechopped=(dirs_dict["QC"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
+		sam=dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_{mapping}.sam",
 	output:
-		bam=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_sorted.bam",
-		plus_cov=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_coverage_plus.bedgraph",
-		minus_cov=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_coverage_minus.bedgraph",
-		mapped_list_forward=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_list_mapped_forward.txt",
-		mapped_list_reverse=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_list_mapped_reverse.txt",
-		mapped_fastq_forward=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_mapped_forward.fastq"),
-		mapped_fastq_reverse=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_mapped_reverse.fastq"),
-		mapped_list=dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_fast5_list_mapped.txt",
-		mapped_fastq=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_{mapping}_mapped.fastq"),
+		bam=dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_{mapping}_sorted.bam",
+		plus_cov=dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_{mapping}_coverage_plus.bedgraph",
+		minus_cov=dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_{mapping}_coverage_minus.bedgraph",
+		mapped_list_forward=dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_{mapping}_list_mapped_forward.txt",
+		mapped_list_reverse=dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_{mapping}_list_mapped_reverse.txt",
+		mapped_fastq_forward=(dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_{mapping}_mapped_forward.fastq"),
+		mapped_fastq_reverse=(dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_{mapping}_mapped_reverse.fastq"),
+		mapped_list=dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_{mapping}_fast5_list_mapped.txt",
+		mapped_fastq=(dirs_dict["MAPPING"] + "/{barcode}_vs_{genome}_{mapping}_mapped.fastq"),
 	conda:
 		"envs/env1.yaml"
 	message:
@@ -268,7 +268,7 @@ rule genome_stats:
 
 rule qualityCheckNanopore:
 	input:
-		merged_fastq_porechopped=(dirs_dict["BASECALLED"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
+		merged_fastq_porechopped=(dirs_dict["QC"] + "/{barcode}_vs_{genome}_merged_porechop.fastq"),
 	output:
 		nanoqc_dir=directory(dirs_dict["QC"] + "/{barcode}_{genome}_{mapping}_nanoQC"),
 	message:
