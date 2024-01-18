@@ -458,8 +458,8 @@ rule tombo_sample_compare:
 rule tombo_denovo:
 	input:
 		sample=(dirs_dict["SINGLE"] + "/{genome}_{barcode}"),
-		resquiggled_default=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}_default.txt"),
-		resquiggled_loose=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}_loose.txt"),
+		resquiggled_default=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{barcode}_default.txt"),
+		resquiggled_loose=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{barcode}_loose.txt"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
 		stats=dirs_dict["TOMBO"] + "/{genome}_{barcode}_{mapping}.tombo_denovo/{genome}_{barcode}_{mapping}_denovo.tombo.stats" ,
