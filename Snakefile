@@ -432,8 +432,8 @@ rule tombo_sample_compare:
 		resquiggled_loose_control=(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{control}_loose.txt"),
 		genome=GENOME_dir + "/{genome}.fasta",
 	output:
-		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_{mapping}.tombo_sampleCompare/{genome}_{sample}_{control}_{mapping}.tombo.stats" ,
-		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_{mapping}.tombo_sampleCompare/{genome}_{sample}_{control}_{mapping}_tombo_results.significant_regions.fasta",
+		stats=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_{mapping}.tombo_sampleCompare/{genome}_{sample}_{control}_{mapping}_sampleCompare.tombo.stats" ,
+		significant=dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_{mapping}.tombo_sampleCompare/{genome}_{sample}_{control}_{mapping}_tombo_sampleCompare_results.significant_regions.fasta",
 	params:
 		name="{genome}_{sample}_{control}_{mapping}",
 		tombo_results_dir=directory(dirs_dict["TOMBO"] + "/{genome}_{sample}_{control}_{mapping}.tombo_sampleCompare"),
