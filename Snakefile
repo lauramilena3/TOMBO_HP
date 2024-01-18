@@ -401,7 +401,7 @@ rule resquiggle_tombo:
 		"envs/env1.yaml"
 	shell:
 		"""
-		tombo resquiggle --dna {input.single_data} {input.genome} --processes {threads} --overwrite --ignore-read-locks --corrected-group "default"
+		tombo resquiggle --dna {input.single_data} {input.genome} --processes {threads} --overwrite --ignore-read-locks --corrected-group "{wildcards.genome}_{wildcards.barcode}_default"
 		touch {output.resquiggled}
 		"""
            
@@ -418,7 +418,7 @@ rule resquiggle_tombo_loose:
 		"envs/env1_loose.yaml"
 	shell:
 		"""
-		tombo resquiggle --dna {input.single_data} {input.genome} --processes {threads} --overwrite --ignore-read-locks --corrected-group "loose"
+		tombo resquiggle --dna {input.single_data} {input.genome} --processes {threads} --overwrite --ignore-read-locks --corrected-group "{wildcards.genome}_{wildcards.barcode}_loose"
 		touch {output.resquiggled}
 		"""
 
@@ -450,8 +450,8 @@ rule tombo_sample_compare:
 		cd {params.tombo_results_dir}
 		# tombo filter clear_filters --fast5-basedirs {input.sample}
 		# tombo filter clear_filters --fast5-basedirs {input.control}
-		tombo detect_modifications model_sample_compare --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-file-basename {params.name} --per-read-statistics-basename {params.name} --processes {threads} --corrected-group {wildcards.mapping}
-		tombo text_output browser_files --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd --corrected-group {wildcards.mapping}
+		tombo detect_modifications model_sample_compare --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-file-basename {params.name} --per-read-statistics-basename {params.name} --processes {threads} --corrected-group "{wildcards.genome}_{wildcards.barcode}_{wildcards.mapping}"
+		tombo text_output browser_files --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd --corrected-group "{wildcards.genome}_{wildcards.barcode}_{wildcards.mapping}"
 		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 100 --num-bases 10 --sequences-filename {output.significant} --corrected-group {wildcards.mapping}
 		"""
 
@@ -481,9 +481,8 @@ rule tombo_denovo:
 		rm -r {params.tombo_results_dir} || true
 		mkdir {params.tombo_results_dir}
 		cd {params.tombo_results_dir}
-		tombo detect_modifications de_novo --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.name} --processes {threads} --corrected-group {wildcards.mapping}
-		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd --corrected-group {wildcards.mapping}
-		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 100 --num-bases 10 --sequences-filename {output.significant} --corrected-group {wildcards.mapping}
+		tombo detect_modifications de_novo --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.name} --processes {threads} --corrected-group "{wildcards.genome}_{wildcards.barcode}_{wildcards.mapping}"
+		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd --corrected-group "{wildcards.genome}_{wildcards.barcode}_{wildcards.mapping}"
 		"""
 
 rule tombo_alternative:
@@ -512,9 +511,9 @@ rule tombo_alternative:
 		rm -r {params.tombo_results_dir} || true
 		mkdir {params.tombo_results_dir}
 		cd {params.tombo_results_dir}
-		tombo detect_modifications alternative_model --alternate-bases {wildcards.model} --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.readstats} --processes {threads} --corrected-group {wildcards.mapping}
-		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd --corrected-group {wildcards.mapping}
-		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 10000 --num-bases 10 --sequences-filename {output.significant} --corrected-group {wildcards.mapping}
+		tombo detect_modifications alternative_model --alternate-bases {wildcards.model} --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.readstats} --processes {threads} --corrected-group "{wildcards.genome}_{wildcards.barcode}_{wildcards.mapping}"
+		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd --corrected-group "{wildcards.genome}_{wildcards.barcode}_{wildcards.mapping}"
+		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 10000 --num-bases 10 --sequences-filename {output.significant} --corrected-group "{wildcards.genome}_{wildcards.barcode}_{wildcards.mapping}"
 		"""
 
 rule parse_tombo_results_sampleCompare:
