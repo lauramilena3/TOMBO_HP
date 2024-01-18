@@ -91,9 +91,9 @@ rule demultiplex_run:
 # 	input:
 # 		expand(dirs_dict["MEGALODON"] + "/{barcode}", barcode=BARCODES),
 
-rule deepsignal_run:
-	input:
-		expand(dirs_dict["DEEPSIGNAL"] + "/{barcode}_deepsignal-prob.tsv", barcode=BARCODES),
+# rule deepsignal_run:
+# 	input:
+# 		expand(dirs_dict["DEEPSIGNAL"] + "/{barcode}_deepsignal-prob.tsv", barcode=BARCODES),
 
 rule tombo_run_denovo:
 	input:
