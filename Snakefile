@@ -452,7 +452,7 @@ rule tombo_sample_compare:
 		# tombo filter clear_filters --fast5-basedirs {input.control}
 		tombo detect_modifications model_sample_compare --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-file-basename {params.name} --per-read-statistics-basename {params.name} --processes {threads} --corrected-group "{wildcards.genome}_{wildcards.mapping}"
 		tombo text_output browser_files --fast5-basedirs {input.sample} --control-fast5-basedirs {input.control} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd --corrected-group "{wildcards.genome}_{wildcards.mapping}"
-		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 100 --num-bases 10 --sequences-filename {output.significant} --corrected-group {wildcards.mapping}
+		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 100 --num-bases 10 --sequences-filename {output.significant} --corrected-group "{wildcards.genome}_{wildcards.mapping}"
 		"""
 
 rule tombo_denovo:
@@ -474,7 +474,7 @@ rule tombo_denovo:
 	conda:
 		"envs/env1.yaml"
 	message:
-		"Detecting modified bases with Tombo de novo"
+		"Detecting modified bases with Tombo de novo model"
 	threads: 8
 	shell:
 		"""
@@ -483,6 +483,7 @@ rule tombo_denovo:
 		cd {params.tombo_results_dir}
 		tombo detect_modifications de_novo --fast5-basedirs {input.sample} --statistics-file-basename {params.name} --per-read-statistics-basename {params.name} --processes {threads} --corrected-group "{wildcards.genome}_{wildcards.mapping}"
 		tombo text_output browser_files --fast5-basedirs {input.sample} --statistics-filename {output.stats} --genome-fasta {input.genome} --browser-file-basename {params.name} --file-types coverage valid_coverage fraction dampened_fraction signal signal_sd --corrected-group "{wildcards.genome}_{wildcards.mapping}"
+		tombo text_output signif_sequence_context --statistics-filename {output.stats} --genome-fasta {input.genome} --num-regions 100 --num-bases 10 --sequences-filename {output.significant} --corrected-group "{wildcards.genome}_{wildcards.mapping}"
 		"""
 
 rule tombo_alternative:
@@ -504,7 +505,7 @@ rule tombo_alternative:
 	conda:
 		"envs/env1.yaml"
 	message:
-		"Detecting modified bases with Tombo de novo"
+		"Detecting modified bases with Tombo alternative model"
 	threads: 8
 	shell:
 		"""
