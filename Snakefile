@@ -580,7 +580,7 @@ rule parse_tombo_results_alternative:
 		modfrac_kmers_table= dirs_dict["PLOTS_DIR"] + "/{genome}/alternative_{model}_{mapping}/alternative_{model}_{genome}_{sample}_{mapping}_kmer_modfrac.csv",
 		coverage_png= dirs_dict["PLOTS_DIR"] + "/{genome}/alternative_{model}_{mapping}/alternative_{model}_{genome}_{sample}_{mapping}_per_base_coverage.pdf",
 		dinucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/alternative_{model}_{mapping}/alternative_{model}_{genome}_{sample}_{mapping}_histogram_dinucleotide.pdf",
-		trinucleotide= di/Users/npr203/Downloads/04_TOMBO_parsing_alternative_6mA_Erebus_barcode01_default.ipynbrs_dict["PLOTS_DIR"] + "/{genome}/alternative_{model}_{mapping}/alternative_{model}_{genome}_{sample}_{mapping}_histogram_trinucleotide.pdf",
+		trinucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/alternative_{model}_{mapping}/alternative_{model}_{genome}_{sample}_{mapping}_histogram_trinucleotide.pdf",
 		tetranucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/alternative_{model}_{mapping}/alternative_{model}_{genome}_{sample}_{mapping}_histogram_tetranucleotide.pdf",
 		pentanucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/alternative_{model}_{mapping}/alternative_{model}_{genome}_{sample}_{mapping}_histogram_pentanucleotide.pdf",
 		# hexanucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/alternative_{model}_{mapping}/alternative_{model}_{genome}_{sample}_{mapping}_histogram_hexanucleotide.pdf",
