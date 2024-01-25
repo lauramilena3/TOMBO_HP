@@ -82,7 +82,7 @@ def input_modifications_batch(wildcards):
 		# inputs.extend(expand(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}_loose.txt",sample=row_sample, genome=row_genome)),
 		if len(ALTERNATIVE_MODELS)>0:
 			# inputs.extend(expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{mapping}.tombo_alternative_{model}/{genome}_{sample}_{mapping}.tombo_alternative_{model}.{model}.tombo.stats", sample=row_sample, model=ALTERNATIVE_MODELS, genome=row_genome, mapping=MAPPING_TYPES)),
-			inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/{genome}/alternative_{model}_{mapping}/alternative_{model}_{genome}_{sample}_{mapping}_histogram_dinucleotide.pdf", sample=[row_sample,row_control], genome=row_genome, mapping=MAPPING_TYPES)),
+			inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/{genome}/alternative_{model}_{mapping}/alternative_{model}_{genome}_{sample}_{mapping}_histogram_dinucleotide.pdf", sample=[row_sample,row_control], genome=row_genome, mapping=MAPPING_TYPES, model=ALTERNATIVE_MODELS,)),
 
 	return inputs
 
