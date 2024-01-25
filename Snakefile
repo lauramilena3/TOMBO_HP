@@ -591,8 +591,8 @@ rule parse_tombo_results_alternative:
 		sample="{sample}",
 		mapping="{mapping}",
 		threshold_modfrac=0.3,
-		workdir=OUTPUT_DIR
-		model="{model}""
+		workdir=OUTPUT_DIR,
+		model="{model}",
 	log:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/04_TOMBO_parsing_alternative_{model}_{genome}_{sample}_{mapping}.ipynb"
 	notebook:
