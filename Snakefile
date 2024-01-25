@@ -81,7 +81,8 @@ def input_modifications_batch(wildcards):
 		inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/{genome}/denovo_{mapping}/denovo_{genome}_{sample}_{mapping}_histogram_dinucleotide.pdf", sample=row_sample, genome=row_genome, mapping=MAPPING_TYPES)),
 		# inputs.extend(expand(dirs_dict["TOMBO"] + "/resquiggled_checkpoint_{genome}_{sample}_loose.txt",sample=row_sample, genome=row_genome)),
 		if len(ALTERNATIVE_MODELS)>0:
-			inputs.extend(expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{mapping}.tombo_alternative_{model}/{genome}_{sample}_{mapping}.tombo_alternative_{model}.{model}.tombo.stats", sample=row_sample, model=ALTERNATIVE_MODELS, genome=row_genome, mapping=MAPPING_TYPES)),
+			# inputs.extend(expand(dirs_dict["TOMBO"] + "/{genome}_{sample}_{mapping}.tombo_alternative_{model}/{genome}_{sample}_{mapping}.tombo_alternative_{model}.{model}.tombo.stats", sample=row_sample, model=ALTERNATIVE_MODELS, genome=row_genome, mapping=MAPPING_TYPES)),
+			inputs.extend(expand(dirs_dict["PLOTS_DIR"] + "/{genome}/alternative_{model}_{mapping}/alternative_{model}_{genome}_{sample}_{mapping}_histogram_dinucleotide.pdf", sample=[row_sample,row_control], genome=row_genome, mapping=MAPPING_TYPES)),
 
 	return inputs
 
@@ -570,6 +571,32 @@ rule parse_tombo_results_deNovo:
 		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/04_TOMBO_parsing_deNovo_{genome}_{sample}_{mapping}.ipynb"
 	notebook:
 		dirs_dict["RAW_NOTEBOOKS"] + "/04_TOMBO_parsing_deNovo.py.ipynb"
+
+rule parse_tombo_results_alternative:
+	input:
+		stats_alternative=dirs_dict["TOMBO"] + "/{genome}_{sample}_{mapping}.tombo_alternative_{model}/{genome}_{sample}_{mapping}.tombo_alternative_{model}.{model}.tombo.stats" ,
+	output:
+		modfrac_png= dirs_dict["PLOTS_DIR"] + "/{genome}/alternative_{model}_{mapping}/alternative_{model}_{genome}_{sample}_{mapping}_per_base_modfrac_10000.pdf",
+		modfrac_kmers_table= dirs_dict["PLOTS_DIR"] + "/{genome}/alternative_{model}_{mapping}/alternative_{model}_{genome}_{sample}_{mapping}_kmer_modfrac.csv",
+		coverage_png= dirs_dict["PLOTS_DIR"] + "/{genome}/alternative_{model}_{mapping}/alternative_{model}_{genome}_{sample}_{mapping}_per_base_coverage.pdf",
+		dinucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/alternative_{model}_{mapping}/alternative_{model}_{genome}_{sample}_{mapping}_histogram_dinucleotide.pdf",
+		trinucleotide= di/Users/npr203/Downloads/04_TOMBO_parsing_alternative_6mA_Erebus_barcode01_default.ipynbrs_dict["PLOTS_DIR"] + "/{genome}/alternative_{model}_{mapping}/alternative_{model}_{genome}_{sample}_{mapping}_histogram_trinucleotide.pdf",
+		tetranucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/alternative_{model}_{mapping}/alternative_{model}_{genome}_{sample}_{mapping}_histogram_tetranucleotide.pdf",
+		pentanucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/alternative_{model}_{mapping}/alternative_{model}_{genome}_{sample}_{mapping}_histogram_pentanucleotide.pdf",
+		# hexanucleotide= dirs_dict["PLOTS_DIR"] + "/{genome}/alternative_{model}_{mapping}/alternative_{model}_{genome}_{sample}_{mapping}_histogram_hexanucleotide.pdf",
+	params:
+		tombo_dir=dirs_dict["TOMBO"],
+		figdir=dirs_dict["PLOTS_DIR"],
+		genome="{genome}",
+		sample="{sample}",
+		mapping="{mapping}",
+		threshold_modfrac=0.3,
+		workdir=OUTPUT_DIR
+		model="{model}""
+	log:
+		notebook=dirs_dict["NOTEBOOKS_DIR"] + "/04_TOMBO_parsing_alternative_{model}_{genome}_{sample}_{mapping}.ipynb"
+	notebook:
+		dirs_dict["RAW_NOTEBOOKS"] + "/04_TOMBO_parsing_alternative.py.ipynb"
 
 # rule deepsignal:
 # 	input:
