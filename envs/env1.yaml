@@ -19,6 +19,7 @@ dependencies:
   - minimap2 =2.26
   - samtools =1.14
   - bedtools =2.29.2.0
+  - parallel ==20160622
   - pip =19.3.1
   - pip:
     - ont-fast5-api
