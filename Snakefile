@@ -505,7 +505,6 @@ rule tombo_alternative:
 		tombo_results_dir=(dirs_dict["TOMBO"] + "/{genome}_{sample}_{mapping}.tombo_alternative_{model}"),
 		readstats="{genome}_{sample}_{mapping}.tombo_alternative_{model}_per_read" ,
 	wildcard_constraints:
-		control="barcode..",
 		sample="barcode..",
 	conda:
 		"envs/env1.yaml"
