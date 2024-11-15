@@ -1,10 +1,12 @@
 channels:
+  - conda-forge
   - defaults
   - bioconda
-  - conda-forge
 dependencies:
   - clair3 =1.0.10
   - python =3.9.0
+  - ncurses =6.4
+  - samtools = 1.15.1
 #   - java-jdk =8.0.112
 #   - hdf5 =1.10.4
 #   - numpy =1.11.3
